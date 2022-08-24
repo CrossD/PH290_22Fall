@@ -33,7 +33,7 @@ a, a > code {
 
 /* H1 fonts */
 .title-slide h1 {
-  color: #C8102E;
+  color: #003262;
   padding-top: 100px;
   font-weight: normal;
   font-size: 60px;
@@ -46,7 +46,7 @@ a, a > code {
 
 /* H2 fonts */
 .title-slide h2 {
-  color: #C8102E;
+  color: #003262;
   font-size: 34px;
   text-align: center;
   text-shadow: none;
@@ -140,9 +140,9 @@ th, td { padding: 5px; }
   }
 }
 .title-slide {
-  background-image: url("https://upload.wikimedia.org/wikipedia/commons/f/f9/Iowa_State_Cyclones_logo.svg")  ;
+  background-image: url("https://upload.wikimedia.org/wikipedia/commons/a/a5/Berkeley_School_of_Public_Health_logo.svg")  ;
   background-position: 10% 15%, center ;
-  background-size: 200px;
+  background-size: 300px;
   background-color: #fff;
 }
 

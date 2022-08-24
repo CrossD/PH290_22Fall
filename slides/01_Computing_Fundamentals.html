@@ -47,7 +47,7 @@ class: big, middle
 
 ## Hardware architecture
 .center[
-![:scale 40%](images/computingArchitecture1.png)
+![:scale 60%](images/computingArchitecture1.png)
 ]
 
 - processor: does the actual computation
@@ -81,7 +81,7 @@ class: big, middle
 
 ## File paths
 
-- A *path* is a string of characters specifying the location of a file. Programs use it to find files/commands/libraries
+A *path* is a string of characters specifying the location of a file. Programs use it to find files/commands/libraries
 
 E.g., 
 
@@ -96,9 +96,9 @@ E.g.,
     E:/Programs/MRO/R-3.2.3/bin/x64 (used by R)
     ```
     
-- We will use "/" to separate parent/child directories (this works in R on Windows)
+- We will be using "/" to separate parent/child directories
 
-- So many bugs are due to path misspecification!
+- Many bugs are due to path misspecification!
 
 ---
 
@@ -108,21 +108,20 @@ E.g.,
 
 - Most programs have a *(current) working directory*
     - "where you are"
+    - different programs have different working directories
 
 - In R console, `getwd()` shows the working directory
-
-  
-  ```r
-  getwd()
-  ```
-  
-  ```
-  ## [1] "/Users/xdai/Downloads"
-  ```
-  
+    
+    ```r
+    getwd()
+    ```
+    
+    ```
+    ## [1] "/Users/xdai/Downloads"
+    ```
+    
 - So `read.csv('input.csv')` is going to read the file in the folder shown above
 
-- Different programs have different working directories
 
 ---
 
@@ -142,12 +141,12 @@ E.g.,
 ## Basic file types
 
 *Pure text files* contains only human-readable characters. 
-  - Include code files. E.g., `test.R, train.py, Makefile`
-  - Edit using a text editor: e.g., RStudio, Visual Studio Code, sublime, vim, emacs, etc
+  - Include code files. E.g., `test.R`, `train.py`, `Makefile`
+  - Can be edited using a text editor: e.g., RStudio, Visual Studio Code, notepad++, sublime, vim, emacs, etc
   - Good for tracking changes in code
 
 A *binary file* is anything but a text file
-  - E.g., syllabus.pdf, save.RData
+  - E.g., `syllabus.pdf`, `save.RData`
 
 ---
 class: big, middle
@@ -159,34 +158,131 @@ class: big, middle
 
 ## Why R
 
-* One of the most popular data science/statistical programming languages
+- The community
 
-* __Free__  and  __open source__ 
+    * One of the most popular data science/statistical programming languages
+    
+    * __Free__  and  __open source__ 
+    
+    * __Extensible__: 18000+ packages on CRAN, 2000+ on Bioconductor, and many more on github
 
 * __Powerful__ for data analysis
-    
-* __Extensible__: 18000+ packages on CRAN, 2000+ on Bioconductor, and many more on github
 
-
-- R is quite intuitive
+- R is intuitive
 
     - R functions are like functions in math. So `cos(x)` means "give me the value of the cosine of `x`", and it is not going to modify `x`
 
-&lt;!-- - So R is great for functional programming --&gt;
-
-    - R counts from 1 (unlike Python &amp; C++ which counts from 0)
+    - R counts from 1 (unlike Python &amp; C++ which count from 0)
 
 
 
 ---
 
+## How are we going to use R
 
+- R
+
+- Integrated development environments (IDEs)
+
+    - RStudio
+
+    - Other IDEs: [Visual Studio](https://docs.microsoft.com/en-us/visualstudio/rtvs/?view=vs-2017), [Nvim-r for vim](https://github.com/jalvesaq/Nvim-R), and [ESS for emacs](http://ess.r-project.org/). 
+
+- Remotely
+
+    - [DataHub](https://datahub.berkeley.edu/) which give you RStudio, bash, and Jupyter notebook access (by UC Berkeley’s Data Science Education Program)
+
+    - on savio (later)
+
+---
+class: big, middle
+
+# Reproducibility
+
+---
+
+## Reproducibility 
+
+American Statistical Association [defines](https://www.amstat.org/news-listing/2021/10/11/asa-develops-reproducible-research-recommendations):
+
+- *Reproducibility*: A study is reproducible if you can take the original data and the computer code used to analyze the data and reproduce all of the numerical findings from the study.
+
+--
+
+- *Replicability*: This is the act of repeating an entire study, independently of the original investigator without the use of original data (but generally using the same methods).
+
+---
+
+## How to conduct reproducible analysis
+
+The key is to have a piece of code file that give *all* the analysis without user interaction.
+
+Here are some common ways to achieve that
+
+- R code file + writeup
+
+- Rmarkdown (R + Markdown)
+
+- Rnw (R + LaTeX)
+
+- Jupyter notebook
+
+*Your homework and project submissions are expected to be reproducible*
+
+---
+
+class: big, middle
+
+## RMarkdown
+
+---
+
+## Markdown
+
+- `Markdown` is a particular type of **markup** language.
+
+- Markup languages are designed to **produce documents from plain text**
+
+    ```
+    *italic*
+    **bold**
+    
+    # Header 1
+    ## Header 2
+    
+    - List item 1
+    - List item 2
+        - item 2a
+        - item 2b
+    
+    1. Numbered list item 1
+    1. Numbered list item 2
+        - item 2a
+    ```
+
+- You can type an equation inline. E.g., `$y = \beta_1 x^2$` is rendered as `\(y = \beta_1 x^2\)`
+
+    - More in this [quick guide](https://rpruim.github.io/s341/S19/from-class/MathinRmd.html)
+
+---
+
+## Built upon Markdown: RMarkdown
+
+- RMarkdown is an authoring format that enables easy creation of dynamic documents, presentations, and reports from R 
+
+- It combines the core syntax of markdown with embedded R code chunks that are run so their output can be included in the final document.
+
+- R Markdown documents are reproducible. They are generated as if you just start up R.
+
+- Click File -- New File -- RMarkdown -- OK to create a new RMarkDown file. Knit it, and play with the template.
+
+- This [R Markdown Reference Guide](https://www.rstudio.org/links/r_markdown_reference_guide) visualizes how RMarkDown code will be rendered
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script src="macros.js"></script>
 <script>var slideshow = remark.create({
-"highlightLines": true,
+"highlightLines": false,
 "countIncrementalSlides": false
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
@@ -266,24 +362,7 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
       links[i].target = '_blank';
     }
   }
-})();
-// adds .remark-code-has-line-highlighted class to <pre> parent elements
-// of code chunks containing highlighted lines with class .remark-code-line-highlighted
-(function(d) {
-  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
-  const preParents = [];
-  const findPreParent = function(line, p = 0) {
-    if (p > 1) return null; // traverse up no further than grandparent
-    const el = line.parentElement;
-    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
-  };
-
-  for (let line of hlines) {
-    let pre = findPreParent(line);
-    if (pre && !preParents.includes(pre)) preParents.push(pre);
-  }
-  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
-})(document);</script>
+})();</script>
 
 <script>
 slideshow._releaseMath = function(el) {
