@@ -1,0 +1,268 @@
+---
+title: "Computing Fundamentals"
+subtitle: "STAT486/586"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+
+## Outline
+
+- Basics about computing
+
+- R and how are we going to use it
+
+- Reproducibility
+
+---
+class: big, middle
+
+# Basics about computing
+
+---
+
+## Hardware architecture
+.center[
+![:scale 40%](images/computingArchitecture1.png)
+]
+
+- processor: does the actual computation
+- memory: intermediate capacity storage, temporary, fast to read and write
+- hard drive: large capacity storage, store your files, slow to read and write
+
+---
+
+## Operating systems
+.center[
+![](https://computersciencewiki.org/images/0/0d/Os_family_tree.png)
+    Source: [Computer Science wiki](https://computersciencewiki.org/images/0/0d/Os_family_tree.png)
+]
+
+- Most large-scale scientific computing is performed on Linux platforms
+- We will learn the full monty using either Windows/MacOS/Linux
+
+---
+
+## Shells and kernels
+
+.center[
+![:scale 40%](https://bash.cyberciti.biz/uploads/bashwiki/3/38/Rela.gif)
+    [Source](https://bash.cyberciti.biz/guide/What_is_Linux_Kernel)
+]
+
+- A *kernel* consists of low-level programs that manage the operation of hardware
+- A *shell* is either a graphical user interface (GUI) or text-based user interface (TUI) to the system services
+
+---
+
+## File paths
+
+- A *path* is a string of characters specifying the location of a file. Programs use it to find files/commands/libraries
+
+E.g., 
+
+- On MacOS & linux: 
+    ```
+    /Users/xdai/test
+    ```
+
+- On Windows:
+    ```
+    D:\Research\program\toy.m (used by File Explorer)
+    E:/Programs/MRO/R-3.2.3/bin/x64 (used by R)
+    ```
+    
+- We will use "/" to separate parent/child directories (this works in R on Windows)
+
+- So many bugs are due to path misspecification!
+
+---
+
+## Current working directory
+
+```{r, include=FALSE}
+knitr::opts_knit$set(root.dir = '~/Downloads')
+```
+
+- Most programs have a *(current) working directory*
+    - "where you are"
+
+- In R console, `getwd()` shows the working directory
+
+  ```{r}
+  getwd()
+  ```
+  
+- So `read.csv('input.csv')` is going to read the file in the folder shown above
+
+- Different programs have different working directories
+
+---
+
+## Absolute and relative paths
+
+- An *absolute path* is the location of a file on the hard disk. An absolute path always starts with an `/`. E.g., `/` (the root folder), `/Users/xdai`, `/mnt/c/My Documents`
+    - Avoid absolute path in your code because they make the code non-reproducible
+    
+- A *relative path* is the location of a file relative to the current working directory. E.g., 
+    - `.` (current directory), 
+    - `..` (parent directory), 
+    - `input.csv` (`input.csv` in the current directory), and 
+    - `../documents/input.csv` (`input.csv` in the `documents/` folder located in the parent directory)
+    
+---
+
+## Basic file types
+
+*Pure text files* contains only human-readable characters. 
+  - Include code files. E.g., `test.R, train.py, Makefile`
+  - Edit using a text editor: e.g., RStudio, Visual Studio Code, sublime, vim, emacs, etc
+  - Good for tracking changes in code
+
+A *binary file* is anything but a text file
+  - E.g., syllabus.pdf, save.RData
+
+---
+class: big, middle
+
+# R and how are we going to use it
+
+
+---
+
+## Why R
+
+* One of the most popular data science/statistical programming languages
+
+* __Free__  and  __open source__ 
+
+* __Powerful__ for data analysis
+    
+* __Extensible__: 18000+ packages on CRAN, 2000+ on Bioconductor, and many more on github
+
+
+- R is quite intuitive
+
+    - R functions are like functions in math. So `cos(x)` means "give me the value of the cosine of `x`", and it is not going to modify `x`
+
+<!-- - So R is great for functional programming -->
+
+    - R counts from 1 (unlike Python & C++ which counts from 0)
+
+```{r, eval = FALSE, echo = FALSE}
+devtools::install_github("metacran/crandb")
+pkgs <- crandb::list_packages(limit = 999999)
+length(pkgs)
+# [1] 15352
+```
+
+---
+
+## How are we going to use R
+
+- R
+
+- Integrated developmental environment
+
+    - RStudio
+
+    - Other dev environments: [Visual Studio](https://docs.microsoft.com/en-us/visualstudio/rtvs/?view=vs-2017), [Nvim-r for vim](https://github.com/jalvesaq/Nvim-R), and [ESS for emacs](http://ess.r-project.org/). 
+
+- Remotely
+
+    - [DataHub](https://datahub.berkeley.edu/) which give you RStudio, bash, and Jupyter notebook access (by UC Berkeley’s Data Science Education Program)
+
+    - on savio (later)
+
+---
+class: big, middle
+
+# Reproducibility
+
+---
+
+## Reproducibility 
+
+American Statistical Association defines:
+
+- *Reproducibility*: A study is reproducible if you can take the original data and the computer code used to analyze the data and reproduce all of the numerical findings from the study.
+
+
+---
+
+## How to conduct reproducible analysis
+
+The key is to have a piece of code file that give *all* the analysis without user interaction.
+
+Here are some common ways to achieve that
+
+- R code file + writeup
+
+- Rmarkdown (R + Markdown)
+
+- Rnw (R + LaTeX)
+
+- Jupyter notebook
+
+*Your homework and project submissions are expected to be reproducible.*
+
+--- 
+
+## Markdown
+
+- `Markdown` is a particular type of **markup** language.
+
+- Markup languages are designed to **produce documents from plain text**.
+
+```
+*italic*
+**bold**
+
+# Header 1
+## Header 2
+### Header 3
+
+- List item 1
+- List item 2
+    - item 2a
+    - item 2b
+
+1. Numbered list item 1
+1. Numbered list item 2
+    - item 2a
+    - item 2b
+```
+
+- You can type an equation inline. E.g., `$y = \beta_1 x^2$` is rendered as $y = \beta_1 x^2$
+
+    - More in this [quick guide](https://rpruim.github.io/s341/S19/from-class/MathinRmd.html)
+
+---
+
+## Built upon Markdown: RMarkdown
+
+- RMarkdown is an authoring format that enables easy creation of dynamic documents, presentations, and reports from R 
+
+- It combines the core syntax of markdown with embedded R code chunks that are run so their output can be included in the final document.
+
+- R Markdown documents are reproducible. They are generated as if you just start up R.
+
+- Click File -- New File -- RMarkdown -- OK to create a new RMarkDown file. Knit it, and play with the template.
+
+- This [R Markdown Reference Guide](https://www.rstudio.org/links/r_markdown_reference_guide) visualizes how RMarkDown code will be rendered
+
+---
+
+## Recources about basic R
+
