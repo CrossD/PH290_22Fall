@@ -1,5 +1,5 @@
 ---
-title: "Computing Fundamentals"
+title: "R Objects"
 subtitle: "STAT486/586"
 author: "Xiongtao Dai"
 output:

@@ -83,20 +83,20 @@ class: big, middle
 
 A *path* is a string of characters specifying the location of a file. Programs use it to find files/commands/libraries
 
-E.g., 
 
-- On MacOS &amp; linux: 
+
+- On MacOS &amp; linux, "/" separates parent/child directories. E.g.,  
     ```
     /Users/xdai/test
     ```
 
-- On Windows:
+- On Windows, "\\" is the path separator, but R uses "/" as well:
     ```
     D:\Research\program\toy.m (used by File Explorer)
     E:/Programs/MRO/R-3.2.3/bin/x64 (used by R)
     ```
     
-- We will be using "/" to separate parent/child directories
+- We will be using "/" throughout
 
 - Many bugs are due to path misspecification!
 
