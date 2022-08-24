@@ -10,7 +10,7 @@ a, a > code {
 }
 
 .inverse {
-  background-color: #C8102E;
+  background-color: #003262;
   color: #f3f3f3;
   text-shadow: 0 0 20px #333;
 }
@@ -24,7 +24,7 @@ a, a > code {
   background-color: #ffff88; 
 }
 .inverse  .remark-code-line, .inverse .remark-inline-code { 
-  background: #B0102E;
+  background: #005292;
 }
 .remark-slide-content h1 {
   font-family: 'Open Sans';
