@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Functional programming</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.15/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Functional programming
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- What is functional programming
+
+- Applying functions repeatedly
+
+- Combining results
+
+- Applying functions by group
+
+---
+
+## Functional programming
+
+- *functional programming* is a programming paradigm where programs are constructed by applying and combining functions
+
+- This is as opposed to the *procedural programming* paradigm, where one specifies the series of computational steps to be carried out
+
+- R is, by and large, a functional programming language
+
+- In R, function is a first class object, namely a function behaves just like an ordinary variable
+
+
+```r
+f &lt;- mean
+f(1:5)
+```
+
+```
+## [1] 3
+```
+
+- Most R functions are *pure functions*. For a pure function,
+    1. identical inputs will result in identical outputs (no local states)
+    1. the function does not have side-effects (e.g., no modification of the inputs in-place or any global variables)
+
+---
+
+## Why functional programming
+
+- For the following code to run, download the files [1.csv](1.csv), [2.csv](2.csv), and [3.csv](3.csv) and put them side-by-side your R script. Remember to set the working directory to the source file location 
+
+- Functional programming is clear and concise. E.g., to read in several files in 
+```
+files &lt;- c("1.csv", "2.csv", "3.csv")
+```
+
+
+
+.pull-left[
+Functional style
+```
+purrr::map(files, read.csv)
+```
+]
+
+.pull-right[
+Procedural style
+```
+results &lt;- vector("list", 
+                  length(files))
+for (i in seq_along(files)) {
+  results[[i]] &lt;- read.csv(files[i])
+}
+```
+]
+
+- A functional programming style is great to use for programming statistical/mathematical methods
+
+- .style[You may think you can do everything using loops, but the complexity will prevent you to build big things. Using functional programming, you will gain much more mileage as we learn more ]
+
+---
+class: big, middle
+
+## Applying functions
+
+---
+
+## `purrr`
+
+- We will be using the functional programming library `purrr`
+
+- `purrr` is a complete and consistent set of tools to enhance R’s basic functional programming toolkit
+
+- Load the library using 
+
+
+```r
+library(purrr)
+```
+
+```
+## 
+## Attaching package: 'purrr'
+```
+
+```
+## The following object is masked from 'package:testthat':
+## 
+##     is_null
+```
+
+---
+
+## Applying a function to different inputs
+
+`map(.x, .f,)` applies the function `.f` to each entry in `.x`
+
+.center[
+![:scale 30%](https://d33wubrfki0l68.cloudfront.net/f0494d020aa517ae7b1011cea4c4a9f21702df8b/2577b/diagrams/functionals/map.png)
+&lt;/br&gt;Figures are due to [Hadley Wickham](https://adv-r.hadley.nz/functionals.html)
+]
+
+- The input `.x` may be a list or a vector
+- The output of `.f` can be anything, so `map` is very general
+- `map` always returns a list
+
+
+```r
+x &lt;- list(c(1, 2, 3, 10), 2:3)
+map(x, mean)
+## [[1]]
+## [1] 4
+## 
+## [[2]]
+## [1] 2.5
+```
+
+---
+
+- You can define an arbitrary function and use it with map.
+
+
+```r
+standardize &lt;- function(v) {
+	(v - mean(v)) / sd(v)
+}
+map(x, standardize)
+```
+
+```
+## [[1]]
+## [1] -0.7348469 -0.4898979 -0.2449490  1.4696938
+## 
+## [[2]]
+## [1] -0.7071068  0.7071068
+```
+
+- You can use an *anonymous function* to perform short tasks that do not warrant names
+
+
+```r
+map(x, function(v) (v - mean(v)) / sd(v))
+```
+or
+
+```r
+map(x, function(v) { # calculate the 2nd moment
+  v2 &lt;- v^2
+  mean(v2)
+})
+```
+
+---
+
+## Returning atomic vectors
+
+- You can convert a list of scalars to a vector using `unlist`
+
+- Better yet, use `purrr` functions that returns a *scalar* of specific types:
+
+    ```
+    map_dbl(.x, .f) # double-precision floating number
+    map_int(.x, .f) # integer
+    map_lgl(.x, .f) # logical
+    map_chr(.x, .f) # character
+    ```
+
+- The usages of these functions are the same as `map()`, except that when using `map_***`, the output of your function `.f` must be a scalar of type `***`
+
+- The output of `map_***` is guaranteed to be a vector of type `***`
+
+- These functions are more specific, and thus more rigorous and easier to reason with. They help you check that your output is as you expected, so you can discover any issues early
+
+---
+
+
+
+```r
+map_dbl(x, mean)
+```
+
+```
+## [1] 4.0 2.5
+```
+
+If the result of `.f` is not a scalar, you will have an error
+
+```r
+map_dbl(x, summary)
+```
+
+```
+## Error in `stop_bad_type()`:
+## ! Result 1 must be a single double, not a vector of class `summaryDefault/table` and of length 6
+```
+
+Use `map` if `.f` outputs vectors of different types or with length &gt; 1
+
+```r
+str(map(x, summary))
+```
+
+```
+## List of 2
+##  $ : 'summaryDefault' Named num [1:6] 1 1.75 2.5 4 4.75 10
+##   ..- attr(*, "names")= chr [1:6] "Min." "1st Qu." "Median" "Mean" ...
+##  $ : 'summaryDefault' Named num [1:6] 2 2.25 2.5 2.5 2.75 3
+##   ..- attr(*, "names")= chr [1:6] "Min." "1st Qu." "Median" "Mean" ...
+```
+
+---
+## Combining results
+
+What if the results from calling `.f` are vectors of the same length, and I want to combine the results?
+
+- `do.call(f, aList)` is the same as calling `f` using the entries of `aList` as arguments
+
+- So `do.call(cbind, list(a=1, b=2))` is the same as `cbind(a=1, b=2)`
+
+- `do.call(rbind, res)` combines the results by row
+
+
+```r
+res &lt;- map(x, summary)
+do.call(rbind, res)
+```
+
+```
+##      Min. 1st Qu. Median Mean 3rd Qu. Max.
+## [1,]    1    1.75    2.5  4.0    4.75   10
+## [2,]    2    2.25    2.5  2.5    2.75    3
+```
+
+- `do.call(cbind, res)` combines the results by column
+
+---
+## Passing optional arguments
+
+```
+map(.x, .f, ...)
+map_dbl(.x, .f, ...) # and so on
+```
+
+You can specify common optional arguments to your function using `...`
+
+.center[
+![:scale 50%](https://d33wubrfki0l68.cloudfront.net/e1b3536a7556aef348f546a79277125c419a5fdc/0c0a1/diagrams/functionals/map-arg.png)
+]
+
+```r
+y &lt;- list(c(NA, 1:5), 2:3)
+map(y, mean, na.rm=TRUE)
+```
+
+```
+## [[1]]
+## [1] 3
+## 
+## [[2]]
+## [1] 2.5
+```
+
+---
+class: inverse
+
+## Your turn
+
+Start with a list
+```
+l &lt;- list(c(1, 3, 5, 100),
+          c(NA, 3, 5, 100),
+          c(NA, 1:10, 100))
+```
+
+&lt;img src="images/green.png" width=20&gt; Find the sum of the values in each entry of `l` using `map`. It is OK to have `NA` values in your result
+
+&lt;img src="images/green.png" width=20&gt; Find the sum of the values in each entry of `l`. The returned value should be a numeric vector (but not a list) this time
+
+&lt;img src="images/green.png" width=20&gt; Redo the last question, but this time remove missing values
+
+---
+
+## Nested maps
+Suppose that we want to find the trimmed means of entries x, and try either no trimming or 30% trimming.
+
+
+```r
+map(x, function(xx) {
+  map_dbl(c(0, 0.3), function(trim) mean(xx, trim=trim))
+  # same as: map_dbl(c(0, 0.3), mean, x=xx)
+})
+```
+
+```
+## [[1]]
+## [1] 4.0 2.5
+## 
+## [[2]]
+## [1] 2.5 2.5
+```
+
+---
+## Calling special functions
+
+- Most of the times, functions are in the *prefix form* like `f(x)`
+
+- You have used some operators that are written down a bit specially. E.g., `x + y` and `z[["field"]]`
+
+- These operators are actually all functions
+  - `+` is an *infix function*. The infix form is `x + y`. The equivalent prefix form is 
+      ```
+      `+`(x, y)
+      ```
+  - `[[` is an *extraction function*. The infix form is `x[[name]]`. The prefix form is
+      ```
+      `[[`(x, name)
+      ```
+  - Remember to use backtick to quote these functions when calling them or searching the documentations for them
+  
+- Other infix operators `*, /, %in%` and extractors `[` are similar
+
+---
+
+- `purrr` functions can be used to call these special functions
+
+
+```r
+map(x, `+`, 1)
+```
+
+```
+## [[1]]
+## [1]  2  3  4 11
+## 
+## [[2]]
+## [1] 3 4
+```
+
+```r
+map(x, `[`, 2)
+```
+
+```
+## [[1]]
+## [1] 2
+## 
+## [[2]]
+## [1] 3
+```
+
+```r
+map(x, 2) # shorthand for extracting the 2nd entry
+```
+
+```
+## [[1]]
+## [1] 2
+## 
+## [[2]]
+## [1] 3
+```
+
+---
+
+## Other variants of `map`
+
+- `walk(.x, .f)` calls `.f` for its side-effect (making plots, save files, etc) but not for returning new results
+
+- `imap(.x, .f)`, `imap_dbl`, `imap_chr`, `iwalk`, etc 
+  - iterate over `.x` with an index (either an integer position or a name, depending on whether `.x` is named). E.g.,
+    
+    ```r
+    imap(x, function(x, i) {
+      stringr::str_c("Field ", i, " has mean ", mean(x))
+    })
+    ```
+    
+    ```
+    ## [[1]]
+    ## [1] "Field 1 has mean 4"
+    ## 
+    ## [[2]]
+    ## [1] "Field 2 has mean 2.5"
+    ```
+---
+
+## Other variants of `map`: Varying 2 inputs
+
+
+`map2(.x, .y, .f)` applies the function `.f` to each parallel pair of entries in `.x` and `.y`
+
+
+.center[
+![:scale 50%](https://d33wubrfki0l68.cloudfront.net/f5cddf51ec9c243a7c13732b0ce46b0868bf8a31/501a8/diagrams/functionals/map2.png)
+]
+
+
+```r
+map2(x, 
+     c(0.3, 0), 
+     function(v, trim) mean(v, trim=trim))
+```
+
+```
+## [[1]]
+## [1] 2.5
+## 
+## [[2]]
+## [1] 2.5
+```
+
+---
+
+## Other variants of `map`: Varying `\(p\)` inputs
+
+
+`pmap(.l, .f)` applies `.f` to each parallel collection of entries in `.l`
+
+
+.center[
+![:scale 50%](https://d33wubrfki0l68.cloudfront.net/e698354d802ce16f83546db63c45a19b8d51f45e/43de7/diagrams/functionals/pmap-3.png)
+]
+
+
+```r
+l &lt;- list(
+  c(1, 3, 5),
+  c(4, 6, 8),
+  c(1, 1, 2)
+)
+pmap(l, function(a, b, c) seq(a, b, by=c))
+## [[1]]
+## [1] 1 2 3 4
+## 
+## [[2]]
+## [1] 3 4 5 6
+## 
+## [[3]]
+## [1] 5 7
+```
+
+---
+## More variants with &gt;1 inputs
+
+- `map2_dbl`, `map2_chr`, `map2_lgl`, `walk2` etc are also available to map over 2 arguments
+
+- `pmap_dbl`, `pmap_chr`, `pmap_lgl`, `pwalk` etc are also available to map over multiple arguments
+
+---
+class: inverse
+
+## Your turn
+
+Start with a list
+```
+l &lt;- list(c(1, 3, 5, 100),
+          c(NA, 3, 5, 100),
+          c(NA, 1:10, 100))
+```
+
+&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `imap`
+
+&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `map2`
+
+&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `pmap`
+
+---
+class: big, middle
+
+## Calling a function by group
+
+---
+## Calling a function by group
+
+- `split(x, f)` separates a vector/data frame `x` according to a factor `f` and returns a list of data frames, each corresponding to one group
+
+
+```r
+sLenBySpecies &lt;- split(iris$Sepal.Length, iris$Species)
+summary(sLenBySpecies)
+```
+
+```
+##            Length Class  Mode   
+## setosa     50     -none- numeric
+## versicolor 50     -none- numeric
+## virginica  50     -none- numeric
+```
+
+- We can then apply the `map` function and friends to the grouped data
+
+```r
+map(sLenBySpecies, summary)
+```
+
+```
+## $setosa
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.300   4.800   5.000   5.006   5.200   5.800 
+## 
+## $versicolor
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.900   5.600   5.900   5.936   6.300   7.000 
+## 
+## $virginica
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.900   6.225   6.500   6.588   6.900   7.900
+```
+
+---
+
+## Base R apply functions (optional)
+
+- `lapply`, `sapply`, `vapply`: map functions over a vector or a list; the formats of the returned values differs
+
+- `apply`: map functions over margins of a matrix or array
+
+- `tapply`, `by`, `aggregate`: map functions for each group
+
+
+
+---
+class: big, middle
+
+## Reduce and accumulate
+
+---
+
+## Reduce
+
+- Heard about the [map-reduce framework](https://www.scnsoft.com/blog-pictures/business-intelligence/spark-vs-hadoop.png) for big data?
+
+- Here, "map" means the same as the `map` function, applying the same operation to many inputs, generating multiple intermediate results. E.g., calculate the total sales *in each state in the US*
+
+- "Reduce" means combine the intermediate results to have a final, aggregated result. E.g., *combine* the sales per state to calculate a total sales
+
+- This is done by combining sales in the first two states, and then that with the third, and so on
+
+
+---
+The `reduce` function in `purrr` performs the reduce operation
+
+.center[
+![:scale 40%](https://d33wubrfki0l68.cloudfront.net/9c239e1227c69b7a2c9c2df234c21f3e1c74dd57/eec0e/diagrams/functionals/reduce.png)
+]
+
+- E.g, sum up vectors containing (revenue, profit)
+
+```r
+l &lt;- list(IA = c(2, 1), NE = c(1.5, 1), IL=c(5, 2))
+reduce(l, `+`)
+## [1] 8.5 4.0
+```
+
+- `.init` specifies the initial value before any combination. The first item will be combined with the initial value
+
+
+```r
+reduce(l, `+`, .init=c(0, -1))
+## [1] 8.5 3.0
+```
+
+---
+
+## Accumulate
+
+`accumulate` works like `reduce`, except that `accumulate` keeps all intermediate combined results
+
+
+```r
+accumulate(l, `+`)
+```
+
+```
+## $IA
+## [1] 2 1
+## 
+## $NE
+## [1] 3.5 2.0
+## 
+## $IL
+## [1] 8.5 4.0
+```
+
+
+---
+class: inverse
+
+## Your turn
+
+&lt;img src="images/green.png" width=20&gt; Work with the `mtcars` dataset. Split it into multiple datasets using `split` according to the number of cylinders `mtcars$cyl`
+
+&lt;img src="images/blue.png" width=20&gt; Use `map` to find the correlations between mileage `mpg` and car weight `wt` for cars grouped by the number of cylinders
+
+For the next question, start with a list
+```
+l3 &lt;- list(c(1, 3, 5, 100),
+          c(3, 6, 7),
+          c(7, 8, 9))
+```
+
+
+&lt;img src="images/green.png" width=20&gt; Use `reduce` and `c` to concatenate all entries in `l3`
+
+&lt;img src="images/blue.png" width=20&gt; Use `reduce` and `intersect` to find the elements that appear in every entry in `l3`. Hint: `intersect(x, y)` gives the intersect of `x` and `y` (i.e. elements appearing in both sets)
+
+---
+
+## References
+
+- Chapters 6 and 9, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

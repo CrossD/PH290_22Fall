@@ -1,6 +1,6 @@
 ---
 title: "R Functions"
-subtitle: "STAT486/586"
+subtitle: "PH 290"
 author: "Xiongtao Dai"
 output:
   xaringan::moon_reader:

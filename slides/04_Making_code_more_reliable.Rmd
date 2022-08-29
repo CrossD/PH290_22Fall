@@ -1,11 +1,12 @@
 ---
 title: "Making code more reliable"
-subtitle: "STAT486/586"
+subtitle: "PH 290"
 author: "Xiongtao Dai"
 output:
   xaringan::moon_reader:
     css: [myslides.css, myslides-fonts.css]
     lib_dir: libs
+    chakra: libs/remark-latest.min.js
     nature:
       beforeInit: "macros.js"
       highlightLines: false
@@ -77,6 +78,8 @@ class:big, middle
 
 - Functions and tests are like duos. They improve each other
 
+- Prevents regression, namely old functionality stops to work after new ones are introduced
+
 - Writing a unit test is not difficult at all. After you finish a freshly written function, you must have written some code to see whether it works or not. *Do not discard the code*, but rather make it a formal unit test
 
 ---
@@ -134,7 +137,7 @@ expect_equal(object, expected, ..., tolerance)
 
 - Finally, group related unit tests using `test_that(desc, code)`:
 
-```{r}
+```{r, eval=FALSE}
 myMean <- function(x, na.rm=FALSE) {
   if (na.rm) {
     x <- x[!is.na(x)]
@@ -149,7 +152,7 @@ test_that("myMean works", {
   z <- c(y, NA)
   expect_equal(myMean(x), 2)
   expect_equal(myMean(y), 0)
-  expect_equal(myMean(z), NA_real_) # NA has types!
+  expect_equal(myMean(z), NA) # NA has types!
   expect_equal(myMean(z, na.rm=TRUE), 0)
 })
 ```
@@ -187,8 +190,104 @@ A good unit test checks whether a *specific aspect* of your code meets your expe
 
 
 ---
+
 class: inverse
 
 ## Your turn
 
 - Add a test for `myMean` to check that the function works if `x` has length 1
+
+---
+
+## Assertions
+
+- `expect_equal()` is an example of *assertion* functions, which does not do anything if expected conditions are met or otherwise gives an error
+
+- `stopifnot(condition)` is the buildin version that gives an error unless `condition` is `TRUE`
+
+- Assertions are also useful when writing a function or an analysis for capturing common mistakes
+
+- Making your function fail faster helps pinpointing the mistake
+    ```{r}
+    GenSample <- function(n) {
+      stopifnot(n >= 1)
+      # ...generate sample
+    }
+    ```
+    ```{r, eval=FALSE}
+    # not real code
+    dat <- CleanData(dat)
+    stopifnot(all(!is.na(dat$Sex)))
+    # ...more analysis
+    ```
+
+---
+
+## Conditions
+
+- You can raise errors, warnings, and messages using `stop()`, `warning()`, and `message()`
+    ```{r, eval=FALSE}
+    stop("Dimensions mismatch")
+    warning("The sample size `n` is too small")
+    message("Creating `figures/` directory")
+    ```
+
+- An error should be raised if the computation cannot continue
+
+- A warning should be used if the computation can continue but the results may not be reliable
+
+- A message is for informing the user something has been done in the background
+
+---
+
+## Handling conditions
+
+- Ignoring conditions
+    ```{r}
+    a <- function(x) {
+      try(someCodeThatErr)
+      x
+    } # Shows the error message, but continues to run
+    a("Oh no")
+
+    suppressWarnings(warning("global warming"))
+    suppressMessages(message("tic toc tic toc"))
+    ```
+
+---
+
+- Handling error
+    ```{r}
+    tryCatch({
+      res <- runAnAlgorithmThatMayErr
+      print("algorithm finishes")
+    }, error=function(x) print("algorithm cannot finish"))
+    ```
+
+- Handling warnings/messages
+    ```{r}
+    withCallingHandlers({
+      warning("algorithm does not converge")
+      NA
+    }, warning=function(x) print("algorithm not converged"))
+    ```
+
+---
+
+## Coding style
+
+- Follow a good coding style, e.g., the [tidyverse style guide](https://style.tidyverse.org/)
+    - Prioritize readability
+    - Consistency
+    - Good naming convention
+    - Nice spacing
+    - Use standard/conventional usage of functions
+
+- Practice defensive coding
+    - Program rigorously
+        - Be clear about the argument/variable/function you are referring to
+        - If unsure about the precedence, clarify using `()`
+        - Use `drop=FALSE` when dealing with matrices and data frames: `aMatrix[, 1, drop=FALSE]`
+    - Program parsimoniously
+        - Don't load packages if not necessary
+    - Use assertions
