@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R Functions</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.15/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R Functions
+]
+.subtitle[
+## STAT486/586
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+
+## Outline
+
+- R functions
+
+- Writing a function
+    
+    - Components
+    
+    - Function factories
+
+---
+
+## Functional programming
+
+- *functional programming* is a programming paradigm where programs are constructed by applying and combining functions
+    - R is, by and large, a functional programming language
+
+- This contrasts with the *procedural programming* paradigm, where one specifies the series of computational steps to be carried out
+
+- In R, functions are first-class citizens, namely functions behave just like ordinary variables
+
+
+```r
+f &lt;- mean
+f(1:5)
+```
+
+```
+## [1] 3
+```
+
+---
+
+- Most R functions are *pure functions*. A function is pure if it satisfies
+    1. the same inputs will produce identical outputs (no local states)
+    1. the function does not have side-effects
+        - no printing, displaying, or writing to the disk
+        - no modification of the inputs in-place
+
+- So most R functions call by value, but not by reference
+
+
+```r
+f &lt;- function(x) {
+  x &lt;- 0
+  x
+}
+x &lt;- 1
+tmp &lt;- f(x)
+x
+```
+
+```
+## [1] 1
+```
+
+---
+
+class: middle
+
+# John Chamber's 2nd Principle of R: Everything that happens in R is a function call
+
+---
+
+## R functions
+
+- Literally, all computation in R is achieved via function calls
+
+- `library(lobstr)` let us inspect R objects, and here for visualizing abstract syntatic trees
+
+
+```r
+library(lobstr)
+ast(1 + 2 * 3)
+```
+
+```
+## █─`+` 
+## ├─1 
+## └─█─`*` 
+##   ├─2 
+##   └─3
+```
+
+---
+
+## R operators
+
+- Operators are functions
+    - binary operators `+`, `%*%`, `%in%`, etc are functions of two variables. Also called infix functions
+    - special operators: `$`, `[`, `[[`, etc are also functions
+    
+- Surround weird a function/variable name with backquotes to access it
+.center[
+![:scale 40%](https://i.stack.imgur.com/ETTnT.jpg)
+]
+
+
+```r
+`+`
+```
+
+```
+## function (e1, e2)  .Primitive("+")
+```
+
+---
+
+## Binary operators
+
+- User defined binary operator must have name surrounded by `%`
+
+```r
+`%rep%` &lt;- function(a, times) rep(a, times)
+"ha" %rep% 3
+```
+
+```
+## [1] "ha" "ha" "ha"
+```
+
+
+---
+
+## Replacement function
+
+- Replacement are done via replacement functions.
+    - E.g., `` `class&lt;-` ``
+
+- A replacement function takes two arguments and returns an object
+
+```r
+`ID&lt;-` &lt;- function(x, value) {
+  attr(x, "Patient ID") &lt;-  value
+  x
+}
+a &lt;- "John Smith"
+ID(a) &lt;- 123
+a
+```
+
+```
+## [1] "John Smith"
+## attr(,"Patient ID")
+## [1] 123
+```
+
+---
+
+## Types of functions
+
+There are three internal types of functions in R
+
+- closure, most of the functions you see
+    
+    ```r
+    typeof(`seq`)
+    ```
+    
+    ```
+    ## [1] "closure"
+    ```
+
+- builtin, R internal functions that call by value. E.g., `+`, `%*%`
+    
+    ```r
+    typeof(`+`)
+    ```
+    
+    ```
+    ## [1] "builtin"
+    ```
+
+- special, R internal functions that do not call by value. Often are language elements. E.g., `$`, `for`
+    
+    ```r
+    typeof(`$`)
+    ```
+    
+    ```
+    ## [1] "special"
+    ```
+
+---
+class: inverse
+
+## Your Turn
+
+&lt;!-- - What does the operator `%in%` do? Look up the help documentation. If you are stuck in the R console, press &lt;Ctrl-C&gt; --&gt;
+
+- Use `lobstr::ast` to inspect the function calls when you evaluate
+```
+for (i in 1:10) {
+    print(i)
+}
+```
+
+- Create an operator `%+%` to connect strings, so that  `"Hello" %+% "World"` gives `"HelloWorld"`
+
+
+---
+class: middle, big
+
+# Writing a function
+
+---
+
+## Why to write a function
+
+- Writing functions make your code more manageable
+
+---
+
+## Messy
+
+.center[
+![:scale 90%](https://live.staticflickr.com/2056/1741289268_00b137f6f9_3k.jpg)
+&lt;/br&gt;Source: [Jason Whittaker](https://www.flickr.com/photos/jason_whittaker/1741289268/in/photostream/)
+]
+
+---
+
+## Organized
+
+.center[
+![:scale 90%](https://live.staticflickr.com/65535/49955606957_b63e9b18a8_3k.jpg)
+&lt;/br&gt;Source: [Neil Cummings](https://www.flickr.com/photos/chanceprojects/49955606957/)
+]
+
+---
+
+- Benefits of writing functions
+
+  - Modularizes code
+  
+  - *Reusable*, so this avoid repetitive coding
+  
+  - More maintainable. As the requirements evolve, you only need to modify code in one place
+
+      - **Don't repeat yourself (DRY)**
+    
+---
+
+![:scale 70%](https://images.squarespace-cdn.com/content/v1/518f5d62e4b075248d6a3f90/1612901398217-CTRZN6X0HWTIXVB5RSKP/c1a.png?format=1500w)
+
+---
+
+## Components of a function
+
+```
+&gt; sd
+function (x, na.rm = FALSE) 
+sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x), 
+    na.rm = na.rm))
+&lt;environment: namespace:stats&gt;
+```
+
+A function consists of three components:
+
+- Formal arguments `formals()`, the argument names and default values. Controls how the function is called
+
+- Function body `body()`, the code inside the function definition
+
+- Environment `environment()`, which controls how the function finds "global" variables and other functions. More later
+
+---
+
+## Argument matching
+
+R matches arguments in the following order. Unmatched arguments in one step will be attempted in subsequent steps
+
+1. exact match by name
+1. partial match by name
+1. by position. Then if there is a `...` argument, it will take up all remaining arguments
+
+If any arguments remain unmatched, R raises an error. 
+
+The following calls are equivalent 
+
+```
+seq(1, 3, length.out=5)
+seq(to=3, length=5, 1)
+```
+
+---
+
+## dot-dot-dot
+
+- `...` is useful for allowing an arbitrary and varying number of input arguments. E.g.,
+    - `sum(..., na.rm = FALSE)`
+    - passing along arguments for plotting:
+        
+        ```r
+        myplot &lt;- function(x, ...) {
+          hist(x, ...)
+          boxplot(x, ...)
+        }
+        myplot(cars$speed, main="car speed", col="red")
+        ```
+
+---
+
+- To program with arguments matched by `...`, 
+    - `..1`, `..2`, `...length()`, and `...names()` are available
+    - `list(...)` converts the arguments
+    
+
+```r
+f &lt;- function(...) {
+  print(..1)
+  print(...length())
+  print(...names())
+  list(...)
+}
+res &lt;- f("B", "P", x="H")
+```
+
+```
+## [1] "B"
+## [1] 3
+## [1] ""  ""  "x"
+```
+
+```r
+res
+```
+
+```
+## [[1]]
+## [1] "B"
+## 
+## [[2]]
+## [1] "P"
+## 
+## $x
+## [1] "H"
+```
+    
+---
+
+## Returning values
+
+- `return(x)` explicitly returns `x` and print
+    
+    - Can return anywhere in the function body. The code that follows will not be executed
+    
+
+```r
+f &lt;- function(x) {
+  if (x &gt;= 1) {
+    return(x)
+  } else {
+    stop("error here")
+  }
+}
+f(1)
+```
+
+```
+## [1] 1
+```
+
+---
+
+- `invisible(x)` returns `x` but do not print. Useful for 
+    
+    ```r
+    # not real code
+    plotMyObj &lt;- function(x, ...) {
+      dat &lt;- getDataFrame()
+      plot(dat, ...)
+      invisible(dat)
+    }
+    ```
+    
+---
+
+## Resetting/cleanup
+
+- `on.exit(expr)` will enforce the function to execute `expr` when it exits (returns or errs). Useful for setting graphical parameters and deleting temporary files
+
+
+```r
+plotAndReset &lt;- function(x) {
+  oldpar &lt;- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+  
+  par(mfrow=c(1, 2))
+  hist(x)
+  plot(x)
+}
+```
+
+---
+
+## Functions as input or output
+
+There is nothing preventing you from having a function as either the input or the output.
+
+- Functions can take a function as input. E.g., `lapply`, `optimize`, `ggplot2::ggsave`
+
+- *Function factories* are functions that returns a function as output: `ecdf`, `approxfun`, `ggplot2:::plot_dev`
+
+- These two types of functions are often used together
+
+---
+
+## Writing a function factory
+
+The following is an example for finding the maximum likelihood estimate (MLE) of `\(\lambda\)` using a function factory and `optimise`. 
+
+Suppose that `\(X_1,\dots, X_n \sim \text{Poisson}(\lambda)\)`. 
+
+We will write a function factory to obtain the log-likelihood given `\(\{X_1,\dots,X_n\}\)`:
+
+
+```r
+getloglik &lt;- function(X) {
+  function(lam) {
+    sum(dpois(X, lam, log=TRUE))
+  }
+}
+```
+---
+
+Suppose the dataset is given by `pscl::prussian$y`, yearly number of Prussian solders kicked dead by army hourses. Manufacture the likelihood for this dataset:
+
+
+```r
+loglik &lt;- getloglik(pscl::prussian$y)
+```
+
+Test it out:
+
+```r
+loglik(0.5)
+```
+
+```
+## [1] -324.103
+```
+
+Maximize the likelihood using `optimize`:
+
+```r
+res &lt;- optimize(loglik, c(0, 100), maximum=TRUE)
+```
+
+- loglik is a function with data embedded ("closure")
+
+---
+
+class: inverse
+
+## Your Turn
+
+- Create a function factory that takes inputs `\(a\)` and `\(b\)`. The manufactured function gives values of the quadratic function `\(g(x) = a x^2 + b x\)`.
+
+- Manufacture a function using `\(a=1\)` and `\(b = -2\)`. Then find the minimum value of the function using `optimize`
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
