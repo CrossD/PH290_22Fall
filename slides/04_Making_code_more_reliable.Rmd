@@ -23,13 +23,17 @@ xaringanExtra::use_tile_view()
     
 - Unit testing
 
+- Exceptions and handling
+
+- Coding style
+
 ---
 
 ## How to write good functions
 
 - Think clearly about the purpose/scope (what it does and what it does not)
 
-- Think about the input/output, i.e., Application Programming Interface, API). 
+- Think about the input/output, i.e., Application Programming Interface, (API). 
 
     - APIs are hard to change without breaking compatibility, so anticipate future demands
 
@@ -47,11 +51,14 @@ xaringanExtra::use_tile_view()
 
 - Documentation helps the future you, and anyone who will potentially use your function
 
-- The documentation of a function should describe...
+- The documentation of a function should describe
 
     1. The purpose of the function
-    1. Inputs. This should include argument names and the expected formats of the inputs.
-    1. Outputs and their format. 
+    
+    1. Inputs. This should include argument names and the expected formats of the inputs
+    
+    1. Outputs and their format
+    
     1. Better still, some details of the implementation/algorithm and list some example usages
     
 
@@ -64,21 +71,23 @@ class:big, middle
 
 ## Unit testing
 
-- Correctness is the #1 priority
-
 - *Unit testing* is the procedure of testing a small unit of code. A unit is often a function
 
-- Writing a unit test is not difficult at all. After you finish a freshly written function, you must have written some code to see whether it works or not. *Do not discard the code*, but rather make it formal unit tests
+- Correctness is the #1 priority. Having unit tests improves software reliability
+
+- Functions and tests are like duos. They improve each other
+
+- Writing a unit test is not difficult at all. After you finish a freshly written function, you must have written some code to see whether it works or not. *Do not discard the code*, but rather make it a formal unit test
 
 ---
 
 ## The `testthat` package
 
-- `testthat` is a package for unit testing your code. It tries to make testing rigorous and fun 
+- `testthat` is a package for unit testing your code. Its goal is to make testing rigorous and fun 
 
-```{r}
-library(testthat)
-```
+    ```{r}
+    library(testthat)
+    ```
 
 - The main workhorse is the expectation/assertion function
 
@@ -123,24 +132,6 @@ expect_equal(object, expected, ..., tolerance)
 
 ---
 
-## A suite of `expect_*` functions
-
-- `expect_identical()`
-
-- `expect_true()`, `expect_false()`
-
-- `expect_lt()`, `expect_lte()`, `expect_gt()`, `expect_gte()`
-
-- `expect_type()`, `expect_s3_class()`, `expect_s4_class()`
-
-- `expect_error()`, `expect_warning()`, `expect_message()`
-
-- `expect_snapshot()`
-
-and [more](https://testthat.r-lib.org/reference/index.html)
-
----
-
 - Finally, group related unit tests using `test_that(desc, code)`:
 
 ```{r}
@@ -162,6 +153,24 @@ test_that("myMean works", {
   expect_equal(myMean(z, na.rm=TRUE), 0)
 })
 ```
+---
+
+## A suite of `expect_*` functions
+
+- `expect_identical()`
+
+- `expect_true()`, `expect_false()`
+
+- `expect_lt()`, `expect_lte()`, `expect_gt()`, `expect_gte()`
+
+- `expect_type()`, `expect_s3_class()`, `expect_s4_class()`
+
+- `expect_error()`, `expect_warning()`, `expect_message()`
+
+- `expect_snapshot()`
+
+and [more](https://testthat.r-lib.org/reference/index.html)
+
  
 ---
 ## Writing good tests

@@ -122,7 +122,7 @@ ast(1 + 2 * 3)
     - binary operators `+`, `%*%`, `%in%`, etc are functions of two variables. Also called infix functions
     - special operators: `$`, `[`, `[[`, etc are also functions
     
-- Surround weird a function/variable name with backquotes to access it
+- Surround a weird function/variable name with backquotes to access it
 .center[
 ![:scale 40%](https://i.stack.imgur.com/ETTnT.jpg)
 ]
@@ -140,7 +140,7 @@ ast(1 + 2 * 3)
 
 ## Binary operators
 
-- User defined binary operator must have name surrounded by `%`
+- User-defined binary operator must have name surrounded by `%`
 
 ```r
 `%rep%` &lt;- function(a, times) rep(a, times)
@@ -156,7 +156,7 @@ ast(1 + 2 * 3)
 
 ## Replacement function
 
-- Replacement are done via replacement functions.
+- Replacements can be performed by replacement functions.
     - E.g., `` `class&lt;-` ``
 
 - A replacement function takes two arguments and returns an object
@@ -221,11 +221,12 @@ class: inverse
 &lt;!-- - What does the operator `%in%` do? Look up the help documentation. If you are stuck in the R console, press &lt;Ctrl-C&gt; --&gt;
 
 - Use `lobstr::ast` to inspect the function calls when you evaluate
-```
-for (i in 1:10) {
-    print(i)
-}
-```
+    
+    ```
+    for (i in 1:10) {
+        print(i)
+    }
+    ```
 
 - Create an operator `%+%` to connect strings, so that  `"Hello" %+% "World"` gives `"HelloWorld"`
 
@@ -234,12 +235,6 @@ for (i in 1:10) {
 class: middle, big
 
 # Writing a function
-
----
-
-## Why to write a function
-
-- Writing functions make your code more manageable
 
 ---
 
@@ -261,7 +256,7 @@ class: middle, big
 
 ---
 
-- Benefits of writing functions
+- Writing functions make your code more manageable
 
   - Modularizes code
   
@@ -381,9 +376,8 @@ res
 f &lt;- function(x) {
   if (x &gt;= 1) {
     return(x)
-  } else {
-    stop("error here")
   }
+  stop("error here")
 }
 f(1)
 ```
@@ -394,7 +388,7 @@ f(1)
 
 ---
 
-- `invisible(x)` returns `x` but do not print. Useful for 
+- `invisible(x)` returns `x` but do not print. Useful for plotting/displaying info
     
     ```r
     # not real code
@@ -455,7 +449,9 @@ getloglik &lt;- function(X) {
 ```
 ---
 
-Suppose the dataset is given by `pscl::prussian$y`, yearly number of Prussian solders kicked dead by army hourses. Manufacture the likelihood for this dataset:
+Suppose the dataset is given by `pscl::prussian$y`, containing yearly counts of Prussian solders kicked dead by army hourses. 
+
+Manufacture the log-likelihood for this dataset:
 
 
 ```r
