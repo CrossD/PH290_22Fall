@@ -104,6 +104,23 @@ class:big, middle
     ```r
     library(testthat)
     ```
+    
+    ```
+    ## 
+    ## Attaching package: 'testthat'
+    ```
+    
+    ```
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     matches
+    ```
+    
+    ```
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     is_null
+    ```
 
 - The main workhorse is the expectation/assertion function
 
@@ -156,7 +173,9 @@ expect_equal(object, expected, ..., tolerance)
 
 ---
 
-- Group related unit tests using `test_that(desc, code)`:
+- Group related unit tests using `test_that(desc, code)`
+
+- `test_that()` also creates an isolated context to run the test
 
 
 ```r
@@ -345,7 +364,7 @@ suppressMessages(message("tic toc tic toc"))
     - Use standard/conventional usage of functions
 
 - Practice defensive coding
-    - Program rigorously
+    - Program clearly and rigorously
         - Be clear about the argument/variable/function you are referring to
         - If unsure about the precedence, clarify using `()`
         - Use `drop=FALSE` when dealing with matrices and data frames: `aMatrix[, 1, drop=FALSE]`

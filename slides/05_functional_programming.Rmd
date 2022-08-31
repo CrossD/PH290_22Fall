@@ -21,9 +21,11 @@ xaringanExtra::use_tile_view()
 
 - Applying functions repeatedly
 
-- Combining results
+- `do.call`
 
 - Applying functions by group
+
+- Reduce
 
 ---
 

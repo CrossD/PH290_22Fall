@@ -135,7 +135,9 @@ expect_equal(object, expected, ..., tolerance)
 
 ---
 
-- Group related unit tests using `test_that(desc, code)`:
+- Group related unit tests using `test_that(desc, code)`
+
+- `test_that()` also creates an isolated context to run the test
 
 ```{r, eval=FALSE}
 myMean <- function(x, na.rm=FALSE) {
