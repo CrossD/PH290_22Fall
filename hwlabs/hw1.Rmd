@@ -1,0 +1,72 @@
+---
+title: 'Homework #1'
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Your submission should include both code and well-formatted explanation (not just R comments) and is expected to be reproducible. You may decide for yourself what reproducible file format do you use. 
+*Please post on Ed Discussion (accessible in bCourses) for technical questions.*
+
+1. Write down two differences between the type and the class of an R object.
+
+1. Create a function `fp` to calculate the $p$th absolute power of a vector of numbers, namely
+$$f_p(x) = |x|^p,$$
+where $|x|$ is the absolute value of $x$. The function should follow the following specifics:
+
+    - The function has two arguments `x` and `p`. It should be vectorized in `x` (take in a vector argument and return the entrywise power). The input `p` is assumed to be a scalar.
+    - The argument `p` should have a default value of 2. You can assume the input value for `p` is at least 1.
+    - The function should also include an argument `deriv` to indicate whether you want to calculate the value of the first derivative (if `deriv=TRUE`) or the original function (`deriv=FALSE`). 
+    The first derivative is
+    $$f_p'(x) = \begin{cases} 
+                 p |x|^{p - 1}\text{sign}(x) & \text{if } p > 1 \\
+                 \text{sign}(x) & \text{if } p = 1,
+                 \end{cases}$$
+    where
+    $$\text{sign}(x)=\begin{cases}
+    1 & \text{if } x > 0 \\
+    0 & \text{if } x = 0 \\
+    -1 & \text{if } x < 0. 
+    \end{cases}$$
+
+    a. Write the function. 
+    a. Write at least one unit test for each of the following aspects using `testthat::expect_equal`. [Hint: Design your own input in each case. Each test should test on a slightly different aspect.]
+        i. The function is vectorized in `x`, so that that your function works with a vector input
+        i. When $p=4$, the result is the numbers raised to the power of 4
+        i. When $p=1$, the result is the absolute values
+        i. When $p=2$, the derivative is 2 times $x$
+        i. When $p=1$, the derivative equals the sign of $x$
+        i. The function is works if `x` is an empty vector `numeric(length=0)`
+    a. Group your tests together using `testthat::test_that`
+
+1. You will perform a subgroup analyses using a diabetes dataset available [here](https://archive.ics.uci.edu/ml/datasets/diabetes+130-us+hospitals+for+years+1999-2008). 
+The Data Folder includes a download link.
+We will focus on the `race`, `gender`, `A1Cresult` (>7 and >8 are abnormal), and `time_in_hospital` (unit is days).
+We define a subgroup as a combination of race and gender. 
+For each subgroup, 
+    - create a cross-tabulation of A1Cresult by time\_in\_hospital,
+    - conduct a t-test on whether the time in hospital differs among patients with normal and abnormal A1C result.
+
+1. 
+Design and write a utility function to compare linear regression models side-by-side. 
+For example, you may want to compare 
+
+    ```
+    mod1 <- lm(lifeExp ~ year, gapminder::gapminder)
+    mod2 <- lm(lifeExp ~ year + gdpPercap, gapminder::gapminder)
+    ```
+
+    This is an open-ended question, and you may decide how many models do you compare (2 or any number of models?) and what aspects do you compare (the number of terms, regression coefficients if common, p-values, fitted values, etc, your choice).
+    Make sure to
+    - Think well about the input (required and optional arguments) and output formats, 
+    - include at least one numerical/text-based comparison and one graphical comparison, and
+    - document your function.
+    You are not expected to write anything more than 100 lines of code.
+
+    *What you write in this question will be reviewed by a classmate in the next homework in terms of reproducibility, clarity, and coding style.*
+
+
+
