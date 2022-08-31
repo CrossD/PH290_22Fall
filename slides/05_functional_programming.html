@@ -31,8 +31,6 @@ class: center, middle, inverse, title-slide
 
 ## Outline
 
-- What is functional programming
-
 - Applying functions repeatedly
 
 - Combining results
@@ -41,35 +39,9 @@ class: center, middle, inverse, title-slide
 
 ---
 
-## Functional programming
-
-- *functional programming* is a programming paradigm where programs are constructed by applying and combining functions
-
-- This is as opposed to the *procedural programming* paradigm, where one specifies the series of computational steps to be carried out
-
-- R is, by and large, a functional programming language
-
-- In R, function is a first class object, namely a function behaves just like an ordinary variable
-
-
-```r
-f &lt;- mean
-f(1:5)
-```
-
-```
-## [1] 3
-```
-
-- Most R functions are *pure functions*. For a pure function,
-    1. identical inputs will result in identical outputs (no local states)
-    1. the function does not have side-effects (e.g., no modification of the inputs in-place or any global variables)
-
----
-
 ## Why functional programming
 
-- For the following code to run, download the files [1.csv](1.csv), [2.csv](2.csv), and [3.csv](3.csv) and put them side-by-side your R script. Remember to set the working directory to the source file location 
+&lt;!-- (For the following code to run, download [1.csv](1.csv), [2.csv](2.csv), and [3.csv](3.csv) and put them side-by-side your R script. Remember to set the working directory to the source file location) --&gt; 
 
 - Functional programming is clear and concise. E.g., to read in several files in 
 ```
@@ -81,7 +53,7 @@ files &lt;- c("1.csv", "2.csv", "3.csv")
 .pull-left[
 Functional style
 ```
-purrr::map(files, read.csv)
+lapply(files, read.csv)
 ```
 ]
 
@@ -98,7 +70,9 @@ for (i in seq_along(files)) {
 
 - A functional programming style is great to use for programming statistical/mathematical methods
 
-- .style[You may think you can do everything using loops, but the complexity will prevent you to build big things. Using functional programming, you will gain much more mileage as we learn more ]
+- .style[You may think you can do everything using loops. But functional programming allows us to scale to large data/computation]
+
+    - E.g., [map-reduce framework](https://www.educative.io/cdn-cgi/image/f=auto,fit=contain,w=2400/api/edpresso/shot/4555060823457792/image/5578380452823040.png) 
 
 ---
 class: big, middle
@@ -111,40 +85,25 @@ class: big, middle
 
 - We will be using the functional programming library `purrr`
 
-- `purrr` is a complete and consistent set of tools to enhance R’s basic functional programming toolkit
+- `purrr` is a more complete and consistent set of tools to enhance R’s `sapply`, `mapply`, `Reduce`, etc
 
-- Load the library using 
-
-
-```r
-library(purrr)
-```
-
-```
-## 
-## Attaching package: 'purrr'
-```
-
-```
-## The following object is masked from 'package:testthat':
-## 
-##     is_null
-```
+&lt;!-- - Load the library using --&gt; 
+    
 
 ---
 
 ## Applying a function to different inputs
 
-`map(.x, .f,)` applies the function `.f` to each entry in `.x`
+`map(.x, .f)` applies the function `.f` to each entry in `.x`
 
 .center[
 ![:scale 30%](https://d33wubrfki0l68.cloudfront.net/f0494d020aa517ae7b1011cea4c4a9f21702df8b/2577b/diagrams/functionals/map.png)
 &lt;/br&gt;Figures are due to [Hadley Wickham](https://adv-r.hadley.nz/functionals.html)
 ]
 
-- The input `.x` may be a list or a vector
-- The output of `.f` can be anything, so `map` is very general
 - `map` always returns a list
+- The input `.x` may be a list or a vector
+- The output of `.f` can be anything
 
 
 ```r
@@ -196,9 +155,9 @@ map(x, function(v) { # calculate the 2nd moment
 
 ## Returning atomic vectors
 
-- You can convert a list of scalars to a vector using `unlist`
+&lt;!-- - You can convert a list of scalars to a vector using `unlist` --&gt;
 
-- Better yet, use `purrr` functions that returns a *scalar* of specific types:
+- To be more rigorous, use `purrr` functions that returns a *scalar* of specific types when possible:
 
     ```
     map_dbl(.x, .f) # double-precision floating number
@@ -207,11 +166,9 @@ map(x, function(v) { # calculate the 2nd moment
     map_chr(.x, .f) # character
     ```
 
-- The usages of these functions are the same as `map()`, except that when using `map_***`, the output of your function `.f` must be a scalar of type `***`
+- The usages of these functions are the same as `map()`, except that the output of your function `.f` must be a scalar
 
-- The output of `map_***` is guaranteed to be a vector of type `***`
-
-- These functions are more specific, and thus more rigorous and easier to reason with. They help you check that your output is as you expected, so you can discover any issues early
+- The output of `map_***` is guaranteed to be a vector of the specified type
 
 ---
 
@@ -251,39 +208,28 @@ str(map(x, summary))
 ```
 
 ---
-## Combining results
 
-What if the results from calling `.f` are vectors of the same length, and I want to combine the results?
+## `do.call`
 
-- `do.call(f, aList)` is the same as calling `f` using the entries of `aList` as arguments
+`do.call(f, aListOfArgs)` executes `f` using arguments in `aListOfArgs`
 
-- So `do.call(cbind, list(a=1, b=2))` is the same as `cbind(a=1, b=2)`
-
-- `do.call(rbind, res)` combines the results by row
+- E.g., good for plotting and combining results
 
 
 ```r
-res &lt;- map(x, summary)
-do.call(rbind, res)
+do.call(cbind, list(a=1:3, b=4:6)) # same as cbind(a=1, b=2)
+do.call(plot, list(1:10, col="red")) # same as plot(1:10, col="red")
 ```
-
-```
-##      Min. 1st Qu. Median Mean 3rd Qu. Max.
-## [1,]    1    1.75    2.5  4.0    4.75   10
-## [2,]    2    2.25    2.5  2.5    2.75    3
-```
-
-- `do.call(cbind, res)` combines the results by column
 
 ---
+
 ## Passing optional arguments
 
 ```
 map(.x, .f, ...)
-map_dbl(.x, .f, ...) # and so on
 ```
 
-You can specify common optional arguments to your function using `...`
+You can specify optional arguments to your function `.f` using `...`
 
 .center[
 ![:scale 50%](https://d33wubrfki0l68.cloudfront.net/e1b3536a7556aef348f546a79277125c419a5fdc/0c0a1/diagrams/functionals/map-arg.png)
@@ -314,11 +260,11 @@ l &lt;- list(c(1, 3, 5, 100),
           c(NA, 1:10, 100))
 ```
 
-&lt;img src="images/green.png" width=20&gt; Find the sum of the values in each entry of `l` using `map`. It is OK to have `NA` values in your result
+- Find the sum of the values in each entry of `l` using `map`. It is OK to have `NA` values in your result
 
-&lt;img src="images/green.png" width=20&gt; Find the sum of the values in each entry of `l`. The returned value should be a numeric vector (but not a list) this time
+- Find the sum of the values in each entry of `l`. The returned value should be a numeric vector (but not a list) this time
 
-&lt;img src="images/green.png" width=20&gt; Redo the last question, but this time remove missing values
+- Redo the last bullet, but this time remove missing values
 
 ---
 
@@ -339,67 +285,6 @@ map(x, function(xx) {
 ## 
 ## [[2]]
 ## [1] 2.5 2.5
-```
-
----
-## Calling special functions
-
-- Most of the times, functions are in the *prefix form* like `f(x)`
-
-- You have used some operators that are written down a bit specially. E.g., `x + y` and `z[["field"]]`
-
-- These operators are actually all functions
-  - `+` is an *infix function*. The infix form is `x + y`. The equivalent prefix form is 
-      ```
-      `+`(x, y)
-      ```
-  - `[[` is an *extraction function*. The infix form is `x[[name]]`. The prefix form is
-      ```
-      `[[`(x, name)
-      ```
-  - Remember to use backtick to quote these functions when calling them or searching the documentations for them
-  
-- Other infix operators `*, /, %in%` and extractors `[` are similar
-
----
-
-- `purrr` functions can be used to call these special functions
-
-
-```r
-map(x, `+`, 1)
-```
-
-```
-## [[1]]
-## [1]  2  3  4 11
-## 
-## [[2]]
-## [1] 3 4
-```
-
-```r
-map(x, `[`, 2)
-```
-
-```
-## [[1]]
-## [1] 2
-## 
-## [[2]]
-## [1] 3
-```
-
-```r
-map(x, 2) # shorthand for extracting the 2nd entry
-```
-
-```
-## [[1]]
-## [1] 2
-## 
-## [[2]]
-## [1] 3
 ```
 
 ---
@@ -426,8 +311,7 @@ map(x, 2) # shorthand for extracting the 2nd entry
     ```
 ---
 
-## Other variants of `map`: Varying 2 inputs
-
+## Map and vary 2 inputs
 
 `map2(.x, .y, .f)` applies the function `.f` to each parallel pair of entries in `.x` and `.y`
 
@@ -439,21 +323,21 @@ map(x, 2) # shorthand for extracting the 2nd entry
 
 ```r
 map2(x, 
-     c(0.3, 0), 
-     function(v, trim) mean(v, trim=trim))
+     c("Male", "Female"), 
+     function(v, name) paste0(name, ": ", mean(v)))
 ```
 
 ```
 ## [[1]]
-## [1] 2.5
+## [1] "Male: 4"
 ## 
 ## [[2]]
-## [1] 2.5
+## [1] "Female: 2.5"
 ```
 
 ---
 
-## Other variants of `map`: Varying `\(p\)` inputs
+## Map and vary p inputs
 
 
 `pmap(.l, .f)` applies `.f` to each parallel collection of entries in `.l`
@@ -466,19 +350,16 @@ map2(x,
 
 ```r
 l &lt;- list(
-  c(1, 3, 5),
-  c(4, 6, 8),
-  c(1, 1, 2)
+  c(1, 6),
+  c(4, 3),
+  c(2, 5)
 )
-pmap(l, function(a, b, c) seq(a, b, by=c))
+pmap(l, function(a, b, c) seq(a, b, length.out=c))
 ## [[1]]
-## [1] 1 2 3 4
+## [1] 1 4
 ## 
 ## [[2]]
-## [1] 3 4 5 6
-## 
-## [[3]]
-## [1] 5 7
+## [1] 6.00 5.25 4.50 3.75 3.00
 ```
 
 ---
@@ -495,73 +376,110 @@ class: inverse
 
 Start with a list
 ```
-l &lt;- list(c(1, 3, 5, 100),
-          c(NA, 3, 5, 100),
-          c(NA, 1:10, 100))
+l1 &lt;- list(1, 2, 3)
+l2 &lt;- list(1, 2, 3)
+l3 &lt;- list(1, 2, 3)
 ```
 
-&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `imap`
+- Use `map2` to multiply the numbers in `l1` and `l2` *entrywise*
 
-&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `map2`
-
-&lt;img src="images/green.png" width=20&gt; Add 1 to the first entry of `l`, 2 to the second entry, and 3 to the third entry using `pmap`
+- Use `pmap` to multiply the numbers in `l1`, `l2`, and `l3` *entrywise*
 
 ---
-class: big, middle
 
-## Calling a function by group
-
----
 ## Calling a function by group
 
 - `split(x, f)` separates a vector/data frame `x` according to a factor `f` and returns a list of data frames, each corresponding to one group
 
 
 ```r
-sLenBySpecies &lt;- split(iris$Sepal.Length, iris$Species)
+sLenBySpecies &lt;- split(iris, iris$Species)
 summary(sLenBySpecies)
 ```
 
 ```
-##            Length Class  Mode   
-## setosa     50     -none- numeric
-## versicolor 50     -none- numeric
-## virginica  50     -none- numeric
+##            Length Class      Mode
+## setosa     5      data.frame list
+## versicolor 5      data.frame list
+## virginica  5      data.frame list
 ```
 
 - We can then apply the `map` function and friends to the grouped data
 
 ```r
-map(sLenBySpecies, summary)
+map_dbl(sLenBySpecies, function(dat) sum(dat$Sepal.Length))
 ```
 
 ```
-## $setosa
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   4.300   4.800   5.000   5.006   5.200   5.800 
-## 
-## $versicolor
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   4.900   5.600   5.900   5.936   6.300   7.000 
-## 
-## $virginica
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   4.900   6.225   6.500   6.588   6.900   7.900
+##     setosa versicolor  virginica 
+##      250.3      296.8      329.4
+```
+
+- This approach is more flexible than `dplyr` since you can apply a very complex function
+
+---
+
+## Nested data frame/list column
+
+The map functions work very nicely with nested data frame, namely, within a master data frame, a column contains a list of data frames.
+
+.center[
+![:scale 80%](images/nestedDF.png)&lt;/br&gt;
+[tidyr cheat sheet](https://github.com/rstudio/cheatsheets/blob/main/tidyr.pdf)
+]
+
+
+---
+
+
+```r
+library(gapminder)
+library(dplyr)
+
+nested &lt;- gapminder %&gt;%
+  group_by(country, continent) %&gt;% 
+  tidyr::nest()
+head(nested)
+```
+
+```
+## # A tibble: 6 × 3
+## # Groups:   country, continent [6]
+##   country     continent data             
+##   &lt;fct&gt;       &lt;fct&gt;     &lt;list&gt;           
+## 1 Afghanistan Asia      &lt;tibble [12 × 4]&gt;
+## 2 Albania     Europe    &lt;tibble [12 × 4]&gt;
+## 3 Algeria     Africa    &lt;tibble [12 × 4]&gt;
+## 4 Angola      Africa    &lt;tibble [12 × 4]&gt;
+## 5 Argentina   Americas  &lt;tibble [12 × 4]&gt;
+## 6 Australia   Oceania   &lt;tibble [12 × 4]&gt;
 ```
 
 ---
 
-## Base R apply functions (optional)
 
-- `lapply`, `sapply`, `vapply`: map functions over a vector or a list; the formats of the returned values differs
+```r
+dat1 &lt;- nested %&gt;%
+  mutate(
+    mod = map(data, function(dat) lm(lifeExp ~ year, dat)), 
+    beta = map_dbl(mod, function(m) coefficients(m)['year'])
+  )
 
-- `apply`: map functions over margins of a matrix or array
+filter(dat1, beta &lt; 0)
+```
 
-- `tapply`, `by`, `aggregate`: map functions for each group
-
-
+```
+## # A tibble: 3 × 5
+## # Groups:   country, continent [3]
+##   country  continent data              mod       beta
+##   &lt;fct&gt;    &lt;fct&gt;     &lt;list&gt;            &lt;list&gt;   &lt;dbl&gt;
+## 1 Rwanda   Africa    &lt;tibble [12 × 4]&gt; &lt;lm&gt;   -0.0458
+## 2 Zambia   Africa    &lt;tibble [12 × 4]&gt; &lt;lm&gt;   -0.0604
+## 3 Zimbabwe Africa    &lt;tibble [12 × 4]&gt; &lt;lm&gt;   -0.0930
+```
 
 ---
+
 class: big, middle
 
 ## Reduce and accumulate
@@ -570,37 +488,24 @@ class: big, middle
 
 ## Reduce
 
-- Heard about the [map-reduce framework](https://www.scnsoft.com/blog-pictures/business-intelligence/spark-vs-hadoop.png) for big data?
+- *Reduce* means aggregating intermediate results 
 
-- Here, "map" means the same as the `map` function, applying the same operation to many inputs, generating multiple intermediate results. E.g., calculate the total sales *in each state in the US*
-
-- "Reduce" means combine the intermediate results to have a final, aggregated result. E.g., *combine* the sales per state to calculate a total sales
-
-- This is done by combining sales in the first two states, and then that with the third, and so on
-
-
----
-The `reduce` function in `purrr` performs the reduce operation
-
+- the `reduce` function in `purrr`:
 .center[
-![:scale 40%](https://d33wubrfki0l68.cloudfront.net/9c239e1227c69b7a2c9c2df234c21f3e1c74dd57/eec0e/diagrams/functionals/reduce.png)
+![:scale 30%](https://d33wubrfki0l68.cloudfront.net/9c239e1227c69b7a2c9c2df234c21f3e1c74dd57/eec0e/diagrams/functionals/reduce.png)
 ]
 
-- E.g, sum up vectors containing (revenue, profit)
+- E.g, sum up the numbers of (patients, expenditure)
+    
+    ```r
+    l &lt;- list(CA = c(2, 1), NV = c(3, 3), UT=c(5, 2))
+    reduce(l, `+`)
+    ## [1] 10  6
+    ```
 
-```r
-l &lt;- list(IA = c(2, 1), NE = c(1.5, 1), IL=c(5, 2))
-reduce(l, `+`)
-## [1] 8.5 4.0
-```
+- `.init=` specifies the initial value before any combination
 
-- `.init` specifies the initial value before any combination. The first item will be combined with the initial value
-
-
-```r
-reduce(l, `+`, .init=c(0, -1))
-## [1] 8.5 3.0
-```
+- `.dir=` specifies the direction of reduction
 
 ---
 
@@ -614,43 +519,23 @@ accumulate(l, `+`)
 ```
 
 ```
-## $IA
+## $CA
 ## [1] 2 1
 ## 
-## $NE
-## [1] 3.5 2.0
+## $NV
+## [1] 5 4
 ## 
-## $IL
-## [1] 8.5 4.0
+## $UT
+## [1] 10  6
 ```
-
-
----
-class: inverse
-
-## Your turn
-
-&lt;img src="images/green.png" width=20&gt; Work with the `mtcars` dataset. Split it into multiple datasets using `split` according to the number of cylinders `mtcars$cyl`
-
-&lt;img src="images/blue.png" width=20&gt; Use `map` to find the correlations between mileage `mpg` and car weight `wt` for cars grouped by the number of cylinders
-
-For the next question, start with a list
-```
-l3 &lt;- list(c(1, 3, 5, 100),
-          c(3, 6, 7),
-          c(7, 8, 9))
-```
-
-
-&lt;img src="images/green.png" width=20&gt; Use `reduce` and `c` to concatenate all entries in `l3`
-
-&lt;img src="images/blue.png" width=20&gt; Use `reduce` and `intersect` to find the elements that appear in every entry in `l3`. Hint: `intersect(x, y)` gives the intersect of `x` and `y` (i.e. elements appearing in both sets)
 
 ---
 
 ## References
 
-- Chapters 6 and 9, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+- Chapters 9, [Advanced R](https://adv-r.hwadley.nz/index.html) by Hadley Wickham
+
+- Chapters 25, [R for Data Science](https://r4ds.had.co.nz/many-models.html) by Hadley Wickham
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>

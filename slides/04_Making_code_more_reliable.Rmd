@@ -135,7 +135,7 @@ expect_equal(object, expected, ..., tolerance)
 
 ---
 
-- Finally, group related unit tests using `test_that(desc, code)`:
+- Group related unit tests using `test_that(desc, code)`:
 
 ```{r, eval=FALSE}
 myMean <- function(x, na.rm=FALSE) {
@@ -225,37 +225,42 @@ class: inverse
 
 ## Conditions
 
-- You can raise errors, warnings, and messages using `stop()`, `warning()`, and `message()`
+<!-- - You can raise errors, warnings, and messages using `stop()`, `warning()`, and `message()` -->
+
+- An error should be raised if the computation cannot continue
     ```{r, eval=FALSE}
     stop("Dimensions mismatch")
+    ```
+
+- A warning should be used if the computation can continue but the results may not be reliable
+    ```{r, eval=FALSE}
     warning("The sample size `n` is too small")
+    ```
+
+
+- A message is for informing the user something was done on their behalf
+    ```{r, eval=FALSE}
     message("Creating `figures/` directory")
     ```
 
-- An error should be raised if the computation cannot continue
+---
 
-- A warning should be used if the computation can continue but the results may not be reliable
+## Ignoring conditions
 
-- A message is for informing the user something has been done in the background
+```{r}
+a <- function(x) {
+  try(someCodeThatErr)
+    x
+} # Shows the error message, but continues to run
+a("Oh no")
+
+suppressWarnings(warning("global warming"))
+suppressMessages(message("tic toc tic toc"))
+```
 
 ---
 
 ## Handling conditions
-
-- Ignoring conditions
-    ```{r}
-    a <- function(x) {
-      try(someCodeThatErr)
-      x
-    } # Shows the error message, but continues to run
-    a("Oh no")
-
-    suppressWarnings(warning("global warming"))
-    suppressMessages(message("tic toc tic toc"))
-    ```
-
----
-
 - Handling error
     ```{r}
     tryCatch({
@@ -280,14 +285,15 @@ class: inverse
     - Prioritize readability
     - Consistency
     - Good naming convention
-    - Nice spacing
+    - Nice spacing/indentation
     - Use standard/conventional usage of functions
 
 - Practice defensive coding
-    - Program rigorously
+    - Program clearly and rigorously
         - Be clear about the argument/variable/function you are referring to
         - If unsure about the precedence, clarify using `()`
         - Use `drop=FALSE` when dealing with matrices and data frames: `aMatrix[, 1, drop=FALSE]`
     - Program parsimoniously
         - Don't load packages if not necessary
     - Use assertions
+    - Use conditions
