@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Debugging</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.15/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Debugging
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Tools for debugging a function
+
+- Methods for debugging a function
+
+- What to do after finding a bug
+
+---
+
+class: middle, big
+
+# Tools for debugging
+
+---
+
+## Tools in R
+
+- `traceback()` shows the call stack of the last error
+
+- `options(error=recover)` let users browse the state of the environments when a function fails
+    - `options(error=stop)` resets the error handler
+
+    - `options(error=dump.frames)` dumps the environment to a file, and later `debugger("last.dump")` loads the dump for interactive debugging. Good for non-interactive debugging
+
+---
+
+- `browser()` inserts a breakpoint into code which allows for interactive inspection of the environment. It accepts a few commands:
+
+    - Next, `n`, executes the next step, stepping *over* function calls
+    - Step into, `s`, executes the next step, stepping *into* function calls
+    - Finish, `f`, finishes the current function or loop execution
+    - Continue, `c`, leaves interactive debugging and continue execution (until the next browser is hit or returns)
+    - Quit, `Q`, quits the browser and stops execution
+    - Enter, repeat the last command
+    - `where`, print stack information
+
+---
+
+- `debug(fun)` injects a browser to the beginning of `fun()`. `undebug()` undoes this
+    - `debugonce(fun)` injects a browser to `fun()` only for the next run
+
+- `trace()`, `untrace()`, inject code at an arbitrary *step* in a function
+    - Use `as.list(body(fun))` to see the steps of a function
+
+
+
+---
+
+class: inverse
+
+## Your turn
+
+Use `browser()` and/or `debug()` to investigate why the following function does not behave.
+
+```
+xToPower &lt;- function(x, p) {
+  if ( (p = 0) ) {
+    return(1)
+  } else if ( (p = 1) ) {
+    return(abs(x))
+  }
+}
+
+xToPower(2, 0) # 2 ^ 0 should be 1
+```
+
+---
+
+class: inverse
+
+## Your turn
+
+Use debugging tools to investigate why the following function does not behave. The purpose is to draw a random sample from each column in a data frame, and then calculate the mean.
+
+`options(error=recover)` can useful here
+
+```
+resample_summary &lt;- function(x, f) {
+  f(sample(x, replace = TRUE))
+}
+
+simple_map &lt;- function(x, f, ...) {
+  out &lt;- vector("list", length(x))
+  for (i in seq_along(x)) {
+    out[[i]] &lt;- f(x[[i]], ...)
+  }
+  out
+}
+
+simple_map(sleep, resample_summary, f = mean)
+```
+
+---
+
+- `options(warn=2)` turns warnings to errors
+
+- `codetools::findGlobals()`
+
+- `print()`
+
+
+
+---
+
+## RStudio tools
+
+- Breakpoint
+
+- Debug -- On Error
+
+
+---
+
+class: middle, big
+
+# Methods for debugging
+
+---
+
+## Mindset for debugging: Principle of confirmation
+
+&gt; Finding your bug is a process of confirming the many things that you believe are true — until you find one which is not true.
+&gt;
+&gt; —Norm Matloff
+
+---
+
+## Lightbulb example
+
+.pull-left[
+You walk into your bedroom in the evening and turn on the ceiling light using one of a few toggles. 
+
+The light does not turn on. What happened?
+]
+
+--
+
+.pull-right[
+You walk into a new bedroom that you just rented, and try turn on the ceiling light using one of a few toggles. 
+
+The light does not turn on. What happened?
+]
+
+---
+
+## Overall approach
+
+1. Generate hypotheses
+
+1. Test and reject the hypotheses one by one
+
+---
+
+## How to generate hypothesis
+
+- Educated guess from
+    - experience
+    - error messages
+    - google
+
+- Tracedown and confirmation
+
+- Bipartite method (when you have no idea what happened at all and the code doesn't run)
+  
+
+
+---
+
+## After you encounter a bug
+
+- If you wrote the bug and the bug is simple:
+    - Fix it
+    - Write a test case
+    - Clarify in documentation
+
+- If others wrote the bug, or the bug is complicated
+    - Create a reproducible example
+    - Set random seed
+    - Report a bug 
+        - Update the package
+        - Read the documentation
+        - Read the bug/issue tracker
+        - Submit a reproducible example
+
+---
+
+## References
+
+- Chapters 22, [Advanced R](https://adv-r.hadley.nz/debugging.html#debugging) by Hadley Wickham
+
+- [The R Inferno](https://www.burns-stat.com/pages/Tutor/R_inferno.pdf) by Patrick Burns, which includes a list of common pitfalls
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

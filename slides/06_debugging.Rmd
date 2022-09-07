@@ -1,0 +1,326 @@
+---
+title: "Debugging"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+## Outline
+
+- Tools for debugging a function
+
+- Methods for debugging a function
+
+- What to do after finding a bug
+
+---
+
+class: middle, big
+
+# Tools for debugging
+
+---
+
+## Tools in R
+
+- `traceback()` shows the call stack of the last error
+
+- `options(error=recover)` let users browse the state of the environments when a function fails
+    - `options(error=stop)` resets the error handler
+
+    - `options(error=dump.frames)` dumps the environment to a file, and later `debugger("last.dump")` loads the dump for interactive debugging. Good for non-interactive debugging
+
+---
+
+- `browser()` inserts a breakpoint into code which allows for interactive inspection of the environment. It accepts a few commands:
+
+    - Next, `n`, executes the next step, stepping *over* function calls
+    - Step into, `s`, executes the next step, stepping *into* function calls
+    - Finish, `f`, finishes the current function or loop execution
+    - Continue, `c`, leaves interactive debugging and continue execution (until the next browser is hit or returns)
+    - Quit, `Q`, quits the browser and stops execution
+    - Enter, repeat the last command
+    - `where`, print stack information
+
+---
+
+- `debug(fun)` injects a browser to the beginning of `fun()`. `undebug()` undoes this
+    - `debugonce(fun)` injects a browser to `fun()` only for the next run
+
+- `trace()`, `untrace()`, inject code at an arbitrary *step* in a function
+    - Use `as.list(body(fun))` to see the steps of a function
+
+```{r, include=FALSE, eval=FALSE}
+p <- 3
+f <- function(x) {
+  toPower(x)
+}
+toPower <- function(x) {
+  x ^ p
+}
+f(2)
+
+rm(p)
+f(2)
+traceback()
+options(error=recover)
+f(2)
+options(error=stop)
+options(error=dump.frames)
+debugger(last.dump)
+
+
+squareIt <- function(x) {
+  x^2
+}
+
+squareAll <- function(x) {
+  browser()
+  for (i in 1:length(x)) {
+    res <- squareIt(x[i])
+    print(res)
+  }
+  return()
+}
+a <- numeric(0)
+length(a)
+squareAll(a)
+
+# browser
+debug(toPower)
+undebug(toPower)
+debugonce(toPower)
+
+```
+
+---
+
+class: inverse
+
+## Your turn
+
+Use `browser()` and/or `debug()` to investigate why the following function does not behave.
+
+```
+xToPower <- function(x, p) {
+  if ( (p = 0) ) {
+    return(1)
+  } else if ( (p = 1) ) {
+    return(abs(x))
+  }
+}
+
+xToPower(2, 0) # 2 ^ 0 should be 1
+```
+
+---
+
+class: inverse
+
+## Your turn
+
+Use debugging tools to investigate why the following function does not behave. The purpose is to draw a random sample from each column in a data frame, and then calculate the mean.
+
+`options(error=recover)` can useful here
+
+```
+resample_summary <- function(x, f) {
+  f(sample(x, replace = TRUE))
+}
+
+simple_map <- function(x, f, ...) {
+  out <- vector("list", length(x))
+  for (i in seq_along(x)) {
+    out[[i]] <- f(x[[i]], ...)
+  }
+  out
+}
+
+simple_map(sleep, resample_summary, f = mean)
+```
+
+---
+
+- `options(warn=2)` turns warnings to errors
+
+- `codetools::findGlobals()`
+
+- `print()`
+
+```{r, include=FALSE, eval=FALSE}
+codetools::findGlobals(toPower, merge=FALSE)
+```
+
+---
+
+## RStudio tools
+
+- Breakpoint
+
+- Debug -- On Error
+
+
+---
+
+class: middle, big
+
+# Methods for debugging
+
+---
+
+## Mindset for debugging: Principle of confirmation
+
+> Finding your bug is a process of confirming the many things that you believe are true — until you find one which is not true.
+>
+> —Norm Matloff
+
+---
+
+## Lightbulb example
+
+.pull-left[
+You walk into your bedroom in the evening and turn on the ceiling light using one of a few toggles. 
+
+The light does not turn on. What happened?
+]
+
+--
+
+.pull-right[
+You walk into a new bedroom that you just rented, and try turn on the ceiling light using one of a few toggles. 
+
+The light does not turn on. What happened?
+]
+
+---
+
+## Overall approach
+
+1. Generate hypotheses
+
+1. Test and reject the hypotheses one by one
+
+---
+
+## How to generate hypothesis
+
+- Educated guess from
+    - experience
+    - error messages
+    - google
+
+- Tracedown and confirmation
+
+- Bipartite method (when you have no idea what happened at all and the code doesn't run)
+  
+```{r, eval=FALSE, include=FALSE}
+
+dat <- structure(list(default = structure(c(2L, 2L, 1L, 2L, 2L, 1L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 2L, 2L, 1L, 2L, 2L, 
+2L, 2L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+2L, 2L), levels = c("Yes", "No"), class = "factor"), balance = c(939.098501835431, 
+397.54248845196, 1511.61095196469, 301.319402807109, 878.446109878267, 
+1673.48634915562, 310.130223883326, 1272.05389130072, 887.201436107651, 
+230.868924844914, 421.957264818512, 1057.35087177407, 891.403240954195, 
+1216.58625032905, 522.38118059861, 1558.86107533, 1464.39479015494, 
+740.885186560821, 0, 1734.22804374841, 1155.1750058879, 728.356058470814, 
+991.060968479028, 640.819040858052, 539.834793088502, 141.026549625642, 
+1207.05248263756, 1288.44855995707, 523.70889790141, 1182.00008160582, 
+1502.75774867973, 131.633998250593, 311.889288737823, 1200.62447093622, 
+770.431961924154, 1177.2495984995, 728.212549683954, 1941.90292814168, 
+0, 674.204629620179, 999.391696394237, 670.422582334202, 350.051851978195, 
+764.627790674236, 401.180757478873, 751.354391933644, 1360.86563270173, 
+497.881905243542, 634.696104527899, 157.66047507126, 0, 605.220968306144, 
+1092.99815937252, 650.007041287637, 492.657068547904, 1322.96904167252, 
+1743.79883736231, 509.370892230809, 1417.22549877778, 1189.75213362091, 
+1642.19231860975, 1013.96374594514, 678.018921587752, 522.15345763795, 
+127.663375125104, 800.609332848504, 2092.4585301161, 182.370459994264, 
+1507.24919460052, 382.885062371549, 768.37858481136, 0, 934.969703457723, 
+621.312719186294, 1384.73759704675, 131.747075963338, 772.732074090217, 
+364.663051203468, 612.960653042669, 431.536055178104, 847.056485301184, 
+965.587370085486, 932.056966292719, 779.657300310476, 1151.73331728929, 
+368.086167001206, 1458.89346152272, 202.321208104165, 1416.44476989919, 
+615.704276560405, 1807.68449070323, 840.988909202537, 677.552825772912, 
+1073.16853283521, 932.872998040885, 1088.48809632531, 1508.70177606082, 
+1238.10517698086, 309.517982126985, 1169.42044435962, 1493.74224806877, 
+1055.68253715521, 1364.2326842718, 1168.57073487805, 1814.10564871295, 
+1075.17907339542, 1240.57389071057, 1066.82218828697, 1016.45061642843, 
+656.434943665867, 1608.15255984335, 237.383029626622, 147.61011548848, 
+908.122811892835, 51.0723020671674, 1312.88531954721, 1070.66636054645, 
+1059.87227059407, 607.721136462867, 584.816776146095, 207.303809187677, 
+1589.63859843754, 1373.56421329756, 520.55764649278, 433.452818738995, 
+401.829042222614, 673.926656787536, 1290.17921206669, 618.527509222818, 
+37.9908485136482, 1228.90791879055, 905.645634729108, 0, 1267.55073982519, 
+1365.55685085965, 877.793933789175, 861.644850689235, 588.991056252216, 
+544.139769261479, 509.155164105994, 376.878916634948, 772.822997669751, 
+1011.06090429807, 1028.96434239191, 1014.76966176828, 379.100360643884, 
+816.443608151587, 1360.38578198715, 935.33815565705, 581.520818602129, 
+978.236903521764, 418.299642765707, 48.9118568414431, 566.443852583261, 
+546.37505990967, 1049.95328779119, 1716.08977388041, 537.040332892497, 
+1790.36053654332, 2110.55685791454, 1396.78918130163, 204.740181714577, 
+506.267392227237, 1819.94093603444, 1050.2685247574, 0, 278.473984331957, 
+1275.02319938737, 2220.96620112365, 102.166771629378, 927.211780951994, 
+1006.99410894368, 1094.77298187378, 1190.42050704867, 514.859436188812, 
+1534.96839986598, 448.243210690723, 1066.54575990381, 529.343106295732, 
+704.184519980701, 889.565857036579, 391.189784489765, 587.874754114786, 
+402.35879945734, 791.182225188319, 1084.04408433742, 501.140260845364, 
+204.030246673872, 284.395697403294, 1092.90658305201, 51.5304014162657, 
+706.481931471293, 1312.90720253482, 667.412163656887, 1492.61502806146, 
+1676.09768352054, 1074.57787055668, 861.652948042994, 919.485776297976, 
+905.142369281084)), row.names = 1L:200L, class = "data.frame")
+
+head(dat)
+boxplot(balance ~ default, dat)
+
+mod <- glm(default ~ balance, dat, family="binomial")
+```
+
+---
+
+## After you encounter a bug
+
+- If you wrote the bug and the bug is simple:
+    - Fix it
+    - Write a test case
+    - Clarify in documentation
+
+- If others wrote the bug, or the bug is complicated
+    - Create a minimal reproducible example
+        - Reduce the input to the simplest form
+        - Make sure the problem reoccurs with the example
+    - Set random seed
+    - Report a bug 
+        - Update the package
+        - Read the documentation
+        - Read the bug/issue tracker
+        - Submit a reproducible example
+
+---
+
+## References
+
+- Chapters 22, [Advanced R](https://adv-r.hadley.nz/debugging.html#debugging) by Hadley Wickham
+
+- [The R Inferno](https://www.burns-stat.com/pages/Tutor/R_inferno.pdf) by Patrick Burns, which includes a list of common pitfalls
