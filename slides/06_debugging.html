@@ -104,7 +104,7 @@ class: inverse
 
 Use debugging tools to investigate why the following function does not behave. The purpose is to draw a random sample from each column in a data frame, and then calculate the mean.
 
-`options(error=recover)` can useful here
+`options(error=recover)` can be useful here
 
 ```
 resample_summary &lt;- function(x, f) {
@@ -190,9 +190,10 @@ The light does not turn on. What happened?
     - error messages
     - google
 
-- Tracedown and confirmation
+- Trace it down
+    - Use a good editor with a good finder
 
-- Bipartite method (when you have no idea what happened at all and the code doesn't run)
+- Bipartite method (when you have no idea what goes wrong at all)
   
 
 
@@ -205,13 +206,16 @@ The light does not turn on. What happened?
     - Write a test case
     - Clarify in documentation
 
-- If others wrote the bug, or the bug is complicated
-    - Create a reproducible example
+- If others wrote the bug, or the bug is complicated and you have to return to it
+    - Create a minimal reproducible example
+        - Reduce the input to the simplest form
+        - Make sure the problem reoccurs with the example
     - Set random seed
     - Report a bug 
         - Update the package
         - Read the documentation
         - Read the bug/issue tracker
+        - Report session information `sessionInfo()`
         - Submit a reproducible example
 
 ---
