@@ -50,6 +50,8 @@ For each subgroup,
     - create a cross-tabulation of A1Cresult by time\_in\_hospital,
     - conduct a t-test on whether the time in hospital differs among patients with normal and abnormal A1C result.
 
+    Display the results for a few selected subgroups.
+
 1. 
 Design and write a utility function to compare linear regression models side-by-side. 
 For example, you may want to compare 
@@ -59,14 +61,16 @@ For example, you may want to compare
     mod2 <- lm(lifeExp ~ year + gdpPercap, gapminder::gapminder)
     ```
 
-    This is an open-ended question, and you may decide how many models do you compare (2 or any number of models?) and what aspects do you compare (the number of terms, regression coefficients if common, p-values, fitted values, etc, your choice).
+    The goal of this function is to facilitate a quick visual comparison of models, instead of having to print out models, scroll around, and extract information from separate places. 
+    This is an open-ended question.
+    You are free to determine the input and output formats, how many models do you compare (2 or any number of models?), and what aspects do you compare (the number of terms, regression coefficients if common, p-values, fitted values, etc, your choice).
     Make sure to
     - Think well about the input (required and optional arguments) and output formats, 
     - include at least one numerical/text-based comparison and one graphical comparison, and
     - document your function.
-    You are not expected to write anything more than 100 lines of code.
+    You are not expected to write anything more than 100 lines of code (documentation excluded).
 
-    *What you write in this question will be reviewed by a classmate in the next homework in terms of reproducibility, clarity, and coding style.*
+    *What you write in this question will be reviewed by a classmate in the next homework in terms of correctness, reproducibility, clarity, and coding style.*
 
 
 

@@ -431,26 +431,30 @@ each subgroup,</p>
 <li>create a cross-tabulation of A1Cresult by time_in_hospital,</li>
 <li>conduct a t-test on whether the time in hospital differs among
 patients with normal and abnormal A1C result.</li>
-</ul></li>
+</ul>
+<p>Display the results for a few selected subgroups.</p></li>
 <li><p>Design and write a utility function to compare linear regression
 models side-by-side. For example, you may want to compare</p>
 <pre><code>mod1 &lt;- lm(lifeExp ~ year, gapminder::gapminder)
 mod2 &lt;- lm(lifeExp ~ year + gdpPercap, gapminder::gapminder)</code></pre>
-<p>This is an open-ended question, and you may decide how many models do
-you compare (2 or any number of models?) and what aspects do you compare
-(the number of terms, regression coefficients if common, p-values,
-fitted values, etc, your choice). Make sure to</p>
+<p>The goal of this function is to facilitate a quick visual comparison
+of models, instead of having to print out models, scroll around, and
+extract information from separate places. This is an open-ended
+question. You are free to determine the input and output formats, how
+many models do you compare (2 or any number of models?), and what
+aspects do you compare (the number of terms, regression coefficients if
+common, p-values, fitted values, etc, your choice). Make sure to</p>
 <ul>
 <li>Think well about the input (required and optional arguments) and
 output formats,</li>
 <li>include at least one numerical/text-based comparison and one
 graphical comparison, and</li>
 <li>document your function. You are not expected to write anything more
-than 100 lines of code.</li>
+than 100 lines of code (documentation excluded).</li>
 </ul>
 <p><em>What you write in this question will be reviewed by a classmate
-in the next homework in terms of reproducibility, clarity, and coding
-style.</em></p></li>
+in the next homework in terms of correctness, reproducibility, clarity,
+and coding style.</em></p></li>
 </ol>
 
 
