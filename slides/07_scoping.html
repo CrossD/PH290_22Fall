@@ -68,12 +68,12 @@ Use your intuition to predict what the following functions output:
 
 ```r
 f2 &lt;- function() {
-  if (!exists("a")) {
-    a &lt;- 1
+  if (!exists("aVariable")) {
+    aVariable &lt;- 1
   } else {
-    a &lt;- a + 1
+    aVariable &lt;- aVariable + 1
   }
-  a
+  aVariable
 }
 f2()
 f2()
@@ -334,7 +334,7 @@ class: big, middle
     ```
     
     ```
-    ## [1] "2022-09-12 07:57:19 PDT"
+    ## [1] "2022-09-12 10:28:53 PDT"
     ```
 
 - A function that returns the time when it is called:
@@ -345,7 +345,7 @@ class: big, middle
     ```
     
     ```
-    ## [1] "2022-09-12 07:57:19 PDT"
+    ## [1] "2022-09-12 10:28:53 PDT"
     ```
 
 - The same principle applies to tell package versions are available (if you compile an R package which reproduces an analysis), hardware resources, etc

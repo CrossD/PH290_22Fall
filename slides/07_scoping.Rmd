@@ -53,12 +53,12 @@ Use your intuition to predict what the following functions output:
 
 ```{r, eval=FALSE}
 f2 <- function() {
-  if (!exists("a")) {
-    a <- 1
+  if (!exists("aVariable")) {
+    aVariable <- 1
   } else {
-    a <- a + 1
+    aVariable <- aVariable + 1
   }
-  a
+  aVariable
 }
 f2()
 f2()
