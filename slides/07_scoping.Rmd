@@ -39,36 +39,38 @@ Use your intuition to predict what the following functions output:
 
 2. 
     ```{r, eval=FALSE}
-    f2 <- function() {
-      if (!exists("a")) {
-        a <- 1
-      } else {
-        a <- a + 1
-      }
-      a
+    times <- 1
+    f3 <- function() rep(0, times)
+    g <- function() {
+      times <- 2
+      f3()
     }
-    f2()
-    f2()
+    g()
     ```
-
 ---
 
 3\. 
 
 ```{r, eval=FALSE}
-power <- 2
-map_dbl(1:3, function(x) x ^ power)
+f2 <- function() {
+  if (!exists("a")) {
+    a <- 1
+  } else {
+    a <- a + 1
+  }
+  a
+}
+f2()
+f2()
 ```
     
 4\. 
+
 ```{r, eval=FALSE}
-times <- 1
-f3 <- function() rep(0, times)
-g <- function() {
-  times <- 2
-  f3()
-}
-g()
+x <- 1
+f_4 <- function() x
+x <- 2
+f_4()
 ```
 
 --
@@ -93,7 +95,7 @@ class: big, middle
     - This makes R code easier to reason with 
     - Very useful when used in conjunction with encapsulation
 
-- This is as opposed to *dynamic scoping*, which look up the value of a global variable depends on how a function is called
+- This is as opposed to *dynamic scoping*, where the value of a global variable depends on how a function is called
 
 ---
 
@@ -231,7 +233,7 @@ class: big, middle
     myMap(list(3, 2), function(x) rep(x, len))
     ```
 
-- But do be wary about the argument names clashes (input)
+- But be wary about the (input) argument names clashes
 
 ---
 
@@ -242,14 +244,14 @@ class: big, middle
         x ^ exp
       }
     }
-    exp <- 3
     square <- power1(2)
+    exp <- 3
     square(2)
     ```
 
 ---
 
-2\. Be able to let function depend on system statuses where/when the function is defined/run
+2\. Be able to let function depend on system statuses at either *definition time* or *run time*
 
 - A function that returns the time when it is defined:
     ```{r}

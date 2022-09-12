@@ -53,38 +53,40 @@ Use your intuition to predict what the following functions output:
 2. 
     
     ```r
-    f2 &lt;- function() {
-      if (!exists("a")) {
-        a &lt;- 1
-      } else {
-        a &lt;- a + 1
-      }
-      a
+    times &lt;- 1
+    f3 &lt;- function() rep(0, times)
+    g &lt;- function() {
+      times &lt;- 2
+      f3()
     }
-    f2()
-    f2()
+    g()
     ```
-
 ---
 
 3\. 
 
 
 ```r
-power &lt;- 2
-map_dbl(1:3, function(x) x ^ power)
+f2 &lt;- function() {
+  if (!exists("a")) {
+    a &lt;- 1
+  } else {
+    a &lt;- a + 1
+  }
+  a
+}
+f2()
+f2()
 ```
     
 4\. 
 
+
 ```r
-times &lt;- 1
-f3 &lt;- function() rep(0, times)
-g &lt;- function() {
-  times &lt;- 2
-  f3()
-}
-g()
+x &lt;- 1
+f_4 &lt;- function() x
+x &lt;- 2
+f_4()
 ```
 
 --
@@ -109,7 +111,7 @@ class: big, middle
     - This makes R code easier to reason with 
     - Very useful when used in conjunction with encapsulation
 
-- This is as opposed to *dynamic scoping*, which look up the value of a global variable depends on how a function is called
+- This is as opposed to *dynamic scoping*, where the value of a global variable depends on how a function is called
 
 ---
 
@@ -295,7 +297,7 @@ class: big, middle
     ## [1] 2 2 2 2 2
     ```
 
-- But do be wary about the argument names clashes (input)
+- But be wary about the (input) argument names clashes
 
 ---
 
@@ -307,8 +309,8 @@ class: big, middle
         x ^ exp
       }
     }
-    exp &lt;- 3
     square &lt;- power1(2)
+    exp &lt;- 3
     square(2)
     ```
     
@@ -318,7 +320,7 @@ class: big, middle
 
 ---
 
-2\. Be able to let function depend on system statuses where/when the function is defined/run
+2\. Be able to let function depend on system statuses at either *definition time* or *run time*
 
 - A function that returns the time when it is defined:
     
@@ -332,7 +334,7 @@ class: big, middle
     ```
     
     ```
-    ## [1] "2022-09-11 17:42:38 PDT"
+    ## [1] "2022-09-12 07:57:19 PDT"
     ```
 
 - A function that returns the time when it is called:
@@ -343,7 +345,7 @@ class: big, middle
     ```
     
     ```
-    ## [1] "2022-09-11 17:42:38 PDT"
+    ## [1] "2022-09-12 07:57:19 PDT"
     ```
 
 - The same principle applies to tell package versions are available (if you compile an R package which reproduces an analysis), hardware resources, etc
