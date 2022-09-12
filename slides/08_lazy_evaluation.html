@@ -206,59 +206,11 @@ h5()
     
     ![](08_lazy_evaluation_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
 
-
----
-
-## R behavior
-
-Use your intuition to predict what the following functions output:
-
-1. 
-    
-    ```r
-    h &lt;- function(x) {
-      10
-    }
-    h(stop("an error here"))
-    ```
-  
-1. How many times will we see the message "Calculating..."?
-    
-    ```r
-    double &lt;- function(x) { 
-      message("Calculating...")
-      x * 2
-    }
-    
-    h2 &lt;- function(x) {
-      c(x, x)
-    }
-    
-    h2(double(20))
-    ```
-
----
-
-3\. 
-
-```r
-tripple &lt;- function(x)  x * 3
-h3 &lt;- function(x) {
-  y &lt;- 100
-  x
-}
-
-y &lt;- 1
-h3(tripple(y))
-```
-
 ---
 
 ## References
 
-- Chapters 22, [Advanced R](https://adv-r.hadley.nz/debugging.html#debugging) by Hadley Wickham
-
-- [The R Inferno](https://www.burns-stat.com/pages/Tutor/R_inferno.pdf) by Patrick Burns, which includes a list of common pitfalls
+- Chapters 6, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>

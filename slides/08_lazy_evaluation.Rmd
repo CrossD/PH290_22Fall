@@ -149,53 +149,8 @@ h5()
     plot(myX, sin(myX)) # How does plot() set the label names?
     ```
 
-
----
-
-## R behavior
-
-Use your intuition to predict what the following functions output:
-
-1. 
-    ```{r, eval=FALSE}
-    h <- function(x) {
-      10
-    }
-    h(stop("an error here"))
-    ```
-  
-1. How many times will we see the message "Calculating..."?
-    ```{r, eval=FALSE}
-    double <- function(x) { 
-      message("Calculating...")
-      x * 2
-    }
-    
-    h2 <- function(x) {
-      c(x, x)
-    }
-    
-    h2(double(20))
-    ```
-
----
-
-3\. 
-```{r, eval=FALSE}
-tripple <- function(x)  x * 3
-h3 <- function(x) {
-  y <- 100
-  x
-}
-
-y <- 1
-h3(tripple(y))
-```
-
 ---
 
 ## References
 
-- Chapters 22, [Advanced R](https://adv-r.hadley.nz/debugging.html#debugging) by Hadley Wickham
-
-- [The R Inferno](https://www.burns-stat.com/pages/Tutor/R_inferno.pdf) by Patrick Burns, which includes a list of common pitfalls
+- Chapters 6, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
