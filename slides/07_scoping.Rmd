@@ -1,0 +1,284 @@
+---
+title: "Scoping Rules"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+class: big, middle
+
+## How does R find global variables?
+
+---
+
+## How does R find global variables?
+
+Use your intuition to predict what the following functions output:
+
+1. 
+    ```{r, eval=FALSE}
+    x <- 1
+    f1 <- function() {
+      x <- 2
+      print(x)
+    }
+    f1()
+    ```
+
+2. 
+    ```{r, eval=FALSE}
+    f2 <- function() {
+      if (!exists("a")) {
+        a <- 1
+      } else {
+        a <- a + 1
+      }
+      a
+    }
+    f2()
+    f2()
+    ```
+
+---
+
+3\. 
+
+```{r, eval=FALSE}
+power <- 2
+map_dbl(1:3, function(x) x ^ power)
+```
+    
+4\. 
+```{r, eval=FALSE}
+times <- 1
+f3 <- function() rep(0, times)
+g <- function() {
+  times <- 2
+  f3()
+}
+g()
+```
+
+--
+
+At the end of the class, you will understand why the functions behave as such (and thus you can program better)
+
+---
+class: big, middle
+
+## Lexical scoping
+
+---
+
+## Lexical scoping
+
+- *Scoping* is the act of finding values associated with a variable name. It is about *where* and *when* does R find global variables
+
+- R follows the *lexical scoping* rule (aka static scoping)
+    - Most programming languages use lexical scoping, like Python and C++
+
+- *Where* R looks up values of variable names depends on how a function is *defined*, not how it is *called*
+    - This makes R code easier to reason with 
+    - Very useful when used in conjunction with encapsulation
+
+- This is as opposed to *dynamic scoping*, which look up the value of a global variable depends on how a function is called
+
+---
+
+## Four rules for lexical scoping
+
+- There are four principles for lexical scoping:
+
+    1. Where to lookup
+
+    1. Functions are variables
+
+    1. Fresh starts
+
+    1. When to lookup
+
+---
+
+
+1. *Where to lookup* (a): Local variables defined inside a function are the most relevant and mask variables defined outside a function
+    ```{r, eval=TRUE}
+    x <- 1
+    f1 <- function() {
+      x <- 2
+      print(x)
+    }
+    f1()
+    ```
+
+---
+
+1. *Where to lookup* (b): If a variable isn’t defined inside a function, R looks one level up where the function is *defined*
+    ```{r, eval=TRUE}
+    x <- 1
+    f1_1 <- function() {
+      print(x)
+    }
+    f1_1()
+    ```
+    
+    ... *not* where the function is *called*
+    ```{r, eval=TRUE}
+    times <- 1
+    f_pkg <- function() rep(0, times)
+
+    g_usr <- function() {
+      times <- 2
+      f_pkg()
+    }
+    g_usr()
+    ```
+---
+
+1. *Where to lookup* (c): The lookup rule applies the same if a function is defined inside another function
+
+```{r}
+x <- 0
+f1_2 <- function() {
+  x <- 1
+  g <- function() {
+    y <- 2
+    c(x, y)
+  }
+  g()
+}
+f1_2()
+```
+
+- By "where", I mean which environment should the function look up variables. More next time
+
+---
+
+2\. *Functions are ordinary variables*, so the scoping rules apply when looking up both functions and variables
+
+```{r}
+f1_pkg <- function() print(1)
+f2_pkg <- function() f1_pkg()
+
+g2_usr <- function() {
+  f1_pkg <- function() print(2)
+  f2_pkg()
+}
+g2_usr()
+```
+
+---
+
+3\. *Fresh starts*: The execution of a function is not affected by the previous executions
+```{r}
+f3 <- function() {
+  if (!exists("a")) {
+    a <- 1
+  } else {
+    a <- a + 1
+  }
+  a
+}
+f3()
+f3()
+```
+
+---
+
+4\. *When to lookup*. R looks up the values when the function is *called*, not when the function is *defined*. This is referred to as *Dynamic lookup*
+
+```{r}
+x <- 1
+f_4 <- function() x
+x <- 2
+f_4()
+```
+
+- Rule 1 determines *where*, and Rule 4 determines *when* to look for values
+
+
+---
+class: big, middle
+
+## Implications of lexical scoping
+
+---
+
+## Implications of lexical scoping
+
+1. Encapsulation: Prevent users to modify the behavior of code through defining their versions of global variables/functions
+
+- Your variable names won't clash with local variable names in another function, so the following code will work
+    ```{r}
+    myMap <- function(.l, .f, ...) {
+        len <- length(.l)
+        for (i in seq_len(len)) {
+            print( .f(.l[[i]], ...) )
+        }
+    }
+    len <- 5
+    myMap(list(3, 2), function(x) rep(x, len))
+    ```
+
+- But do be wary about the argument names clashes (input)
+
+---
+
+- Function factory works for the same reason
+    ```{r}
+    power1 <- function(exp) {
+      function(x) {
+        x ^ exp
+      }
+    }
+    exp <- 3
+    square <- power1(2)
+    square(2)
+    ```
+
+---
+
+2\. Be able to let function depend on system statuses where/when the function is defined/run
+
+- A function that returns the time when it is defined:
+    ```{r}
+    getDefTime <- function() {
+        time <- Sys.time()
+        function() time
+    }
+    definitionTime <- getDefTime()
+    definitionTime()
+    ```
+
+- A function that returns the time when it is called:
+    ```{r}
+    runTime <- Sys.time
+    runTime()
+    ```
+
+- The same principle applies to tell package versions are available (if you compile an R package which reproduces an analysis), hardware resources, etc
+
+---
+
+## When is dynamic scoping useful?
+
+- Relatively few languages use dynamic scoping, e.g., LaTeX and Bash
+
+- Dynamic scoping allows users to modify the "state" and thus the behavior of software easily
+
+---
+
+## References
+
+- Chapters 6, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham

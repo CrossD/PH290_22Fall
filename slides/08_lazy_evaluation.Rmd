@@ -1,0 +1,201 @@
+---
+title: "Lazy Evaluation"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+## Lazy evaluation
+R function arguments are lazily evaluated. There are three principles:
+
+1. Function arguments are held as an unevaluated *expression*, a.k.a., a *promise*. They are evaluated only if accessed
+
+- You don't have an error because the argument `x` is not used in `h()`
+    ```{r, error=TRUE}
+    h <- function(x) {
+      10
+    }
+    h(stop("an error here"))
+    ```
+
+---
+
+2\. The evaluation is done only once when the value is accessed, and then it is cached (remembered). So `double(20)` in the following example is evaluated only once
+
+```{r}
+double <- function(x) { 
+  message("Calculating...")
+  x * 2
+}
+
+h2 <- function(x) {
+  c(x, x)
+}
+
+h2(double(20))
+```
+
+---
+
+3\. The evaluation is evaluated in the environment *where the expression is defined*
+
+```{r}
+h3 <- function(x) {
+  y <- 100
+  x
+}
+
+y <- 1
+h3(print(y))
+```
+
+- This means users cannot inject code into a function through the input
+
+
+---
+
+## Some applications of lazy evaluation
+
+Lazy evaluation is useful for the following tasks:
+
+1. Specifying default arguments for a function
+
+1. Non-standard evaluation
+
+---
+
+## Default arguments
+
+- The default argument of a function can depend on another argument. E.g., see `?seq`
+
+    A simplified e.g.
+    ```{r}
+    h4 <- function(x = 2 * y, y) {
+      c(x, y)
+    }
+    h4(y=1)
+    ```
+    
+    We do not have an error because `x = 2 * y` is no evaluated at the beginning of the function, but only evaluated at `c(x, y)`
+
+---
+
+## Default arguments
+
+- However, the default argument is lazily evaluated *within* the function body, not at where the function is defined
+
+```{r}
+f <- function(x=g(y)) {
+    y=1; print(x)
+}
+y <- 2
+g <- identity
+```
+```{r}
+f()
+f(g(y))
+```
+
+- Avoid complex usage of the default argument, because it is hard for the users to reason with the output without looking at the body of the function
+
+---
+
+## Missing arguments
+
+- We can handle missing arguments without default values
+
+```{r}
+h5 <- function(x) {
+  if (missing(x)) {
+    x <- "my default"
+  }
+  x
+}
+h5()
+```
+
+---
+
+## Non-standard evaluation
+
+*Standard evaluation* rules interpret arguments by the values
+
+*Non-standard evaluation* (NSE) evaluates according to the expression but not the value of the expression
+
+
+<!-- - `library` is NSE in its first argument -->
+<!--     ```{r, error=TRUE} -->
+<!--     library(MASS) # OK -->
+<!--     x <- "MASS" -->
+<!--     library(x) --> 
+<!--     ``` -->
+
+
+- E.g. of NSE: `plot` is NSE in the `x` and `y` arguments
+    ```{r, fig.height=4, fig.width=5}
+    myX <- 1:10
+    plot(myX, sin(myX)) # How does plot() set the label names?
+    ```
+
+
+---
+
+## R behavior
+
+Use your intuition to predict what the following functions output:
+
+1. 
+    ```{r, eval=FALSE}
+    h <- function(x) {
+      10
+    }
+    h(stop("an error here"))
+    ```
+  
+1. How many times will we see the message "Calculating..."?
+    ```{r, eval=FALSE}
+    double <- function(x) { 
+      message("Calculating...")
+      x * 2
+    }
+    
+    h2 <- function(x) {
+      c(x, x)
+    }
+    
+    h2(double(20))
+    ```
+
+---
+
+3\. 
+```{r, eval=FALSE}
+tripple <- function(x)  x * 3
+h3 <- function(x) {
+  y <- 100
+  x
+}
+
+y <- 1
+h3(tripple(y))
+```
+
+---
+
+## References
+
+- Chapters 22, [Advanced R](https://adv-r.hadley.nz/debugging.html#debugging) by Hadley Wickham
+
+- [The R Inferno](https://www.burns-stat.com/pages/Tutor/R_inferno.pdf) by Patrick Burns, which includes a list of common pitfalls
