@@ -157,22 +157,3 @@ myX <- 1:10
 plot(myX, sin(myX))
 a <- myX
 plot(a, sin(a))
-
-... %>%
-  mutate(
-    xtab = map(data, xtabs, formula=...),
-    ttest = map(data, function(a) t.test(a$var1 ~ a$var2))
-  )
-
-
-f1 <- function(x) print(x)
-f2 <- function(a) print(a)
-
-x
-map(x, mean)
-mean(x[[1]])
-mean(x[[2]])
-
-?tidyr::pivot_wider
-
-map(nested$data, function(a) ...)
