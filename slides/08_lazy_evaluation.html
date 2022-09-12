@@ -29,8 +29,22 @@ class: center, middle, inverse, title-slide
 
 
 
-## Lazy evaluation
-R function arguments are lazily evaluated. There are three principles:
+## Lazy evaluation 
+
+- In R, function arguments are lazily evaluated, namely they are evaluated only if they are accessed.
+
+- *Lazy evaluation* is as opposed to *eager evaluation*, the latter of which means an expression is evaluated as soon as it is written
+
+- Benefits of lazy evalution:
+
+    - Save computation
+
+    - Allows for flexible programming
+
+---
+
+## Lazy evaluation principles
+There are three principles:
 
 1. Function arguments are held as an unevaluated *expression*, a.k.a., a *promise*. They are evaluated only if accessed
 
