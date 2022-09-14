@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Environments</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.15/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Environments
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Environments in R
+
+- R scoping mechanism
+
+- Environment in R packages
+
+---
+class: big, middle
+
+## Environment basics
+
+---
+
+## Binding values
+
+- R objects are pieces of data floating in your computer memory
+
+- When you create `x &lt;- c(1, 2, 3)`, 
+    - R allocates a piece of memory to store the values `c(1, 2, 3)`
+    - R *binds* the variable name (symbol) `x` to that value
+    - The same value may have multiple bindings
+
+.center[
+![:scale 30%](https://d33wubrfki0l68.cloudfront.net/bd90c87ac98708b1731c92900f2f53ec6a71edaf/ce375/diagrams/name-value/binding-1.png)
+&lt;/br&gt;Figures are due to [Hadley Wickham](https://adv-r.hadley.nz/)
+]
+
+- Similarly, a data frame `d1 &lt;- data.frame(x = c(1, 5, 6), y = c(2, 4, 3))` behaves like 
+.center[
+![:scale 20%](https://d33wubrfki0l68.cloudfront.net/80d8995999aa240ff4bc91bb6aba2c7bf72afc24/95ee6/diagrams/name-value/dataframe.png)
+]
+
+---
+
+## Environment in R
+
+An environment is a container of variables behaving somewhat like a list, 
+
+- Use `$` or `[[` to set/modify/extract an element by name
+
+... except that
+
+1. Environments follow a reference semantics (not copied when modified)
+
+1. An environment has a parent
+
+1. Names must be unique
+
+1. Names are not ordered (hash table)
+
+---
+
+## 1. Reference semantics
+
+- R most of the time refers to objects by value, so `x` and `y` are different
+    
+    ```r
+    x &lt;- c(1, 2, 3)
+    y &lt;- x
+    
+    y[[3]] &lt;- 4
+    x
+    ```
+    
+    ```
+    ## [1] 1 2 3
+    ```
+    
+    ```r
+    y
+    ```
+    
+    ```
+    ## [1] 1 2 4
+    ```
+
+---
+
+- Environments in R, however, follows a *reference semantics*
+    
+    ```r
+    e1 &lt;- rlang::env(a = 1, b = 2, c = 3)
+    e2 &lt;- e1
+    ```
+
+.center[
+![:scale 20%](images/e-modify-1.png)
+]
+
+
+```r
+e1$c &lt;- 4
+e2$c
+```
+
+```
+## [1] 4
+```
+
+.center[
+![:scale 20%](images/e-modify-2.png)
+]
+
+---
+
+- Environments are not copied when modified. Names bound to the same environment object will always operate on the same object without copying it.
+    
+    ```r
+    f &lt;- function(e) {
+      e$a &lt;- 100
+      stop("Don't return")
+    }
+    f(e1) # on the other hand, if you input a list, it gets copied
+    ```
+    
+    ```
+    ## Error in f(e1): Don't return
+    ```
+    
+    ```r
+    e1$a
+    ```
+    
+    ```
+    ## [1] 100
+    ```
+
+---
+
+## 2. An environment has a parent
+
+- Every environment has a parent, which is again an environment
+
+- The parent of an environment is where the latter is defined
+
+
+```r
+env_print(e1)
+```
+
+```
+## &lt;environment: 0x10af10f38&gt;
+## Parent: &lt;environment: global&gt;
+## Bindings:
+## • a: &lt;dbl&gt;
+## • b: &lt;dbl&gt;
+## • c: &lt;dbl&gt;
+```
+
+```r
+e1$anEnv &lt;- env(e1, d=1) # Unnamed input to `env()` specifies the parent
+env_parent(e1$anEnv)
+```
+
+```
+## &lt;environment: 0x10af10f38&gt;
+```
+
+---
+
+- When R looks for a variable in an environment, it looks at the bindings in the environment, and then its parent environment, and so on
+    
+    ```r
+    a &lt;- 0
+    get("a", envir=e1)
+    ```
+    
+    ```
+    ## [1] 100
+    ```
+    
+    ```r
+    # No binding called x exists in e1
+    get("x", envir=e1)
+    ```
+    
+    ```
+    ## [1] 1 2 3
+    ```
+
+
+---
+
+3\. Names in an environment must be unique
+
+
+```r
+e3 &lt;- env(a=1, a=2) # Not useful
+env_print(e3)
+```
+
+```
+## &lt;environment: 0x14c877810&gt;
+## Parent: &lt;environment: global&gt;
+## Bindings:
+## • a: &lt;dbl&gt;
+```
+
+4\. Names are not ordered
+
+
+```r
+e1[[1]]
+```
+
+```
+## Error in e1[[1]]: wrong arguments for subsetting an environment
+```
+---
+
+## Some important environments
+
+- The *global environment* `globalenv()` is where the variables and functions are stored if you evaluate code in the R console
+
+- The current environment `current_env()`  show the current environment. Useful for interactive exploration
+
+- The *empty environment* is the only environment that does not have a parent
+
+---
+
+class: inverse
+
+## Your turn
+
+- Create a new environment named `env1` using `env()`. It should contain variables `a = 1`, `b = "ha"`, and `c = TRUE`
+
+- Create a new environment `env2` which should have parent being `env1`. Add a variable `a = 2` into `env2` (`env(env1, var=value)` does this)
+
+- Remove variable `b` in `env1`. Try setting it to `NULL` and see if it works. Then try `env_unbind(env1, "b")` 
+
+- Get values `a` and `c` in `env2` using `get(varName, envir=)`
+
+---
+
+## When environment is useful as a data structure
+
+Environments can be used to
+
+- avoid accidental copies of large data (actually, when a list is copied, R usually make a shallow copy of only the references to the list elements so that is not super costly either)
+
+- manage states within a function or a package
+
+- as a hash table (may get back to this when we talk about algorithms)
+
+---
+class: big, middle
+
+## Mechanism for the scoping rules: Environments
+
+---
+
+## The function environment
+
+The environment of a function, called the *function environment*, is the environment where the function is defined. E.g., for 
+
+```
+y &lt;- 1
+f &lt;- function(x) x + y
+```
+
+.center[
+![:scale 50%](images/binding-f.png)
+]
+
+- Black arrow indicates function environment
+
+- Function environment (and its chain) defines how global variables should be found in this function
+
+---
+
+## The excecution environment
+
+- Every time a function is called, a freshly created environment called the *execution environment* will be created (fresh starts)
+
+- The body of the function will be evaluated in the encapsulated execution environment (where local variables are defined)
+
+- The parent of the execution environment is the function environment (so global variables are found)
+
+- The execution environment goes away if it is not referred to after the function returns (local variables go away)
+
+---
+
+## Example 1: Function call
+
+
+```r
+h &lt;- function(x) { # 1.
+  a &lt;- 2 # 2.
+  x + a
+}
+y &lt;- h(1) # 3.
+```
+.center[
+![:scale 110%](images/executionHorizontal.png)
+]
+
+---
+
+## Example 2: Find a global variable
+
+```
+y &lt;- 1
+f &lt;- function(x) x + y
+f(2)
+```
+
+&lt;/br&gt;
+&lt;/br&gt;
+&lt;/br&gt;
+&lt;/br&gt;
+.center[
+![:scale 30%](images/binding-f.png)
+]
+
+---
+
+## Example 3: Function factory
+
+
+```r
+plus &lt;- function(x) {
+  function(y) x + y
+}
+
+plus_one &lt;- plus(1)
+```
+
+.center[
+![:scale 25%](https://d33wubrfki0l68.cloudfront.net/853b74c3293fae253c978b73c55f3d0531d746c5/6ffd5/diagrams/environments/closure.png)
+]
+
+- An anonymous function is generated in the execution environment of `plus(1)`, which becomes its function environment
+- Later, the anonymous function is bound to `plus_one` in the global environment
+
+---
+
+## Example 3 cont.
+
+
+```r
+plus_one
+## function(y) x + y
+## &lt;environment: 0x10d4c8e78&gt;
+plus_one(2)
+## [1] 3
+```
+
+.center[
+![:scale 30%](https://d33wubrfki0l68.cloudfront.net/66676485e6a22c807c19b0c54c8fda6bd1292531/3526e/diagrams/environments/closure-call.png)
+]
+
+- When `plus_one` is executed, the execution environment has a parent function environment that contains `x`
+
+---
+
+## Caution: Forced evaluation
+
+There is a subtle bug in `plus` due to lazy evaluation
+
+```r
+plus &lt;- function(x) {
+  function(y) x + y
+}
+a &lt;- 2
+plus_two &lt;- plus(a)
+a &lt;- -2
+plus_two(2)
+```
+
+```
+## [1] 0
+```
+
+- You wish the output is 4
+- This is not the case because of lazy evaluation
+- The value of `a` is unevaluated when `plus_two` is defined; and `a` is bound to `plus_two` only at the first time `a` is refered to, at which moment `a` equals -2
+
+---
+
+- To fix the issue, use `force()` to *force evaluate* the argument `x` before the function factory returns. The corrected function is
+
+
+```r
+plus_v2 &lt;- function(x) {
+  force(x)
+  function(y) x + y
+}
+a &lt;- 2
+plus_two &lt;- plus_v2(a)
+a &lt;- -2
+plus_two(2)
+```
+
+```
+## [1] 4
+```
+
+---
+
+class: big, middle
+
+## Environment in R packages
+
+---
+
+## The search path
+
+- R finds a function in a package by following the `search path`
+    
+    ```r
+    search()
+    ```
+    
+    ```
+    ##  [1] ".GlobalEnv"        "package:dplyr"     "package:rlang"     "package:rmarkdown"
+    ##  [5] "package:nvimcom"   "package:stats"     "package:graphics"  "package:grDevices"
+    ##  [9] "package:utils"     "package:datasets"  "package:colorout"  "package:methods"  
+    ## [13] "Autoloads"         "org:r-lib"         "package:base"
+    ```
+
+- R attempts to finds a function in the first path, if not found, the next one, and so on
+
+- This behavior is implemented by environments. R finds the `sd` function when you type it in the console, which does not exist in the global environment:
+
+.center[
+![:scale 80%](images/envPackages.png)
+]
+
+- The order of the attached packages (environments) is also known as the *search path*. See `search()`
+
+---
+
+## Package environment and namespace environment
+
+- The package environment is the interface to the package exposed to the users. You see functions in this environment using `pkg::fun`
+
+- The namespace environment is the internal environment to the package, not supposed to be accessed by users. You can still access the functions using `pkg:::fun`
+
+
+---
+
+Why a user-defined `var()` won't break `stats:sd()`:
+
+
+```r
+var &lt;- function(x) stop()
+sd(1:3)
+```
+
+```
+## [1] 1
+```
+
+.center[
+![:scale 80%](images/namespace.png)
+]
+
+---
+
+## References
+
+- Chapters 7 and 10, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
