@@ -180,9 +180,9 @@ p3 <- NewPatientWithCheck(-1, "Penny")
 
 ## Designing a base class
 
-- When designing a class, should I build on a numeric vector/matrix, a list, or a data frame as the `base class`?
+- When designing a class, should I build on a numeric vector/matrix, a list, or a data frame as the *base class*?
 
-- The choice of base class shouldn't matter to analytic users by the principle of encapsulation, so it is a matter of speed and ease of implementation
+- The choice of base class shouldn't matter to analytic users by the principle of encapsulation, so it is a matter for the developer in terms of speed and ease of implementation
 
 - Attributes should not carry too much information, since they are prone to be lost
 

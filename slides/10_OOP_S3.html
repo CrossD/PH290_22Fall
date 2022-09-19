@@ -110,7 +110,7 @@ class: big, middle
     ```
     ## function (x, ...) 
     ## UseMethod("print")
-    ## &lt;bytecode: 0x10d025040&gt;
+    ## &lt;bytecode: 0x13880b548&gt;
     ## &lt;environment: namespace:base&gt;
     ```
 
@@ -156,27 +156,29 @@ class: big, middle
     ##        0.75        1.58 
     ## 
     ## $residuals
-    ##     1     2     3     4     5     6     7     8     9    10    11    12    13    14 
-    ## -0.05 -2.35 -0.95 -1.95 -0.85  2.65  2.95  0.05 -0.75  1.25 -0.43 -1.53 -1.23 -2.23 
-    ##    15    16    17    18    19    20 
-    ## -2.43  2.07  3.17 -0.73  2.27  1.07 
+    ##     1     2     3     4     5     6     7     8     9    10    11    12    13 
+    ## -0.05 -2.35 -0.95 -1.95 -0.85  2.65  2.95  0.05 -0.75  1.25 -0.43 -1.53 -1.23 
+    ##    14    15    16    17    18    19    20 
+    ## -2.23 -2.43  2.07  3.17 -0.73  2.27  1.07 
     ## 
     ## $effects
-    ## (Intercept)      group2                                                             
-    ##  -6.8870894   3.5329874  -0.5791796  -1.5791796  -0.4791796   3.0208204   3.3208204 
-    ##                                                                                     
-    ##   0.4208204  -0.3791796   1.6208204  -0.9442956  -2.0442956  -1.7442956  -2.7442956 
+    ## (Intercept)      group2                                                 
+    ##  -6.8870894   3.5329874  -0.5791796  -1.5791796  -0.4791796   3.0208204 
     ##                                                                         
-    ##  -2.9442956   1.5557044   2.6557044  -1.2442956   1.7557044   0.5557044 
+    ##   3.3208204   0.4208204  -0.3791796   1.6208204  -0.9442956  -2.0442956 
+    ##                                                                         
+    ##  -1.7442956  -2.7442956  -2.9442956   1.5557044   2.6557044  -1.2442956 
+    ##                         
+    ##   1.7557044   0.5557044 
     ## 
     ## $rank
     ## [1] 2
     ## 
     ## $fitted.values
-    ##    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17 
-    ## 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.33 2.33 2.33 2.33 2.33 2.33 2.33 
-    ##   18   19   20 
-    ## 2.33 2.33 2.33 
+    ##    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16 
+    ## 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.33 2.33 2.33 2.33 2.33 2.33 
+    ##   17   18   19   20 
+    ## 2.33 2.33 2.33 2.33 
     ## 
     ## $assign
     ## [1] 0 1
@@ -379,9 +381,9 @@ p3 &lt;- NewPatientWithCheck(-1, "Penny")
 
 ## Designing a base class
 
-- When designing a class, should I build on a numeric vector/matrix, a list, or a data frame as the `base class`?
+- When designing a class, should I build on a numeric vector/matrix, a list, or a data frame as the *base class*?
 
-- The choice of base class shouldn't matter to analytic users by the principle of encapsulation, so it is a matter of speed and ease of implementation
+- The choice of base class shouldn't matter to analytic users by the principle of encapsulation, so it is a matter for the developer in terms of speed and ease of implementation
 
 - Attributes should not carry too much information, since they are prone to be lost
 
@@ -497,7 +499,7 @@ DaysInHospital(p4)
 ```
 
 ```
-## Time difference of 259 days
+## Time difference of 260 days
 ```
 
 ```r
@@ -633,7 +635,7 @@ Suppose we have proposed a new "Tremendous Regression". The following function r
     ## Coefficients:
     ## (Intercept)      group2 
     ##        0.75        1.58 
-    ## You are supreme!
+    ## You are tiptop!
     ```
 
 ---
