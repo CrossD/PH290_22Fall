@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Object-Oriented Programming: S3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.15/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Object-Oriented Programming: S3
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Object-oriented programming
+
+- The S3 system
+
+---
+
+class: big, middle
+
+## Object-oriented programming
+
+---
+
+
+## Object-oriented programming
+
+- Object-oriented programming (OOP) is a programming paradigm that organizes code by centering around objects
+
+- A *class* definition describes the common *data* shared by objects belonging to this collection, and *allowable operations* on these objects
+
+---
+
+## Benefits of OOP
+
+- Encapsulation/abstraction: Users can use a method for the class (e.g., plot a model) without knowing the details about how the class is constructed
+
+- Inheritance/do it once (DRY): Write one method function and it will work for many related classes
+
+---
+
+## OOP systems in R
+
+- S3, the simplest and most common OOP system in base R. Easiest to write and use, but also easy to break
+
+- S4, a more rigorous and featureful system than S3. Used extensively by the Bioconductor project
+
+- R6, a reference class system to avoid copying an object. Useful for modeling something that should have only a single copy (e.g., an external database)
+
+---
+
+## Why to use OOP
+
+- Ubiquitous in R, we need to be able to use it
+
+- Great way to organize code
+
+- Be able to develop it
+
+---
+
+class: big, middle
+
+## S3
+
+---
+
+## Some terminologies
+
+- The *class* of an object describes what type is it
+    
+    ```r
+    mod &lt;- lm(extra ~ group, sleep)
+    class(mod)
+    ```
+    
+    ```
+    ## [1] "lm"
+    ```
+
+- The *fields* in a class defines the common data possessed by every instance/object of that class. E.g., `$coefficients`, `$residuals`, etc always exist in an `lm` object
+
+- A *generic* is a function that defines the interface for a job. E.g., `print` behaves differently depending on the class of the first input
+    
+    ```r
+    print
+    ```
+    
+    ```
+    ## function (x, ...) 
+    ## UseMethod("print")
+    ## &lt;bytecode: 0x10d025040&gt;
+    ## &lt;environment: namespace:base&gt;
+    ```
+
+---
+
+- A *method* for a class is a function specifically designed for that class (`lm` here). In S3, method function names ends with `.className`
+    
+    ```r
+    args(stats:::print.lm)
+    ```
+    
+    ```
+    ## function (x, digits = max(3L, getOption("digits") - 3L), ...) 
+    ## NULL
+    ```
+
+---
+
+- The process of finding the right method to apply for a class is called *method dispatch*
+    
+    ```r
+    print(mod)
+    ```
+    
+    ```
+    ## 
+    ## Call:
+    ## lm(formula = extra ~ group, data = sleep)
+    ## 
+    ## Coefficients:
+    ## (Intercept)       group2  
+    ##        0.75         1.58
+    ```
+    
+    ```r
+    modList &lt;- unclass(mod)
+    print(modList)
+    ```
+    
+    ```
+    ## $coefficients
+    ## (Intercept)      group2 
+    ##        0.75        1.58 
+    ## 
+    ## $residuals
+    ##     1     2     3     4     5     6     7     8     9    10    11    12    13    14 
+    ## -0.05 -2.35 -0.95 -1.95 -0.85  2.65  2.95  0.05 -0.75  1.25 -0.43 -1.53 -1.23 -2.23 
+    ##    15    16    17    18    19    20 
+    ## -2.43  2.07  3.17 -0.73  2.27  1.07 
+    ## 
+    ## $effects
+    ## (Intercept)      group2                                                             
+    ##  -6.8870894   3.5329874  -0.5791796  -1.5791796  -0.4791796   3.0208204   3.3208204 
+    ##                                                                                     
+    ##   0.4208204  -0.3791796   1.6208204  -0.9442956  -2.0442956  -1.7442956  -2.7442956 
+    ##                                                                         
+    ##  -2.9442956   1.5557044   2.6557044  -1.2442956   1.7557044   0.5557044 
+    ## 
+    ## $rank
+    ## [1] 2
+    ## 
+    ## $fitted.values
+    ##    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17 
+    ## 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.33 2.33 2.33 2.33 2.33 2.33 2.33 
+    ##   18   19   20 
+    ## 2.33 2.33 2.33 
+    ## 
+    ## $assign
+    ## [1] 0 1
+    ## 
+    ## $qr
+    ## $qr
+    ##    (Intercept)     group2
+    ## 1   -4.4721360 -2.2360680
+    ## 2    0.2236068  2.2360680
+    ## 3    0.2236068  0.1827440
+    ## 4    0.2236068  0.1827440
+    ## 5    0.2236068  0.1827440
+    ## 6    0.2236068  0.1827440
+    ## 7    0.2236068  0.1827440
+    ## 8    0.2236068  0.1827440
+    ## 9    0.2236068  0.1827440
+    ## 10   0.2236068  0.1827440
+    ## 11   0.2236068 -0.2644696
+    ## 12   0.2236068 -0.2644696
+    ## 13   0.2236068 -0.2644696
+    ## 14   0.2236068 -0.2644696
+    ## 15   0.2236068 -0.2644696
+    ## 16   0.2236068 -0.2644696
+    ## 17   0.2236068 -0.2644696
+    ## 18   0.2236068 -0.2644696
+    ## 19   0.2236068 -0.2644696
+    ## 20   0.2236068 -0.2644696
+    ## attr(,"assign")
+    ## [1] 0 1
+    ## attr(,"contrasts")
+    ## attr(,"contrasts")$group
+    ## [1] "contr.treatment"
+    ## 
+    ## 
+    ## $qraux
+    ## [1] 1.223607 1.182744
+    ## 
+    ## $pivot
+    ## [1] 1 2
+    ## 
+    ## $tol
+    ## [1] 1e-07
+    ## 
+    ## $rank
+    ## [1] 2
+    ## 
+    ## attr(,"class")
+    ## [1] "qr"
+    ## 
+    ## $df.residual
+    ## [1] 18
+    ## 
+    ## $contrasts
+    ## $contrasts$group
+    ## [1] "contr.treatment"
+    ## 
+    ## 
+    ## $xlevels
+    ## $xlevels$group
+    ## [1] "1" "2"
+    ## 
+    ## 
+    ## $call
+    ## lm(formula = extra ~ group, data = sleep)
+    ## 
+    ## $terms
+    ## extra ~ group
+    ## attr(,"variables")
+    ## list(extra, group)
+    ## attr(,"factors")
+    ##       group
+    ## extra     0
+    ## group     1
+    ## attr(,"term.labels")
+    ## [1] "group"
+    ## attr(,"order")
+    ## [1] 1
+    ## attr(,"intercept")
+    ## [1] 1
+    ## attr(,"response")
+    ## [1] 1
+    ## attr(,".Environment")
+    ## &lt;environment: R_GlobalEnv&gt;
+    ## attr(,"predvars")
+    ## list(extra, group)
+    ## attr(,"dataClasses")
+    ##     extra     group 
+    ## "numeric"  "factor" 
+    ## 
+    ## $model
+    ##    extra group
+    ## 1    0.7     1
+    ## 2   -1.6     1
+    ## 3   -0.2     1
+    ## 4   -1.2     1
+    ## 5   -0.1     1
+    ## 6    3.4     1
+    ## 7    3.7     1
+    ## 8    0.8     1
+    ## 9    0.0     1
+    ## 10   2.0     1
+    ## 11   1.9     2
+    ## 12   0.8     2
+    ## 13   1.1     2
+    ## 14   0.1     2
+    ## 15  -0.1     2
+    ## 16   4.4     2
+    ## 17   5.5     2
+    ## 18   1.6     2
+    ## 19   4.6     2
+    ## 20   3.4     2
+    ```
+
+---
+
+- Classes may follow a hierachy. A *subclass* (child class) will inherit the data structure and methods defined by its parent class
+
+- In S3, subclass appears before the parent class(es)
+    
+    ```r
+    gmod &lt;- glm(extra ~ group, sleep, family=gaussian)
+    class(gmod)
+    ```
+    
+    ```
+    ## [1] "glm" "lm"
+    ```
+
+---
+
+## `library(sloop)`
+
+- We will be using  for inspecting S3 objects and methods  
+
+- (Think: Sail the OOP) ![:scale 5%](images/sloop.svg)&lt;/br&gt;
+
+![:scale 85%](images/sloopFunc.png)
+
+
+---
+
+## Creating S3 objects 
+
+- There is no rigorous class definition
+
+- Suppose that we want to create a `patient` class. The class should contain ID and patient name
+
+- There are different ways to build the class, but the key is to set the `class` attribute. We build a patient class upon a numeric object and add patient name `pname` as an attribute
+    
+    ```r
+    # A toy example
+    p1 &lt;- 312
+    attr(p1, "pname") &lt;- "Max"
+    class(p1) &lt;- "patient"
+    p1
+    ```
+    
+    ```
+    ## Patient 312 is Max
+    ```
+
+---
+
+- Better yet, create a constructor function to build an object
+
+
+```r
+NewPatient &lt;- function(ID, pname) {
+    structure(ID, 
+        pname = pname,
+        class = "patient"
+    )
+}
+p2 &lt;- NewPatient(93, "Kate")
+```
+
+---
+
+- The constructor can incorporate some sanity checks. If the checks are costly, it makes sense to move the check into a separate validator function
+
+
+```r
+NewPatientWithCheck &lt;- function(ID, pname) {
+    stopifnot(ID &gt; 0)
+    stopifnot(is.character(pname))
+
+    structure(ID, 
+        pname = pname,
+        class = "patient"
+    )
+}
+p3 &lt;- NewPatientWithCheck(-1, "Penny")
+```
+
+```
+## Error in NewPatientWithCheck(-1, "Penny"): ID &gt; 0 is not TRUE
+```
+
+---
+
+## Designing a base class
+
+- When designing a class, should I build on a numeric vector/matrix, a list, or a data frame as the `base class`?
+
+- The choice of base class shouldn't matter to analytic users by the principle of encapsulation, so it is a matter of speed and ease of implementation
+
+- Attributes should not carry too much information, since they are prone to be lost
+
+- Numeric vectors/matrices are fastest to do arithmetics, so they are the preferred choice if efficiency is a consideration
+
+---
+
+## Subclass
+
+Let's consider a new in-patient class. An in-patient is a patient (share the fields of the latter) but should also have a DOA (date of admission) field
+
+- We should modify the constructor
+    
+    ```r
+    NewPatient2 &lt;- function(ID, pname, ..., subclass=character()) {
+        structure(ID, 
+            pname = pname,
+            ..., 
+            class = c(subclass, "patient")
+        )
+    }
+    p4 &lt;- NewPatient2(123, 
+        "Novak", 
+        DOA = as.Date("2022/01/02"), 
+        subclass="in-patient")
+    class(p4)
+    ```
+    
+    ```
+    ## [1] "in-patient" "patient"
+    ```
+
+---
+
+## S3 generic
+
+You can use existing generics (`print()`, `plot()`, etc) or define new ones:
+
+
+```r
+DaysInHospital &lt;- function(x, ...) {
+    stopifnot(x &gt; 0) # validation, etc
+    UseMethod("DaysInHospital")
+}
+```
+
+- Always include `...` in the generic since method functions may have additional optional arguments
+
+- `UseMethod("GenericName")` starts the method dispatch
+
+- Code written after `UseMethod()` will not be evaluated
+
+---
+
+## Method dispatch
+
+- `UseMethod()` works by trying to use the following in sequel
+    - the most specific method for the subclass;
+    - a method for the parent class, and so on; 
+    - the default method;
+    - or throw an error
+
+- S3 method dispatch is based on the class of the first input to the generic
+    
+    ```r
+    s3_dispatch(print(p4))
+    ```
+    
+    ```
+    ## =&gt; print.in-patient
+    ## -&gt; print.patient
+    ##  * print.default
+    ```
+
+---
+
+## Creating methods
+
+- A method is named `genericName.className()` 
+
+- An example:
+
+
+```r
+print.patient &lt;- function(x) {
+    writeLines(sprintf("Patient %d is %s", x, attr(x, "pname")))
+    invisible(x)
+}
+print(p1)
+```
+
+```
+## Patient 312 is Max
+```
+
+```r
+s3_dispatch(print(p2))
+```
+
+```
+## =&gt; print.patient
+##  * print.default
+```
+
+---
+
+
+```r
+`DaysInHospital.in-patient` &lt;- function(x) {
+    Sys.Date() - attr(x, "DOA")
+}
+DaysInHospital(p4)
+```
+
+```
+## Time difference of 259 days
+```
+
+```r
+DaysInHospital(p1)
+```
+
+```
+## Error in UseMethod("DaysInHospital"): no applicable method for 'DaysInHospital' applied to an object of class "patient"
+```
+
+---
+
+- A method should have the identical first argument name as the generic, or otherwise it could be very confusing behavior is going to arise
+
+- A bad example, where the first argument name of the method does not match that of the generic
+
+
+```r
+t1 &lt;- t.test(extra ~ group, sleep) # works
+t2 &lt;- t.test(formula=extra ~ group, sleep) # does not
+```
+
+```
+## Error in if (stderr &lt; 10 * .Machine$double.eps * abs(mx)) stop("data are essentially constant"): missing value where TRUE/FALSE needed
+```
+
+---
+
+## `NextMethod()`
+
+- `NextMethod()` can be used to avoid duplication of code. Suppose that a generic function needs to do slightly more when given a subclass than its parent class
+
+- It is going to capture the current call frame and evaluate the next method using the same inputs
+
+- E.g., given an in-patient, print it like what is done for a patient, but also print the DOA
+    
+    ```r
+    `print.in-patient` &lt;- function(x) {
+        NextMethod()
+        writeLines(sprintf("DOA is %s", attr(x, "DOA")))
+        invisible(x)
+    }
+    print(p4)
+    ```
+    
+    ```
+    ## Patient 123 is Novak
+    ## DOA is 2022-01-02
+    ```
+
+---
+
+class: inverse
+
+## Your turn
+
+Create a new subclass `ICU-patient` which should be a subclass of `in-patient`. This subclass should include a further field `reason` for the reason of admittance.
+
+- Create a ICU-patient object `p5` using `NewPatient2()`. Make sure to the class is `c("ICU-patient", "in-patient", "patient")`, and also make sure the object has `pname`, `DOA`, and `reason` fields. 
+
+- Run `print(p5)` and what you get. Use `s3_dispatch(print(p5))` to reason about the the method dispatch
+
+- Implement the `print.ICU-patient()` method, which should print out the reason in addition to other information. Then redo the last step
+
+
+
+
+---
+
+## One more example
+
+Suppose we have proposed a new "Tremendous Regression". The following function returns an `tm` object, which is a subclass of an `lm` model
+
+- Needs a function to construct the class
+    
+    ```r
+    tm &lt;- function(...) {
+        res &lt;- lm(...)
+        class(res) &lt;- c("tm", class(res))
+        res
+    }
+    fmod1 &lt;- tm(extra ~ group, sleep)
+    ```
+
+- Generics like `plot()`, `print()`, `coef()` works right out of the box thanks to S3 method dispatch
+
+---
+
+- Reimplement a more specific method for an existing generic
+    
+    ```r
+    print.tm &lt;- function(x, ...) {
+        cat(sprintf("Fitting: %s\n\n", deparse(x$terms)))
+        cat("Coefficients:\n")
+        print.default(coef(x))
+        invisible(x)
+    }
+    fmod1
+    ```
+    
+    ```
+    ## Fitting: extra ~ group
+    ## 
+    ## Coefficients:
+    ## (Intercept)      group2 
+    ##        0.75        1.58
+    ```
+
+---
+
+- Implement a new generic
+    
+    ```r
+    present &lt;- function(x, ...) {
+        UseMethod("present")
+    }
+    ```
+
+- ... and a method
+    
+    ```r
+    present.tm &lt;- function(x, ...) {
+        print(x)
+        writeLines(praise::praise())
+        invisible(x)
+    }
+    present(fmod1)
+    ```
+    
+    ```
+    ## Fitting: extra ~ group
+    ## 
+    ## Coefficients:
+    ## (Intercept)      group2 
+    ##        0.75        1.58 
+    ## You are supreme!
+    ```
+
+---
+
+## Example use of S3 in packages
+
+- [`caret`](https://cran.rstudio.com/web/packages/caret/), wildly popular for classification and regression training
+
+- [`RFPCA`](https://github.com/CrossD/RFPCA), for Riemannian and multivariate functional data analysis
+
+
+---
+
+## Issues for the S3 system
+
+- Attributes are prone to be lost when using `[` and `c`, so it is hard to reset the class vector and other attributes
+    
+    ```r
+    `[.patient` &lt;- function(x, i) {
+        x[i] # won't work
+    }
+    ```
+
+- Must call the generator again
+    
+    ```r
+    `[.patient` &lt;- function(x, i) {
+        res &lt;- NewPatient2(NextMethod(), pname=attr(x, "pname")[i])
+        res
+    }
+    p5p6 &lt;- NewPatient2(c(555, 666), c("Jack", "Mary"))
+    p5p6[2]
+    ```
+    
+    ```
+    ## Patient 666 is Mary
+    ```
+
+- Tedious to make it work for subclasses. S4 is more consistent in terms of inheritance
+
+---
+
+## References
+
+- Chapters 12 and 13, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
