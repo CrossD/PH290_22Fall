@@ -68,6 +68,7 @@ For example, you may want to compare
     - Think well about the input (required and optional arguments) and output formats, 
     - include at least one numerical/text-based comparison and one graphical comparison, and
     - document your function.
+    
     You are not expected to write anything more than 100 lines of code (documentation excluded).
 
     *What you write in this question will be reviewed by a classmate in the next homework in terms of correctness, reproducibility, clarity, and coding style.*

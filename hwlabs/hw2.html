@@ -11,7 +11,7 @@
 
 
 
-<title>Homework #1</title>
+<title>Homework #2</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -361,7 +361,7 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Homework #1</h1>
+<h1 class="title toc-ignore">Homework #2</h1>
 
 </div>
 
@@ -371,92 +371,108 @@ explanation (not just R comments) and is expected to be reproducible.
 You may decide for yourself what reproducible file format do you use.
 <em>Please post on Ed Discussion (accessible in bCourses) for technical
 questions.</em></p>
+<div id="code-review" class="section level2">
+<h2>Code review</h2>
+<p>We will be reviewing other’s code for Question 4 in <a href="hw1.html">HW1</a>. Each of you will be the reviewer who reviews
+another classmate’s code, and also the coder who send out the code for
+review. Please find the reviewer assignment list <a href="codeReview.xlsx">here</a>.</p>
 <ol style="list-style-type: decimal">
-<li><p>Write down two differences between the type and the class of an R
-object.</p></li>
-<li><p>Create a function <code>fp</code> to calculate the <span class="math inline">\(p\)</span>th absolute power of a vector of
-numbers, namely <span class="math display">\[f_p(x) = |x|^p,\]</span>
-where <span class="math inline">\(|x|\)</span> is the absolute value of
-<span class="math inline">\(x\)</span>. The function should follow the
-following specifics:</p>
+<li><p>(Code review Part I: Coder) Provide the following to the assigned
+Reviewer:</p>
 <ul>
-<li>The function has two arguments <code>x</code> and <code>p</code>. It
-should be vectorized in <code>x</code> (take in a vector argument and
-return the entrywise power). The input <code>p</code> is assumed to be a
-scalar.</li>
-<li>The argument <code>p</code> should have a default value of 2. You
-can assume the input value for <code>p</code> is at least 1.</li>
-<li>The function should also include an argument <code>deriv</code> to
-indicate whether you want to calculate the value of the first derivative
-(if <code>deriv=TRUE</code>) or the original function
-(<code>deriv=FALSE</code>). The first derivative is <span class="math display">\[f_p&#39;(x) = \begin{cases}
-           p |x|^{p - 1}\text{sign}(x) &amp; \text{if } p &gt; 1 \\
-           \text{sign}(x) &amp; \text{if } p = 1,
-           \end{cases}\]</span> where <span class="math display">\[\text{sign}(x)=\begin{cases}
-1 &amp; \text{if } x &gt; 0 \\
-0 &amp; \text{if } x = 0 \\
--1 &amp; \text{if } x &lt; 0.
-\end{cases}\]</span></li>
+<li>Source code</li>
+<li>Provide at least one example usage of your function</li>
+<li>Documentation, detailing the usage of your function (Also make sure
+your function does what it describes)</li>
 </ul>
-<ol style="list-style-type: lower-alpha">
-<li>Write the function.</li>
-<li>Write at least one unit test for each of the following aspects using
-<code>testthat::expect_equal</code>. [Hint: Design your own input in
-each case. Each test should test on a slightly different aspect.]
-<ol style="list-style-type: lower-roman">
-<li>The function is vectorized in <code>x</code>, so that that your
-function works with a vector input</li>
-<li>When <span class="math inline">\(p=4\)</span>, the result is the
-numbers raised to the power of 4</li>
-<li>When <span class="math inline">\(p=1\)</span>, the result is the
-absolute values</li>
-<li>When <span class="math inline">\(p=2\)</span>, the derivative is 2
-times <span class="math inline">\(x\)</span></li>
-<li>When <span class="math inline">\(p=1\)</span>, the derivative equals
-the sign of <span class="math inline">\(x\)</span></li>
-<li>The function is works if <code>x</code> is an empty vector
-<code>numeric(length=0)</code></li>
-</ol></li>
-<li>Group your tests together using
-<code>testthat::test_that</code></li>
-</ol></li>
-<li><p>You will perform a subgroup analyses using a diabetes dataset
-available <a href="https://archive.ics.uci.edu/ml/datasets/diabetes+130-us+hospitals+for+years+1999-2008">here</a>.
-The Data Folder includes a download link. We will focus on the
-<code>race</code>, <code>gender</code>, <code>A1Cresult</code> (&gt;7
-and &gt;8 are abnormal), and <code>time_in_hospital</code> (unit is
-days). We define a subgroup as a combination of race and gender. For
-each subgroup,</p>
+<p>Please send your files through email to the assigned reviewer and
+copy the <a href="mailto:xdai@berkeley.edu">instructor</a>. The email
+should be titled exactly “PH 290 HW2 Code Review”. <strong>Please finish
+this step before this homework is due.</strong></p></li>
+<li><p>(Code review Part II: Reviewer) Write 2-3 pargraphs to comment on
+correctness, reproducibility, clarity, and coding style of the code you
+reviewed. Make sure to be kind and constructive to your classmate 😊. In
+addition to the paragraphs, please include in your report</p>
 <ul>
-<li>create a cross-tabulation of A1Cresult by time_in_hospital,</li>
-<li>conduct a t-test on whether the time in hospital differs among
-patients with normal and abnormal A1C result.</li>
+<li>come up with at least three new usages of the function (three input
+scenarios) to test out the function, possibly using new datasets;
+and</li>
+<li>highlight three strengths and three risks in the code.</li>
 </ul>
-<p>Display the results for a few selected subgroups.</p></li>
-<li><p>Design and write a utility function to compare linear regression
-models side-by-side. For example, you may want to compare</p>
-<pre><code>mod1 &lt;- lm(lifeExp ~ year, gapminder::gapminder)
-mod2 &lt;- lm(lifeExp ~ year + gdpPercap, gapminder::gapminder)</code></pre>
-<p>The goal of this function is to facilitate a quick visual comparison
-of models, instead of having to print out models, scroll around, and
-extract information from separate places. This is an open-ended
-question. You are free to determine the input and output formats, how
-many models do you compare (2 or any number of models?), and what
-aspects do you compare (the number of terms, regression coefficients if
-common, p-values, fitted values, etc, your choice). Make sure to</p>
-<ul>
-<li>Think well about the input (required and optional arguments) and
-output formats,</li>
-<li>include at least one numerical/text-based comparison and one
-graphical comparison, and</li>
-<li>document your function.</li>
-</ul>
-<p>You are not expected to write anything more than 100 lines of code
-(documentation excluded).</p>
-<p><em>What you write in this question will be reviewed by a classmate
-in the next homework in terms of correctness, reproducibility, clarity,
-and coding style.</em></p></li>
+<p>The code review report should be a separate report from your usual
+HW2 submission. Please send the report by replying all the previous
+email when you are done. <strong>This part is due 7 days after the due
+date of this homework.</strong></p></li>
 </ol>
+</div>
+<div id="scoping-rules" class="section level2">
+<h2>Scoping rules</h2>
+<ol style="list-style-type: decimal">
+<li><p>Reason with each of the following code (run them in your head).
+Make a prediction of the output before running the code (note that the
+last two questions may have multiple outputs). Use the principles of R
+scoping rules to explain why the output makes sense.</p>
+<ol style="list-style-type: lower-alpha">
+<li><pre class="r"><code>x &lt;- 10
+f1 &lt;- function(x) {
+  function() {
+    x + 10
+  }
+}
+g &lt;- f1(1)
+g()</code></pre></li>
+<li><pre class="r"><code>y &lt;- 2
+i1&lt;- function() {
+  z &lt;- 3
+  c(y, z)
+}
+y &lt;- 3
+i1()</code></pre></li>
+<li><pre class="r"><code>f &lt;- function(x) print(&quot;ha&quot;)
+g &lt;- function(y) print(&quot;hello&quot;)
+y = f()
+g(y)</code></pre></li>
+<li><pre class="r"><code>f &lt;- function(x) print(&quot;ha&quot;)
+g &lt;- function(y) print(&quot;hello&quot;)
+g(y = f())</code></pre></li>
+</ol></li>
+<li><p>We are going to <em>numerically</em> calculate the definite
+integral <span class="math display">\[\int_l^u f(x) dx\]</span> of an
+arbitrary polynomial <span class="math display">\[f(x) = a_0 + a_1 x +
+a_2 x^2 + \dots + a_n x^n, \quad x\in \mathbb{R}\]</span> for <span class="math inline">\(n \ge 0\)</span>. The input is a vector
+<code>a</code> specifying the coefficients (<code>a[1]</code>=<span class="math inline">\(a_0\)</span>, <code>a[2]</code>=<span class="math inline">\(a_1\)</span>, etc), a lower bound
+<code>lower</code> (<span class="math inline">\(l\)</span>), and an
+upper bound <code>upper</code> (<span class="math inline">\(u\)</span>).</p>
+<p>Follow the following steps:</p>
+<ol style="list-style-type: lower-alpha">
+<li>create a function factory, namely, a function that takes in the
+coefficients <code>a</code> and outputs a polynomial function. E.g., if
+you input <code>a = c(1, -1)</code>, the returned value should be a
+function that does the same as <code>function(x) -1 + 1 * x</code>. Make
+sure the manufactured function is vectorized, namely if you input a
+vector to a manufactured function, the output is a vector with the same
+length</li>
+<li>Test that your function factory behaves as expected. Write at least
+one unit test for each of the following aspects:
+<ol style="list-style-type: lower-roman">
+<li>The output of your function factory is a function</li>
+<li>Manufacture a function with <span class="math inline">\(a_0 =
+2\)</span>. Given a vector input <code>x</code>, the manufactured
+function returns a vector of all <code>2</code> with the same length as
+<code>x</code></li>
+<li>Manufacture a function with <span class="math inline">\(a_0 =
+1\)</span> and <span class="math inline">\(a_1 = -1\)</span>. The
+manufactured function works well given a vector input
+<code>x</code></li>
+</ol></li>
+<li>Manufacture a polynomial function with <span class="math inline">\(a_0 = 1\)</span>, <span class="math inline">\(a_1
+= 0\)</span>, and <span class="math inline">\(a_2 = 1\)</span>, and
+apply the <code>integrate</code> function to evaluate the definite
+integral of the manufactured function from 0 to 10 (e.g.,
+<code>integrate(f, 0, 10)</code>)</li>
+</ol></li>
+</ol>
+</div>
 
 
 

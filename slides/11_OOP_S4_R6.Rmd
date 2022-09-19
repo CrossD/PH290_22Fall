@@ -1,0 +1,128 @@
+---
+title: "S4 and R6"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+## Outline
+
+- The S4 system
+
+- The R6 system
+
+---
+
+class: big, middle
+
+## S4
+
+---
+
+
+---
+
+class: inverse
+
+## Your turn
+
+Create a new subclass `ICU-patient` which should be a subclass of `in-patient`. This subclass should include a further field `reason` for the reason of admittance.
+
+- Create a ICU-patient object `p5` using `NewPatient2()`. Make sure to the class is `c("ICU-patient", "in-patient", "patient")`, and also make sure the object has `pname`, `DOA`, and `reason` fields. 
+
+- Run `print(p5)` and what you get. Use `s3_dispatch(print(p5))` to reason about the the method dispatch
+
+- Implement the `print.ICU-patient()` method, which should print out the reason in addition to other information. Then redo the last step
+
+```{r, include=FALSE, eval=FALSE}
+p5 <- NewPatient2(555, 
+    "Jack", 
+    reason="stroke", 
+    DOA = "1965-10-30",
+    subclass = c("ICU-patient", "in-patient"))
+print(p5)
+`print.ICU-patient` <- function(x) {
+    NextMethod()
+    writeLines(sprintf("Admitted because of %s", attr(x, "reason")))
+    invisible(x)
+}
+print(p5)
+```
+
+
+---
+
+## One more example
+
+Suppose we have proposed a new "Tremendous Regression". The following function returns an `tm` object, which is a subclass of an `lm` model
+
+- Needs a function to construct the class
+    ```{r}
+    tm <- function(...) {
+        res <- lm(...)
+        class(res) <- c("tm", class(res))
+        res
+    }
+    fmod1 <- tm(extra ~ group, sleep)
+    ```
+
+- Generics like `plot()`, `print()`, `coef()` works right out of the box thanks to S3 method dispatch
+
+---
+
+- Reimplement a more specific method for an existing generic
+    ```{r}
+    print.tm <- function(x, ...) {
+        cat(sprintf("Fitting: %s\n\n", deparse(x$terms)))
+        cat("Coefficients:\n")
+        print.default(coef(x))
+        invisible(x)
+    }
+    fmod1
+    ```
+
+---
+
+- Implement a new generic
+    ```{r}
+    present <- function(x, ...) {
+        UseMethod("present")
+    }
+    ```
+
+- ... and a method
+    ```{r}
+    present.tm <- function(x, ...) {
+        print(x)
+        writeLines(praise::praise())
+        invisible(x)
+    }
+    present(fmod1)
+    ```
+
+---
+
+## Example use of S3 in packages
+
+- [`caret`](https://cran.rstudio.com/web/packages/caret/), wildly popular for classification and regression training
+
+- [`RFPCA`](https://github.com/CrossD/RFPCA), for Riemannian and multivariate functional data analysis
+
+
+---
+
+## References
+
+- Chapters 12 and 13, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham

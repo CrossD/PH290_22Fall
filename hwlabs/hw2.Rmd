@@ -1,0 +1,95 @@
+---
+title: 'Homework #2'
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Your submission should include both code and well-formatted explanation (not just R comments) and is expected to be reproducible. You may decide for yourself what reproducible file format do you use. 
+*Please post on Ed Discussion (accessible in bCourses) for technical questions.*
+
+## Code review
+
+We will be reviewing other's code for Question 4 in [HW1](hw1.html). Each of you will be the reviewer who reviews another classmate's code, and also the coder who send out the code for review. Please find the reviewer assignment list [here](codeReview.xlsx).
+
+1. (Code review Part I: Coder) 
+Provide the following to the assigned Reviewer:
+
+    - Source code
+    - Provide at least one example usage of your function
+    - Documentation, detailing the usage of your function (Also make sure your function does what it describes)
+
+    Please send your files through email to the assigned reviewer and copy the [instructor](mailto:xdai@berkeley.edu). The email should be titled exactly "PH 290 HW2 Code Review".
+    **Please finish this step before this homework is due.**
+    
+
+1. (Code review Part II: Reviewer) Write 2-3 pargraphs to comment on correctness, reproducibility, clarity, and coding style of the code you reviewed. Make sure to be kind and constructive to your classmate 😊. In addition to the paragraphs, please include in your report
+
+    - come up with at least three new usages of the function (three input scenarios) to test out the function, possibly using new datasets; and 
+    - highlight three strengths and three risks in the code.
+
+    The code review report should be a separate report from your usual HW2 submission. Please send the report by replying all the previous email when you are done. **This part is due 7 days after the due date of this homework.** 
+
+## Scoping rules
+
+
+1. Reason with each of the following code (run them in your head). Make a prediction of the output before running the code (note that the last two questions may have multiple outputs). Use the principles of R scoping rules to explain why the output makes sense.
+
+    a. 
+        ```{R, eval=FALSE} 
+        x <- 10
+        f1 <- function(x) {
+          function() {
+            x + 10
+          }
+        }
+        g <- f1(1)
+        g()
+        ```
+    
+    b. 
+        ```{r, eval=FALSE}
+        y <- 2
+        i1<- function() {
+          z <- 3
+          c(y, z)
+        }
+        y <- 3
+        i1()
+        ```    
+    
+    a. 
+        ```{r, eval=FALSE}
+        f <- function(x) print("ha")
+        g <- function(y) print("hello")
+        y = f()
+        g(y)
+        ```
+        
+    a. 
+        ```{r, eval=FALSE}
+        f <- function(x) print("ha")
+        g <- function(y) print("hello")
+        g(y = f())
+        ```
+
+
+
+1. We are going to *numerically* calculate the definite integral 
+$$\int_l^u f(x) dx$$
+of an arbitrary polynomial
+$$f(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_n x^n, \quad x\in \mathbb{R}$$
+for $n \ge 0$. 
+The input is a vector `a` specifying the coefficients (`a[1]`=$a_0$, `a[2]`=$a_1$, etc), a lower bound `lower` ($l$), and an upper bound `upper` ($u$). 
+
+    Follow the following steps:
+
+    a. create a function factory, namely, a function that takes in the coefficients `a` and outputs a polynomial function. E.g., if you input `a = c(1, -1)`, the returned value should be a function that does the same as `function(x) -1 + 1 * x`. Make sure the manufactured function is vectorized, namely if you input a vector to a manufactured function, the output is a vector with the same length
+    a. Test that your function factory behaves as expected. Write at least one unit test for each of the following aspects:
+        i. The output of your function factory is a function
+        i. Manufacture a function with $a_0 = 2$. Given a vector input `x`, the manufactured function returns a vector of all `2` with the same length as `x`
+        i. Manufacture a function with $a_0 = 1$ and $a_1 = -1$. The manufactured function works well given a vector input `x`
+    a. Manufacture a polynomial function with $a_0 = 1$, $a_1 = 0$, and $a_2 = 1$, and apply the `integrate` function to evaluate the definite integral of the manufactured function from 0 to 10 (e.g., `integrate(f, 0, 10)`)
