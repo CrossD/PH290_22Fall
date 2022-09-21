@@ -31,6 +31,162 @@ class: big, middle
 
 ---
 
+## S4
+
+- S4 is a formal class system in R
+
+- Has validator, multiple inheritance, multiple dispatch, etc for more rigorous and featureful OOP
+
+- All related functions are in `library(methods)` (loaded by default)
+
+---
+
+- S4 has a formal definition of class using `setClass()` 
+    ```{r}
+    setClass("Patient", 
+             slots = c(ID = "integer", pname = "character"), 
+             prototype = list(ID = integer(), pname=character()))
+    ```
+
+- `showClass()` prints the information
+    ```{r}
+    showClass("Patient")
+    ```
+
+
+---
+
+## Constructor
+
+- `new()` is a low-level constructor for the class. Should be used by only the developer
+    ```{r}
+    new("Patient", ID=312L, pname="Max")
+    ```
+
+- We should make available a high-level constructor for the users
+    ```{r}
+    NewPatient3 <- function(ID, pname, ..., Class="Patient") {
+        ID <- as.integer(ID)
+        do.call(new, list(Class, ID=ID, pname=pname, ...))
+    }
+    p1 <- NewPatient3(1, "Max")
+    ```
+
+---
+
+## Slots
+
+- *Slots* of an S4 object (S3: fields) are accessed using `@` (S3: `$`) and `slot()` (S3: `[[`)
+    ```{r}
+    p1@pname
+    slot(p1, "ID")
+    ```
+
+- Slot names are given by `slotNames()` (S3: `names`)
+
+
+---
+
+## Validator
+
+- Validator is created using `setValidity()`. Returns `TRUE` if the object is valid, or a character vector for error messages. 
+    ```{r, results="hide"}
+    setValidity("Patient", function(object) {
+        msg <- character()
+        if (object@ID < 0L) {
+            msg <- c(msg, "ID should be positive integer")
+        } 
+        if (nchar(object@pname) > 20) {
+            msg <- c(msg, "pname should be shorter than 20")
+        }
+
+        if (length(msg) > 0) {
+            return(msg)
+        } else {
+            return(TRUE)
+        }
+    })
+    ```
+
+- It will be run every time a new object is created via `new()`. Can also be invoked explicitely using `validObject()`
+
+---
+
+## Generic and methods
+
+- `show()` is the S4 analogue of `print()` in S3
+
+- `setMethod(generic, class, method)` sets the method
+    ```{r}
+    setMethod("show", 
+              signature="Patient", 
+              function(object) 
+                  writeLines(sprintf("Patient %d is %s", 
+                      object@ID, 
+                      object@pname)))
+    p1
+    ```
+
+- The class signiture can be `"ANY"` for a default method, or `"MISSING"` for a missing input
+
+---
+
+## Inheritance
+
+- `setClass(..., contains=superclasses)` defines a subclass extending the given superclasses
+    ```{r}
+    setClass("In-patient", 
+             contains = "Patient",
+             slots = c(DOA = "Date"),
+             prototype = list(DOA = as.Date(NA)))
+    p3 <- NewPatient3(3, "Mary", 
+                      DOA=as.Date("2022-01-02"), 
+                      Class="In-patient")
+    ```
+
+- `contains="VIRTUAL"` creates a virtual class. This class is only for being inherited upon. No instance from a virtual class may be created
+
+---
+
+- `is(object)` reports the class, `is(object, class)` tests class membership
+```{r}
+is(p1)
+is(p1, "In-patient")
+```
+
+---
+
+## Coercion
+
+- S4 has a powerful class coercion system
+```{r}
+p4 <- as(p1, "In-patient")
+p4
+```
+
+- `setAs()` specifies a new coercion method
+```{r}
+setAs("Patient", "character", function(from) from@pname)
+as(p4, "character")
+```
+
+---
+
+## New generic
+
+- `setGeneric(generic, definition)` creates a new generic
+
+- `standardGeneric(generic)` starts the method dispatch
+    ```{r}
+    setGeneric("DaysInHospital", 
+        function(object) standardGeneric("DaysInHospital"))
+    setMethod("DaysInHospital", 
+        "In-patient", 
+        function(object) Sys.Date() - object@DOA)
+    DaysInHospital(p3)
+    ```
+
+- `callNextMethod()` calls the method for the next class (like `NextMethod()` for S3)
 
 ---
 
@@ -38,13 +194,14 @@ class: inverse
 
 ## Your turn
 
-Create a new subclass `ICU-patient` which should be a subclass of `in-patient`. This subclass should include a further field `reason` for the reason of admittance.
+Create a new subclass `ICU-patient` which should be a subclass of `In-patient`. This subclass should include a further slot `reason` for the reason of admittance.
 
-- Create a ICU-patient object `p5` using `NewPatient2()`. Make sure to the class is `c("ICU-patient", "in-patient", "patient")`, and also make sure the object has `pname`, `DOA`, and `reason` fields. 
 
-- Run `print(p5)` and what you get. Use `s3_dispatch(print(p5))` to reason about the the method dispatch
+- Run `show(p3)` and what you get
 
-- Implement the `print.ICU-patient()` method, which should print out the reason in addition to other information. Then redo the last step
+- Implement the `show()` method for `In-patient` class, which should print out the DOA in addition to other information. Then redo the last step
+
+- Create an `ICU-patient` object `p5` using `NewPatient3()`. Show the S4 class of the object using `is()`. Make sure to the class is `c("ICU-patient", "In-patient", "Patient")`, and also make sure the object has `pname`, `DOA`, and `reason` fields. 
 
 ```{r, include=FALSE, eval=FALSE}
 p5 <- NewPatient2(555, 
@@ -61,68 +218,280 @@ print(p5)
 print(p5)
 ```
 
+---
+
+## Directional data example
+
+Here we will implement an S4 class for directional data, namely data that lie on a unit circle
+
+```{r, echo=FALSE, fig.height=5, fig.width=5, fig.align='center'}
+set.seed(1)
+theta <- runif(10)
+x <- rbind(cos(theta * 2 * pi), sin(theta * 2 * pi))
+thetaDen <- seq(0, 1, length.out=200)
+xDen <- rbind(cos(thetaDen * 2 * pi), sin(thetaDen * 2 * pi))
+plot(x[1, ], x[2, ], axes = FALSE, ann=FALSE, xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1), asp=1)
+arrows(0, 0, x[1, ] * 0.9, x[2, ] * 0.9)
+lines(xDen[1, ], xDen[2, ])
+```
 
 ---
 
-## One more example
+- Represent a point by $\theta \in [0, 1)$. E.g., $\theta=1/4$ means 1/4 cycle clockwise (the 3 o'clock direction)
+```{r}
+setClass("Direction", 
+         slots = c(theta = "numeric")) # theta in [0, 1)
 
-Suppose we have proposed a new "Tremendous Regression". The following function returns an `tm` object, which is a subclass of an `lm` model
-
-- Needs a function to construct the class
-    ```{r}
-    tm <- function(...) {
-        res <- lm(...)
-        class(res) <- c("tm", class(res))
-        res
-    }
-    fmod1 <- tm(extra ~ group, sleep)
-    ```
-
-- Generics like `plot()`, `print()`, `coef()` works right out of the box thanks to S3 method dispatch
+# better write a constructor and make sure theta is always a double, not an integer
+a <- new("Direction", theta=0) 
+```
 
 ---
 
-- Reimplement a more specific method for an existing generic
+```{r}
+setValidity("Direction", function(object) {
+  if (all(object@theta >= 0 & object@theta < 1)) {
+    TRUE
+  } else {
+    "theta must lie in [0, 1)"
+  }
+})
+eps <- sqrt(.Machine$double.eps)
+d1 <- new("Direction", theta=seq(0, 1 - eps, length.out=4))
+d1
+```
+
+---
+
+## Getters and setters
+
+- Getters and setters are functions to extract and set information
+
+- They should be provided to the users for the consistency of Application Programming Interface (API)
+    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
+    - The developer may change the underlying implementation without changing the API
+
+---
+
+- Create a getter and a setter for the position of the points in terms of the degree
+    ```{r, results='hide'}
+    setGeneric("degree", function(object) standardGeneric("degree"))
+    setMethod("degree", "Direction", 
+              function(object) object@theta * 360)
+    setGeneric("degree<-", 
+               function(object, value) standardGeneric("degree<-"))
+    setMethod("degree<-", "Direction", function(object, value) {
+        object@theta <- value / 360
+        validObject(object)
+        object
+    })
+    ```
+
+- The setter should prevent the user from setting erroneous values
+
+---
+
+```{r}
+degree(d1)
+d2 <- d1
+degree(d2) <- degree(d2) / 3
+d2
+```
+
+---
+
+- Create a new generator
     ```{r}
-    print.tm <- function(x, ...) {
-        cat(sprintf("Fitting: %s\n\n", deparse(x$terms)))
-        cat("Coefficients:\n")
-        print.default(coef(x))
-        invisible(x)
+    RUnifDirection <- function(n) {
+      new("Direction", theta = runif(n, max = 1 - eps))
     }
-    fmod1
+    d2 <- RUnifDirection(3)
     ```
 
 ---
 
-- Implement a new generic
-    ```{r}
-    present <- function(x, ...) {
-        UseMethod("present")
-    }
-    ```
+## Implementing the arithmatics
 
-- ... and a method
+We will be doing some arithmatics on the directions. `x + 0.3` should mean rotating `x` by 0.3 cycles clockwise
+
+- S4 method can dispatch on any number of arguments. This is called *multiple dispatch*
     ```{r}
-    present.tm <- function(x, ...) {
-        print(x)
-        writeLines(praise::praise())
-        invisible(x)
+    AddNumToDirection <- function(num, d1) {
+      # follows the recycling rule
+      d1@theta <- (d1@theta + num) %% 1
+      d1
     }
-    present(fmod1)
+    setMethod(`+`, c("Direction", "numeric"), 
+              function(e1, e2) AddNumToDirection(e2, e1))
+    setMethod(`+`, c("numeric", "Direction"), 
+              function(e1, e2) AddNumToDirection(e1, e2))
+    setMethod(`+`, c("Direction", "Direction"), 
+              function(e1, e2) AddNumToDirection(e1@theta, e2))
     ```
+---
+
+```{r}
+d1 + 0.3
+d1 + d1
+```
 
 ---
 
-## Example use of S3 in packages
+## Inheritance
 
-- [`caret`](https://cran.rstudio.com/web/packages/caret/), wildly popular for classification and regression training
+- We want to a new superclass representing a direction field. Namely, it implements directions starting from arbitrary locations (instead of just the origin)
 
-- [`RFPCA`](https://github.com/CrossD/RFPCA), for Riemannian and multivariate functional data analysis
+- Firstly, define a new class which is a location in 2D
+    ```{r}
+    setClass("Location", 
+             slots = c(loc = "matrix"),
+             prototype = list(loc=matrix(NA_real_, nrow=2, ncol=0)))
+    l1 <- new("Location")
+    l2 <- new("Location", loc= matrix(as.numeric(1:6), 2, 3))
+    ```
 
+
+---
+
+- Then define the superclass, which inherits from two classes. S4 objects can inherit from multiple superclasses. This is called *multiple inheritance* 
+    ```{r}
+    setClass("DirectionField",
+             contains = c("Direction", "Location"))
+    dl2 <- new("DirectionField", d2, l2)
+    dl2
+    ```
+
+---
+- We can define the `length()` method for the superclasses
+    ```{r}
+    setMethod("length", "Direction", function(x) length(x@theta))
+    setMethod("length", "Location", function(x) length(x@loc))
+    length(l2)
+    length(d1)
+    ```
+
+- It works for the `DirectionField` subclass, but which method are we using?
+    ```{r}
+    length(dl2)
+    ```
+
+- .style[Avoid this kind of ambiguous specification by providing a specific method]
+
+
+
+---
+
+## Example use of S4 in packages
+
+- `stats4::mle`, for the `mle` class and related methods
+
+- `lubridate::period` for date/time calculation
+
+- [`IRanges`](https://bioconductor.org/packages/release/bioc/html/IRanges.html) for integer genomic range manipulation (available on Bioconductor)
+
+---
+
+## Mixing S4 and S3
+
+- You can mix S4 and S3
+
+- Register an S3 class as S4 using `setClass()` and `setOldClass()`
+
+- You can use an S3 generic as an S4 generic. Better yet, call `setGeneric()` to make this explicit
+
+---
+
+class: big, middle
+
+## R6
+
+---
+
+## R6
+
+- S3/S4 are *functional OOP* systems, namely methods belong to generic functions
+
+- R6 is an *encapsulated OOP* system, namely methods belong to a class
+
+- R6 follows reference semantics, so R6 objects are not copied
+
+    - Good for implementing notions that exists only in a single version, e.g., a remote machine, a database connection, etc
+
+- R6 implements public vs private fields & methods for additional reliability
+
+- Load `library(R6)` to use it
+
+---
+
+## An example creating a logger
+
+```{r}
+library(R6)
+Logger <- R6Class("Logger", 
+    public = list(
+        filepath = character(),
+        log = function(text) {
+          writeLines(text, private$con)
+          private$nlines <- private$nlines + length(text)
+          invisible(self)
+        },
+        initialize = function(name="log.txt") {
+          self$filepath <- name
+          private$con <- file(name, open="w")
+        },
+        finalize = function() {
+          close(private$con)
+          # file.remove(self$filepath)
+        }
+    ),
+    private = list(
+        nlines = 0,
+        con = NULL
+    )
+)
+
+```
+
+---
+
+## Reference sematics
+
+```{r}
+
+myLog <- Logger$new("tmp1.txt")
+myLog$log(c("data cleaning...", "training..."))
+myLog
+
+```
+
+---
+
+```{r}
+f <- function(logger) {
+  logger$log("Your model is phenomenal")
+  invisible(logger)
+}
+
+f(myLog)
+myLog
+```
+
+
+---
+
+## Automatic cleanup
+
+- When an R6 object is removed, the finalizer will be called, performing clean-ups (here, closing a file connection)
+
+- `rm()` remove a binding, while `gc()` garbage collects unbound objects
+
+```{r}
+rm(myLog)
+gc()
+```
 
 ---
 
 ## References
 
-- Chapters 12 and 13, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+- Chapters 13 and 14, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham

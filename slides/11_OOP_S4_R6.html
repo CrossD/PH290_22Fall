@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>S4 and R6</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# S4 and R6
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- The S4 system
+
+- The R6 system
+
+---
+
+class: big, middle
+
+## S4
+
+---
+
+## S4
+
+- S4 is a formal class system in R
+
+- Has validator, multiple inheritance, multiple dispatch, etc for more rigorous and featureful OOP
+
+- All related functions are in `library(methods)` (loaded by default)
+
+---
+
+- S4 has a formal definition of class using `setClass()` 
+    
+    ```r
+    setClass("Patient", 
+             slots = c(ID = "integer", pname = "character"), 
+             prototype = list(ID = integer(), pname=character()))
+    ```
+
+- `showClass()` prints the information
+    
+    ```r
+    showClass("Patient")
+    ```
+    
+    ```
+    ## Class "Patient" [in ".GlobalEnv"]
+    ## 
+    ## Slots:
+    ##                           
+    ## Name:         ID     pname
+    ## Class:   integer character
+    ```
+
+
+---
+
+## Constructor
+
+- `new()` is a low-level constructor for the class. Should be used by only the developer
+    
+    ```r
+    new("Patient", ID=312L, pname="Max")
+    ```
+    
+    ```
+    ## Patient 312 is Max
+    ```
+
+- We should make available a high-level constructor for the users
+    
+    ```r
+    NewPatient3 &lt;- function(ID, pname, ..., Class="Patient") {
+        ID &lt;- as.integer(ID)
+        do.call(new, list(Class, ID=ID, pname=pname, ...))
+    }
+    p1 &lt;- NewPatient3(1, "Max")
+    ```
+
+---
+
+## Slots
+
+- *Slots* of an S4 object (S3: fields) are accessed using `@` (S3: `$`) and `slot()` (S3: `[[`)
+    
+    ```r
+    p1@pname
+    ```
+    
+    ```
+    ## [1] "Max"
+    ```
+    
+    ```r
+    slot(p1, "ID")
+    ```
+    
+    ```
+    ## [1] 1
+    ```
+
+- Slot names are given by `slotNames()` (S3: `names`)
+
+
+---
+
+## Validator
+
+- Validator is created using `setValidity()`. Returns `TRUE` if the object is valid, or a character vector for error messages. 
+    
+    ```r
+    setValidity("Patient", function(object) {
+        msg &lt;- character()
+        if (object@ID &lt; 0L) {
+            msg &lt;- c(msg, "ID should be positive integer")
+        } 
+        if (nchar(object@pname) &gt; 20) {
+            msg &lt;- c(msg, "pname should be shorter than 20")
+        }
+    
+        if (length(msg) &gt; 0) {
+            return(msg)
+        } else {
+            return(TRUE)
+        }
+    })
+    ```
+
+- It will be run every time a new object is created via `new()`. Can also be invoked explicitely using `validObject()`
+
+---
+
+## Generic and methods
+
+- `show()` is the S4 analogue of `print()` in S3
+
+- `setMethod(generic, class, method)` sets the method
+    
+    ```r
+    setMethod("show", 
+              signature="Patient", 
+              function(object) 
+                  writeLines(sprintf("Patient %d is %s", 
+                      object@ID, 
+                      object@pname)))
+    p1
+    ```
+    
+    ```
+    ## Patient 1 is Max
+    ```
+
+- The class signiture can be `"ANY"` for a default method, or `"MISSING"` for a missing input
+
+---
+
+## Inheritance
+
+- `setClass(..., contains=superclasses)` defines a subclass extending the given superclasses
+    
+    ```r
+    setClass("In-patient", 
+             contains = "Patient",
+             slots = c(DOA = "Date"),
+             prototype = list(DOA = as.Date(NA)))
+    p3 &lt;- NewPatient3(3, "Mary", 
+                      DOA=as.Date("2022-01-02"), 
+                      Class="In-patient")
+    ```
+
+- `contains="VIRTUAL"` creates a virtual class. This class is only for being inherited upon. No instance from a virtual class may be created
+
+---
+
+- `is(object)` reports the class, `is(object, class)` tests class membership
+
+```r
+is(p1)
+```
+
+```
+## [1] "Patient"
+```
+
+```r
+is(p1, "In-patient")
+```
+
+```
+## [1] FALSE
+```
+
+---
+
+## Coercion
+
+- S4 has a powerful class coercion system
+
+```r
+p4 &lt;- as(p1, "In-patient")
+p4
+```
+
+```
+## Patient 1 is Max
+```
+
+- `setAs()` specifies a new coercion method
+
+```r
+setAs("Patient", "character", function(from) from@pname)
+as(p4, "character")
+```
+
+```
+## [1] "Max"
+```
+
+---
+
+## New generic
+
+- `setGeneric(generic, definition)` creates a new generic
+
+- `standardGeneric(generic)` starts the method dispatch
+    
+    ```r
+    setGeneric("DaysInHospital", 
+        function(object) standardGeneric("DaysInHospital"))
+    ```
+    
+    ```
+    ## [1] "DaysInHospital"
+    ```
+    
+    ```r
+    setMethod("DaysInHospital", 
+        "In-patient", 
+        function(object) Sys.Date() - object@DOA)
+    DaysInHospital(p3)
+    ```
+    
+    ```
+    ## Time difference of 261 days
+    ```
+
+- `callNextMethod()` calls the method for the next class (like `NextMethod()` for S3)
+
+---
+
+class: inverse
+
+## Your turn
+
+Create a new subclass `ICU-patient` which should be a subclass of `In-patient`. This subclass should include a further slot `reason` for the reason of admittance.
+
+
+- Run `show(p3)` and what you get
+
+- Implement the `show()` method for `In-patient` class, which should print out the DOA in addition to other information. Then redo the last step
+
+- Create an `ICU-patient` object `p5` using `NewPatient3()`. Show the S4 class of the object using `is()`. Make sure to the class is `c("ICU-patient", "In-patient", "Patient")`, and also make sure the object has `pname`, `DOA`, and `reason` fields. 
+
+
+
+---
+
+## Directional data example
+
+Here we will implement an S4 class for directional data, namely data that lie on a unit circle
+
+&lt;img src="11_OOP_S4_R6_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+- Represent a point by `\(\theta \in [0, 1)\)`. E.g., `\(\theta=1/4\)` means 1/4 cycle clockwise (the 3 o'clock direction)
+
+```r
+setClass("Direction", 
+         slots = c(theta = "numeric")) # theta in [0, 1)
+
+# better write a constructor and make sure theta is always a double, not an integer
+a &lt;- new("Direction", theta=0) 
+```
+
+---
+
+
+```r
+setValidity("Direction", function(object) {
+  if (all(object@theta &gt;= 0 &amp; object@theta &lt; 1)) {
+    TRUE
+  } else {
+    "theta must lie in [0, 1)"
+  }
+})
+```
+
+```
+## Class "Direction" [in ".GlobalEnv"]
+## 
+## Slots:
+##               
+## Name:    theta
+## Class: numeric
+```
+
+```r
+eps &lt;- sqrt(.Machine$double.eps)
+d1 &lt;- new("Direction", theta=seq(0, 1 - eps, length.out=4))
+d1
+```
+
+```
+## An object of class "Direction"
+## Slot "theta":
+## [1] 0.0000000 0.3333333 0.6666667 1.0000000
+```
+
+---
+
+## Getters and setters
+
+- Getters and setters are functions to extract and set information
+
+- They should be provided to the users for the consistency of Application Programming Interface (API)
+    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
+    - The developer may change the underlying implementation without changing the API
+
+---
+
+- Create a getter and a setter for the position of the points in terms of the degree
+    
+    ```r
+    setGeneric("degree", function(object) standardGeneric("degree"))
+    setMethod("degree", "Direction", 
+              function(object) object@theta * 360)
+    setGeneric("degree&lt;-", 
+               function(object, value) standardGeneric("degree&lt;-"))
+    setMethod("degree&lt;-", "Direction", function(object, value) {
+        object@theta &lt;- value / 360
+        validObject(object)
+        object
+    })
+    ```
+
+- The setter should prevent the user from setting erroneous values
+
+---
+
+
+```r
+degree(d1)
+```
+
+```
+## [1]   0 120 240 360
+```
+
+```r
+d2 &lt;- d1
+degree(d2) &lt;- degree(d2) / 3
+d2
+```
+
+```
+## An object of class "Direction"
+## Slot "theta":
+## [1] 0.0000000 0.1111111 0.2222222 0.3333333
+```
+
+---
+
+- Create a new generator
+    
+    ```r
+    RUnifDirection &lt;- function(n) {
+      new("Direction", theta = runif(n, max = 1 - eps))
+    }
+    d2 &lt;- RUnifDirection(3)
+    ```
+
+---
+
+## Implementing the arithmatics
+
+We will be doing some arithmatics on the directions. `x + 0.3` should mean rotating `x` by 0.3 cycles clockwise
+
+- S4 method can dispatch on any number of arguments. This is called *multiple dispatch*
+    
+    ```r
+    AddNumToDirection &lt;- function(num, d1) {
+      # follows the recycling rule
+      d1@theta &lt;- (d1@theta + num) %% 1
+      d1
+    }
+    setMethod(`+`, c("Direction", "numeric"), 
+              function(e1, e2) AddNumToDirection(e2, e1))
+    setMethod(`+`, c("numeric", "Direction"), 
+              function(e1, e2) AddNumToDirection(e1, e2))
+    setMethod(`+`, c("Direction", "Direction"), 
+              function(e1, e2) AddNumToDirection(e1@theta, e2))
+    ```
+---
+
+
+```r
+d1 + 0.3
+```
+
+```
+## An object of class "Direction"
+## Slot "theta":
+## [1] 0.3000000 0.6333333 0.9666667 0.3000000
+```
+
+```r
+d1 + d1
+```
+
+```
+## An object of class "Direction"
+## Slot "theta":
+## [1] 0.0000000 0.6666667 0.3333333 1.0000000
+```
+
+---
+
+## Inheritance
+
+- We want to a new superclass representing a direction field. Namely, it implements directions starting from arbitrary locations (instead of just the origin)
+
+- Firstly, define a new class which is a location in 2D
+    
+    ```r
+    setClass("Location", 
+             slots = c(loc = "matrix"),
+             prototype = list(loc=matrix(NA_real_, nrow=2, ncol=0)))
+    l1 &lt;- new("Location")
+    l2 &lt;- new("Location", loc= matrix(as.numeric(1:6), 2, 3))
+    ```
+
+
+---
+
+- Then define the superclass, which inherits from two classes. S4 objects can inherit from multiple superclasses. This is called *multiple inheritance* 
+    
+    ```r
+    setClass("DirectionField",
+             contains = c("Direction", "Location"))
+    dl2 &lt;- new("DirectionField", d2, l2)
+    dl2
+    ```
+    
+    ```
+    ## An object of class "DirectionField"
+    ## Slot "theta":
+    ## [1] 0.2059746 0.1765567 0.6870228
+    ## 
+    ## Slot "loc":
+    ##      [,1] [,2] [,3]
+    ## [1,]    1    3    5
+    ## [2,]    2    4    6
+    ```
+
+---
+- We can define the `length()` method for the superclasses
+    
+    ```r
+    setMethod("length", "Direction", function(x) length(x@theta))
+    setMethod("length", "Location", function(x) length(x@loc))
+    length(l2)
+    ```
+    
+    ```
+    ## [1] 6
+    ```
+    
+    ```r
+    length(d1)
+    ```
+    
+    ```
+    ## [1] 4
+    ```
+
+- It works for the `DirectionField` subclass, but which method are we using?
+    
+    ```r
+    length(dl2)
+    ```
+    
+    ```
+    ## [1] 3
+    ```
+
+- .style[Avoid this kind of ambiguous specification by providing a specific method]
+
+
+
+---
+
+## Example use of S4 in packages
+
+- `stats4::mle`, for the `mle` class and related methods
+
+- `lubridate::period` for date/time calculation
+
+- [`IRanges`](https://bioconductor.org/packages/release/bioc/html/IRanges.html) for integer genomic range manipulation (available on Bioconductor)
+
+---
+
+## Mixing S4 and S3
+
+- You can mix S4 and S3
+
+- Register an S3 class as S4 using `setClass()` and `setOldClass()`
+
+- You can use an S3 generic as an S4 generic. Better yet, call `setGeneric()` to make this explicit
+
+---
+
+class: big, middle
+
+## R6
+
+---
+
+## R6
+
+- S3/S4 are *functional OOP* systems, namely methods belong to generic functions
+
+- R6 is an *encapsulated OOP* system, namely methods belong to a class
+
+- R6 follows reference semantics, so R6 objects are not copied
+
+    - Good for implementing notions that exists only in a single version, e.g., a remote machine, a database connection, etc
+
+- R6 implements public vs private fields &amp; methods for additional reliability
+
+- Load `library(R6)` to use it
+
+---
+
+## An example creating a logger
+
+
+```r
+library(R6)
+Logger &lt;- R6Class("Logger", 
+    public = list(
+        filepath = character(),
+        log = function(text) {
+          writeLines(text, private$con)
+          private$nlines &lt;- private$nlines + length(text)
+          invisible(self)
+        },
+        initialize = function(name="log.txt") {
+          self$filepath &lt;- name
+          private$con &lt;- file(name, open="w")
+        },
+        finalize = function() {
+          close(private$con)
+          # file.remove(self$filepath)
+        }
+    ),
+    private = list(
+        nlines = 0,
+        con = NULL
+    )
+)
+```
+
+---
+
+## Reference sematics
+
+
+```r
+myLog &lt;- Logger$new("tmp1.txt")
+myLog$log(c("data cleaning...", "training..."))
+myLog
+```
+
+```
+## &lt;Logger&gt;
+##   Public:
+##     clone: function (deep = FALSE) 
+##     filepath: tmp1.txt
+##     finalize: function () 
+##     initialize: function (name = "log.txt") 
+##     log: function (text) 
+##   Private:
+##     con: 4
+##     nlines: 2
+```
+
+---
+
+
+```r
+f &lt;- function(logger) {
+  logger$log("Your model is phenomenal")
+  invisible(logger)
+}
+
+f(myLog)
+myLog
+```
+
+```
+## &lt;Logger&gt;
+##   Public:
+##     clone: function (deep = FALSE) 
+##     filepath: tmp1.txt
+##     finalize: function () 
+##     initialize: function (name = "log.txt") 
+##     log: function (text) 
+##   Private:
+##     con: 4
+##     nlines: 3
+```
+
+
+---
+
+## Automatic cleanup
+
+- When an R6 object is removed, the finalizer will be called, performing clean-ups (here, closing a file connection)
+
+- `rm()` remove a binding, while `gc()` garbage collects unbound objects
+
+
+```r
+rm(myLog)
+gc()
+```
+
+```
+##           used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
+## Ncells  774371 41.4    1374772 73.5         NA  1374772 73.5
+## Vcells 1612117 12.3    8388608 64.0      32768  3079330 23.5
+```
+
+---
+
+## References
+
+- Chapters 13 and 14, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
