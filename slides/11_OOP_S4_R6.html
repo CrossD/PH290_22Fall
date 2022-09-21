@@ -345,59 +345,6 @@ d1
 ## Slot "theta":
 ## [1] 0.0000000 0.3333333 0.6666667 1.0000000
 ```
-
----
-
-## Getters and setters
-
-- Getters and setters are functions to extract and set information
-
-- They should be provided to the users for the consistency of Application Programming Interface (API)
-    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
-    - The developer may change the underlying implementation without changing the API
-
----
-
-- Create a getter and a setter for the position of the points in terms of the degree
-    
-    ```r
-    setGeneric("degree", function(object) standardGeneric("degree"))
-    setMethod("degree", "Direction", 
-              function(object) object@theta * 360)
-    setGeneric("degree&lt;-", 
-               function(object, value) standardGeneric("degree&lt;-"))
-    setMethod("degree&lt;-", "Direction", function(object, value) {
-        object@theta &lt;- value / 360
-        validObject(object)
-        object
-    })
-    ```
-
-- The setter should prevent the user from setting erroneous values
-
----
-
-
-```r
-degree(d1)
-```
-
-```
-## [1]   0 120 240 360
-```
-
-```r
-d2 &lt;- d1
-degree(d2) &lt;- degree(d2) / 3
-d2
-```
-
-```
-## An object of class "Direction"
-## Slot "theta":
-## [1] 0.0000000 0.1111111 0.2222222 0.3333333
-```
-
 ---
 
 - Create a new generator
@@ -525,6 +472,58 @@ d1 + d1
 
 - .style[Avoid this kind of ambiguous specification by providing a specific method]
 
+
+---
+
+## Getters and setters
+
+- Getters and setters are functions to extract and set information
+
+- They should be provided to the users for the consistency of Application Programming Interface (API)
+    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
+    - The developer may change the underlying implementation without changing the API
+
+---
+
+- Create a getter and a setter for the position of the points in terms of the degree
+    
+    ```r
+    setGeneric("degree", function(object) standardGeneric("degree"))
+    setMethod("degree", "Direction", 
+              function(object) object@theta * 360)
+    setGeneric("degree&lt;-", 
+               function(object, value) standardGeneric("degree&lt;-"))
+    setMethod("degree&lt;-", "Direction", function(object, value) {
+        object@theta &lt;- value / 360
+        validObject(object)
+        object
+    })
+    ```
+
+- The setter should prevent the user from setting erroneous values
+
+---
+
+
+```r
+degree(d1)
+```
+
+```
+## [1]   0 120 240 360
+```
+
+```r
+d2 &lt;- d1
+degree(d2) &lt;- degree(d2) / 3
+d2
+```
+
+```
+## An object of class "Direction"
+## Slot "theta":
+## [1] 0.0000000 0.1111111 0.2222222 0.3333333
+```
 
 
 ---
@@ -667,8 +666,8 @@ gc()
 
 ```
 ##           used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-## Ncells  668236 35.7    1266224 67.7         NA  1266224 67.7
-## Vcells 1297215  9.9    8388608 64.0      32768  2637526 20.2
+## Ncells  668240 35.7    1266212 67.7         NA  1266212 67.7
+## Vcells 1297220  9.9    8388608 64.0      32768  2634097 20.1
 ```
 
 ---

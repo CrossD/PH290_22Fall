@@ -260,44 +260,6 @@ eps <- sqrt(.Machine$double.eps)
 d1 <- new("Direction", theta=seq(0, 1 - eps, length.out=4))
 d1
 ```
-
----
-
-## Getters and setters
-
-- Getters and setters are functions to extract and set information
-
-- They should be provided to the users for the consistency of Application Programming Interface (API)
-    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
-    - The developer may change the underlying implementation without changing the API
-
----
-
-- Create a getter and a setter for the position of the points in terms of the degree
-    ```{r, results='hide'}
-    setGeneric("degree", function(object) standardGeneric("degree"))
-    setMethod("degree", "Direction", 
-              function(object) object@theta * 360)
-    setGeneric("degree<-", 
-               function(object, value) standardGeneric("degree<-"))
-    setMethod("degree<-", "Direction", function(object, value) {
-        object@theta <- value / 360
-        validObject(object)
-        object
-    })
-    ```
-
-- The setter should prevent the user from setting erroneous values
-
----
-
-```{r}
-degree(d1)
-d2 <- d1
-degree(d2) <- degree(d2) / 3
-d2
-```
-
 ---
 
 - Create a new generator
@@ -377,6 +339,43 @@ d1 + d1
 
 - .style[Avoid this kind of ambiguous specification by providing a specific method]
 
+
+---
+
+## Getters and setters
+
+- Getters and setters are functions to extract and set information
+
+- They should be provided to the users for the consistency of Application Programming Interface (API)
+    - What matters to users is only the interface exposed to the them; the underlying implementation does have need to have anything to do with that
+    - The developer may change the underlying implementation without changing the API
+
+---
+
+- Create a getter and a setter for the position of the points in terms of the degree
+    ```{r, results='hide'}
+    setGeneric("degree", function(object) standardGeneric("degree"))
+    setMethod("degree", "Direction", 
+              function(object) object@theta * 360)
+    setGeneric("degree<-", 
+               function(object, value) standardGeneric("degree<-"))
+    setMethod("degree<-", "Direction", function(object, value) {
+        object@theta <- value / 360
+        validObject(object)
+        object
+    })
+    ```
+
+- The setter should prevent the user from setting erroneous values
+
+---
+
+```{r}
+degree(d1)
+d2 <- d1
+degree(d2) <- degree(d2) / 3
+d2
+```
 
 
 ---
