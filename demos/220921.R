@@ -181,3 +181,4 @@ dl2 <- new("DirectionField", d2, l2)
 dl2
 
 dl2 + dl2
+
