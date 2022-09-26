@@ -1,0 +1,184 @@
+---
+title: "R Packages"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+## Outline
+
+- Why R packages
+
+- A barebone package
+
+- More on R packages
+
+
+---
+
+## References
+
+- [R packages](https://r-pkgs.org/) by Hadley Wickham and Jenny Bryan
+
+- R manual [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
+
+- [roxygen2 documentation](https://roxygen2.r-lib.org)
+
+---
+
+## Why to write an R package?
+
+- R package is a great way to share R code
+    - via CRAN, Bioconductor, or GitHub, and more
+
+- Even if you are the only user of your code, it is a great way to organize code
+
+    - An R package provides a useful structure to bundle the source code, test files, manuals, etc
+    - Formalize many aspects of your code, like dependency, versioning, and license
+    - R offers checks for potential issues in packages
+
+- Makes your code more reliable and reusable
+
+---
+
+## Who should write an R package
+
+- Everyone should!
+    - Good for a reasonably large project where the code is expected to be developed and maintained over more than a few weeks
+    - Even if your code involves an analysis only -- you can create an R package for the repeated tasks
+
+- Especially true if you develop biostatistical methods or utility tools
+
+---
+
+## A barebone R package
+
+- It is simple to make an R package
+
+- An R package is not much more than a folder structure:
+```
+myPackage/
+|--DESCRITION
+|--NAMESPACE
+|--R/
+|--...other files...
+```
+
+- Create a package skeleton using
+```{r, eval=FALSE}
+usethis::create_package("path/to/package")
+```
+
+- Create an R package where you would create a folder for a new project
+    - But don't nest an R package within another
+
+---
+
+## Demo...
+
+---
+
+class: inverse
+
+## Your turn
+
+- Choose a name for your package. Create a package skeleton using `usethis::create_package()`
+
+- Put your code for comparing linear models (from HW1) in `R/`
+
+<!-- - Edit the DESCRIPTION file -->
+
+- In a separate `analysis.R` file outside of the package. 
+
+    - Load your package using `devtools::load_all()` (supply the correct path)
+
+    - Write some analysis code 
+
+---
+
+## A quick overview of components
+
+Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example:
+
+- `DESCRIPTION` describes basic metadata about the package, e.g., package name, title, description, authors/maintainer/contributors, license, dependencies, etc
+
+- `NAMESPACE` specifies what functions your package makes available to users and what functions from other packages it depends on. Generated automatically by Roxygen2
+
+- `R/` contains the `.R` files
+
+- `tests/` contains all the unit test files
+
+- `man/` contains the documentations. Generated automatically by Roxygen2
+
+---
+
+## More components...
+
+- `data/` contains the data shipped with the package
+
+- `vignettes/` contains the vignette files
+
+- `inst/` for other files that will be installed with the package
+
+- `src/` contains the sources files for the compiled code (e.g., C/C++)
+
+---
+
+## Loading and attaching a library
+
+- We will be a little bit careful about what it means by *loading* and *attaching* a library in this lecture
+
+- When you *load* a package, the functions, manuals, and dynamic libraries are loaded into memory
+    - Functions can be found using `pkg::func`
+
+- When you *attach* a package, you are attaching the package environment to your search path (recall [search path](09_environments.html#search-path))
+    - After attaching, you can find a function by typing its name in the R concole
+
+.center[
+![:scale 110%](images/loadAttach.png)
+]
+
+
+---
+
+## DESCRIPTION: Specifying dependency
+
+`Imports:`, `Suggests:`, and `Depends:` specify what packages does yours depend on, to different extents
+
+- `Imports:` specifies packages being depended upon by your functions. These packages will be loaded but not attached. Most dependency should belong here
+
+- `Depends:` specifies packages being depended upon by your functions. These packages will be loaded and attached. Only very few packages that ought to be used together with yours should be attached
+
+- `Suggests:` specifies optional packages that enhances the use of yours. These packages do not need to be installed
+
+---
+
+## DESCRIPTION: Versions
+
+- Version: Usually go by `major.minor.patch` (e.g., `4.2.1`)
+
+- Development versions have a fourth component (e.g., `0.0.0.9001`)
+
+- Your package can depends on a package with a certain version, e.g., `dplyr ( >= 1.0.0 )`; or a certain R version, e.g., `R (>= 3.5.0)`
+
+---
+
+## Description: Details
+
+- There are some detailed formatting requirements for the title/description fields etc. 
+
+    - Refer to either a recently published CRAN package 
+    - or the R manual for [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
+

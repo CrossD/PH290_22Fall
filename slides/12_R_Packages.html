@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R Packages</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R Packages
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Why R packages
+
+- A barebone package
+
+- More on R packages
+
+
+---
+
+## References
+
+- [R packages](https://r-pkgs.org/) by Hadley Wickham and Jenny Bryan
+
+- R manual [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
+
+- [roxygen2 documentation](https://roxygen2.r-lib.org)
+
+---
+
+## Why to write an R package?
+
+- R package is a great way to share R code
+    - via CRAN, Bioconductor, or GitHub, and more
+
+- Even if you are the only user of your code, it is a great way to organize code
+
+    - An R package provides a useful structure to bundle the source code, test files, manuals, etc
+    - Formalize many aspects of your code, like dependency, versioning, and license
+    - R offers checks for potential issues in packages
+
+- Makes your code more reliable and reusable
+
+---
+
+## Who should write an R package
+
+- Everyone should!
+    - Good for a reasonably large project where the code is expected to be developed and maintained over more than a few weeks
+    - Even if your code involves an analysis only -- you can create an R package for the repeated tasks
+
+- Especially true if you develop biostatistical methods or utility tools
+
+---
+
+## A barebone R package
+
+- It is simple to make an R package
+
+- An R package is not much more than a folder structure:
+```
+myPackage/
+|--DESCRITION
+|--NAMESPACE
+|--R/
+|--...other files...
+```
+
+- Create a package skeleton using
+
+```r
+usethis::create_package("path/to/package")
+```
+
+- Create an R package where you would create a folder for a new project
+    - But don't nest an R package within another
+
+---
+
+## Demo...
+
+---
+
+class: inverse
+
+## Your turn
+
+- Choose a name for your package. Create a package skeleton using `usethis::create_package()`
+
+- Put your code for comparing linear models (from HW1) in `R/`
+
+&lt;!-- - Edit the DESCRIPTION file --&gt;
+
+- In a separate `analysis.R` file outside of the package. 
+
+    - Load your package using `devtools::load_all()` (supply the correct path)
+
+    - Write some analysis code 
+
+---
+
+## A quick overview of components
+
+Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example:
+
+- `DESCRIPTION` describes basic metadata about the package, e.g., package name, title, description, authors/maintainer/contributors, license, dependencies, etc
+
+- `NAMESPACE` specifies what functions your package makes available to users and what functions from other packages it depends on. Generated automatically by Roxygen2
+
+- `R/` contains the `.R` files
+
+- `tests/` contains all the unit test files
+
+- `man/` contains the documentations. Generated automatically by Roxygen2
+
+---
+
+## More components...
+
+- `data/` contains the data shipped with the package
+
+- `vignettes/` contains the vignette files
+
+- `inst/` for other files that will be installed with the package
+
+- `src/` contains the sources files for the compiled code (e.g., C/C++)
+
+---
+
+## Loading and attaching a library
+
+- We will be a little bit careful about what it means by *loading* and *attaching* a library in this lecture
+
+- When you *load* a package, the functions, manuals, and dynamic libraries are loaded into memory
+    - Functions can be found using `pkg::func`
+
+- When you *attach* a package, you are attaching the package environment to your search path (recall [search path](09_environments.html#search-path))
+    - After attaching, you can find a function by typing its name in the R concole
+
+.center[
+![:scale 110%](images/loadAttach.png)
+]
+
+
+---
+
+## DESCRIPTION: Specifying dependency
+
+`Imports:`, `Suggests:`, and `Depends:` specify what packages does yours depend on, to different extents
+
+- `Imports:` specifies packages being depended upon by your functions. These packages will be loaded but not attached. Most dependency should belong here
+
+- `Depends:` specifies packages being depended upon by your functions. These packages will be loaded and attached. Only very few packages that ought to be used together with yours should be attached
+
+- `Suggests:` specifies optional packages that enhances the use of yours. These packages do not need to be installed
+
+---
+
+## DESCRIPTION: Versions
+
+- Version: Usually go by `major.minor.patch` (e.g., `4.2.1`)
+
+- Development versions have a fourth component (e.g., `0.0.0.9001`)
+
+- Your package can depends on a package with a certain version, e.g., `dplyr ( &gt;= 1.0.0 )`; or a certain R version, e.g., `R (&gt;= 3.5.0)`
+
+---
+
+## Description: Details
+
+- There are some detailed formatting requirements for the title/description fields etc. 
+
+    - Refer to either a recently published CRAN package 
+    - or the R manual for [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

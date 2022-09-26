@@ -338,6 +338,7 @@ class: big, middle
 ## Environments in R packages
 
 ---
+name: search-path
 
 ## The search path
 
