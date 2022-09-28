@@ -178,7 +178,7 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 
 - Development versions have a fourth component (e.g., `0.0.0.9001`)
 
-- Your package can depends on a package with a certain version, e.g., `dplyr ( >= 1.0.0 )`; or a certain R version, e.g., `R (>= 3.5.0)`
+- Your package can depends on a package with a certain version, e.g., `dplyr (>= 1.0.0)`; or a certain R version, e.g., `R (>= 3.5.0)`
 
 ---
 
@@ -186,7 +186,7 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 
 - Who writes the code usually holds the copyright
 
-- The copyright holders can determine how others may use their code through *licenses*
+- The copyright holders can determine how others may use their code through *licenses*. These are legal documents
 
 - Using a license helps others to use your code
 
@@ -204,74 +204,211 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 
 - You must choose one of these [standard licenses](https://svn.r-project.org/R/trunk/share/licenses/license.db) if you want to release on CRAN
 
-- Often come as the form `MIT + file LICENSE`. Specify the copyright year and holder in the file `LICENSE` next to `DESCRIPTION`
+- Often come as the form `MIT + file LICENSE`. Specify the copyright year and holder in a file `LICENSE` next to `DESCRIPTION`
 
 ---
 
 ## DESCRIPTION: Other details
 
-- `LinkingTo:` to specify the name of the dynamic libraries your package depends on
+- `LinkingTo:` to specify the names of the header files your package depends on for compiling C/C++ code
 
-- Other fields to specify detailed behaviors (`LazyData:`, `VignetteBuilder:`, etc)
+- Other fields to specify detailed behaviors (`LazyData`, `VignetteBuilder`, etc)
 
 - There are some detailed formatting requirements for the title/description fields etc. 
 
     - Refer to either a recently published CRAN package 
     - or the R manual for [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
 
-<!-- --- -->
+---
 
-<!-- ## NAMESPACE -->
+## NAMESPACE
 
-<!-- - The file `NAMESPACE` controls the --> 
-<!--     - imports, namely what packages or functions from other packages does your package need (`import()` and `importFrom()`) -->
-<!--     - exports, namely what functions, S3/S4 generic or methods do you make available to the users -->
-<!--         - A bug bearer: Only exported methods will be registered and thus can be found from the global environment -->
-<!-- - We will generate `NAMESPACE` automatically (later) -->
+- The file `NAMESPACE` controls the 
+    - imports, namely what packages or functions from other packages does your package need (`import()` and `importFrom()`). They go into the imports:pkg environment
+    - exports, namely what functions, S3/S4 generic or methods do you make available to the users. They go into the package:pkg environment
+    - all functions including unexported helper functions are bound in the namespace:pkg environment
 
-<!-- .center[ -->
-<!-- ![:scale 80%](images/namespace.png) -->
-<!-- ] -->
+.center[
+![:scale 80%](images/namespace.png)
+]
 
-<!-- --- -->
+---
 
-<!-- ## Documenting package -->
+## NAMESPACE
 
-<!-- - Documentation make it possible for users to understand how to use your code -->
+- We will generate `NAMESPACE` automatically (later)
 
-<!-- - `man/` holds all the R documentations, but we are not editing it directly -->
+- A bug bearer: If you defined an S3 method in a package but did not export it, you will not be able to dispatch it from the global environment, even if you used `devtools::load_all()`
 
-<!-- - `library(roxygen2)` let us write documentation together with the code. It also generates the `NAMESPACE` -->
+- This is because for speed, S3 dispatch only looks for *registered* S3 methods and functions that look like an S3 method defined in the environment where the generic function is called (but not in the parent environments)
 
-<!-- - In your R code, start a line with `#'` to indicate this line is for documentation -->
+- Register an S3 method using `.S3method()` in an R script (not recommended) or export it in `NAMESPACE` using `S3method()`
 
-<!-- - `roxygen2` processes code files in `R/` and extract and process the documentation -->
+---
 
-<!-- - It uses conventions and tags to know how to format the documentation -->
+## Documenting package
 
-<!-- - Supports markdown syntax -->
+- Documentation make it possible for users to learn to use your code
 
-<!-- --- -->
+- `man/` holds all the R documentations, but we are not going to edit it directly
 
-<!-- ``` -->
-<!-- #' Compare two models -->
-<!-- #' -->
-<!-- #' Compare two models according to what their `summary()` method prints out -->
-<!-- #' -->
-<!-- #' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method -->
+- `library(roxygen2)` let us write documentation together with the code. It also generates the `NAMESPACE`
 
-<!-- CompModels <- function(mod1, mod2, ...) { -->
-<!--   f1 <- tempfile() -->
-<!--   sink(f1) -->
-<!--   print(summary(mod1)) -->
-<!--   sink() -->
+- `roxygen2` processes code files in `R/` and extract and process the documentation
 
-<!--   f2 <- tempfile() -->
-<!--   sink(f2) -->
-<!--   print(summary(mod2)) -->
-<!--   sink() -->
-    
-<!--   diffviewer::visual_diff(f1, f2) -->
-<!-- } -->
-<!-- ``` -->
+- It uses conventions and tags to know how to format the documentation
+
+---
+
+- In your R code, start a line with `#'` to indicate this line is for `roxygen2` documentation
+
+```
+#' Compare two models (title)
+#'
+#' Compare two models according to what their `summary()` 
+#' method prints out (description)
+#'
+#' More details: This is a very rudimentary implementation. 
+#' The two models are compared according to the text output 
+#' of `summary()` (details)
+
+CompModels <- function(mod1, mod2, ...) {
+
+  ...
+  diffviewer::visual_diff(f1, f2)
+}
+```
+
+- Use `devtools::document()` to compile the documents and update the NAMESPACE, and then `devtools::load_all()` again. You will then be able to find `?func`
+
+---
+
+## Useful roxygen tags
+
+- `@export` marks a function, S3/S4 method, or S4 class to be exported
+    - will register S3/S4 method
+
+- `@param mod1,mod2 Two lm models to be compared` 
+
+- `@returns An object for text comparisons` (or `@return`)
+
+- `@examples`
+
+- Roxygen also understands markdown syntax
+
+---
+
+## Package description
+
+- An [example](https://github.com/functionaldata/tPACE/blob/master/R/pkgname.R) from `fdapace` for describing the package itself. This page (after compiled and loaded) can be found using `?fdapace`
+
+- Use import tags in this file to indicate dependencies
+
+    - `@import AnEntirePackage`
+
+    - `@importFrom Package selectedFunc1 selectedFunc2`
+
+---
+
+## Repeating documentation
+
+- Repeating documentation is good for the users. This is sometimes inevitable because functions behave very similarly
+
+.center[
+![:scale 40%](images/stringr1.png)
+![:scale 40%](images/stringr2.png)
+]
+
+---
+
+## But don't repeat yourself (DRY)
+
+- `roxygen2` let you repeat documentation without repeating code
+
+- `@inherit`, `@inheritParams`: Inherit a part of the documentation for another function. [See `str_replace`](https://github.com/tidyverse/stringr/blob/HEAD/R/replace.r)
+
+- `@rdname`, `@describeIn`: Describe a function within another documentation (combine documentation pages)
+
+---
+
+class: inverse
+
+## Your turn
+
+Create some documentation and manage imports/exports for the R package you created last time.
+
+- Write Roxygen2 documentation for your function for comparing models. Make sure to include a title, description, parameter descriptions (`@param`), and an explaination for the return value (`@returns`)
+
+- Run `devtools::document()` to compile the help page, and use `devtools::load_all()` to reload the package. Check out what does the help page look like using `?funcName`
+
+- Now, export the function using `@export`. Also, import functions you used in your code using `@importFrom pkg func1 func2`. Run `devtools::document()` again and check out how NAMESPACE is changed
+
+---
+
+## Unit tests
+
+- `tests/` is for unit tests
+
+- The easist way to set up a testing system is to `usethis::use_testthat()`
+
+- `tests/testthat.R` is a boilerplate code for running all the tests
+
+- Test files should be included as `tests/testthat/test_RScriptName.R`
+
+- Datasets/files only useful for testing can be included in `tests/testthat/fixture/`
+
+- Continuous integration means new code are automatically tested and built. See [`use_github_action_check_standard()`](https://cran.r-project.org/submit.html)
+
+---
+
+## Other files
+
+- `data/` contains data useful by themselves or will be used in an example. See `usethis::use_data_raw()`
+
+- `vignettes/` contains vignette files. Can be compiled from RMarkDown
+
+- `inst/` for other files that will be installed with the package, e.g., dataset (potentially in non-R formats), non-R libraries, licenses, etc
+
+- `NEWS.md` for describing updates
+
+- `README.Rmd`, `README.md` for github
+
+---
+
+## Packaging and building
+
+.center[
+![Package states](https://r-pkgs.org/diagrams/installation.png)
+From [R packages](https://r-pkgs.org/Structure.html#fig-installation)
+]
+
+---
+
+## Checks
+
+- `devtools::check()` performs various checks for the package
+
+- In order to publish on CRAN, there is a total of 50 checks that must be passed
+
+- `ERROR`s are severe problems. You must fix these in order for the package to work
+
+- `WARNING`s are likely problems. They must be fixed before publishing on CRAN
+
+- `NOTE`s are mild issues. You should try to eliminate all notes before submitting to CRAN
+
+---
+
+## Release to CRAN
+
+If you reach this step, congrats! 
+
+- Test and check one last time before submission
+    - Your package should work cross-platform
+
+- The rest are some routine forms for [submitting to CRAN](https://cran.r-project.org/submit.html)
+
+- `devtools::release()` makes this process easier
+
+- Use `cran-comments.md` to communicate with the CRAN maintainers
+
 
