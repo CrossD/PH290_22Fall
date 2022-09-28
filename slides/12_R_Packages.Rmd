@@ -226,7 +226,7 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 - The file `NAMESPACE` controls the 
     - imports, namely what packages or functions from other packages does your package need (`import()` and `importFrom()`). They go into the imports:pkg environment
     - exports, namely what functions, S3/S4 generic or methods do you make available to the users. They go into the package:pkg environment
-    - all functions including unexported helper functions are bound in the namespace:pkg environment
+    - all functions including unexported helper functions are found in the namespace:pkg environment
 
 .center[
 ![:scale 80%](images/namespace.png)
@@ -235,6 +235,8 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 ---
 
 ## NAMESPACE
+
+- `devtools::load_all()` makes available all functions from the package, while `library()` only makes available the exported ones
 
 - We will generate `NAMESPACE` automatically (later)
 
@@ -271,7 +273,6 @@ Take the [`fdapace`](https://github.com/functionaldata/tPACE) as example, which 
 #' More details: This is a very rudimentary implementation. 
 #' The two models are compared according to the text output 
 #' of `summary()` (details)
-
 CompModels <- function(mod1, mod2, ...) {
 
   ...
@@ -279,7 +280,7 @@ CompModels <- function(mod1, mod2, ...) {
 }
 ```
 
-- Use `devtools::document()` to compile the documents and update the NAMESPACE, and then `devtools::load_all()` again. You will then be able to find `?func`
+- Use `devtools::document()` to compile the documents and update the NAMESPACE, and then `devtools::load_all()` again. You will then be able to find `?CompModels`
 
 ---
 
@@ -288,7 +289,7 @@ CompModels <- function(mod1, mod2, ...) {
 - `@export` marks a function, S3/S4 method, or S4 class to be exported
     - will register S3/S4 method
 
-- `@param mod1,mod2 Two lm models to be compared` 
+- `@param mod1 An lm model to be compared` 
 
 - `@returns An object for text comparisons` (or `@return`)
 
@@ -312,7 +313,7 @@ CompModels <- function(mod1, mod2, ...) {
 
 ## Repeating documentation
 
-- Repeating documentation is good for the users. This is sometimes inevitable because functions behave very similarly
+- Repeating documentation is good for the users. This is sometimes inevitable because the APIs are highly similar
 
 .center[
 ![:scale 40%](images/stringr1.png)
@@ -325,9 +326,11 @@ CompModels <- function(mod1, mod2, ...) {
 
 - `roxygen2` let you repeat documentation without repeating code
 
-- `@inherit`, `@inheritParams`: Inherit a part of the documentation for another function. [See `str_replace`](https://github.com/tidyverse/stringr/blob/HEAD/R/replace.r)
+- `@inherit`, `@inheritParams`: Inherit documentation from another function. [See `str_replace`](https://github.com/tidyverse/stringr/blob/HEAD/R/replace.r)
 
 - `@rdname`, `@describeIn`: Describe a function within another documentation (combine documentation pages)
+
+- `@name` to name the documentation
 
 ---
 
@@ -351,7 +354,9 @@ Create some documentation and manage imports/exports for the R package you creat
 
 - The easist way to set up a testing system is to `usethis::use_testthat()`
 
-- `tests/testthat.R` is a boilerplate code for running all the tests
+- `devtools::test()` runs all the unit tests
+
+- `tests/testthat.R` is a boilerplate code
 
 - Test files should be included as `tests/testthat/test_RScriptName.R`
 
@@ -378,7 +383,7 @@ Create some documentation and manage imports/exports for the R package you creat
 ## Packaging and building
 
 .center[
-![Package states](https://r-pkgs.org/diagrams/installation.png)
+![Package states](images/installation.png)
 From [R packages](https://r-pkgs.org/Structure.html#fig-installation)
 ]
 
