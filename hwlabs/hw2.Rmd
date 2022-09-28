@@ -87,7 +87,7 @@ The input is a vector `a` specifying the coefficients (`a[1]`=$a_0$, `a[2]`=$a_1
 
     Follow the following steps:
 
-    a. create a function factory, namely, a function that takes in the coefficients `a` and outputs a polynomial function. E.g., if you input `a = c(1, -1)`, the returned value should be a function that does the same as `function(x) -1 + 1 * x`. Make sure the manufactured function is vectorized, namely if you input a vector to a manufactured function, the output is a vector with the same length
+    a. create a function factory, namely, a function that takes in the coefficients `a` and outputs a polynomial function. E.g., if you input `a = c(1, -2)`, the returned value should be a function that does the same as `function(x) 1 - 2 * x`. Make sure the manufactured function is vectorized, namely if you input a vector to a manufactured function, the output is a vector with the same length. [Hint: You can use various `purrr:map` functions]
     a. Test that your function factory behaves as expected. Write at least one unit test for each of the following aspects:
         i. The output of your function factory is a function
         i. Manufacture a function with $a_0 = 2$. Given a vector input `x`, the manufactured function returns a vector of all `2` with the same length as `x`
