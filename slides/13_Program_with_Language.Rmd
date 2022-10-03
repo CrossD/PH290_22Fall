@@ -33,7 +33,7 @@ xaringanExtra::use_tile_view()
 
 - Chapters 17 -- 21, [Advanced R](https://adv-r.hadley.nz/index.html) by Hadley Wickham
 
-- [rlang: Data masking and `{{`](https://rlang.r-lib.org/reference/topic-data-mask.html)
+- [rlang: Data masking and NSE](https://rlang.r-lib.org/reference/topic-data-mask.html)
 
 ---
 
