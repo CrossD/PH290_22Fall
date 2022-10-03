@@ -315,11 +315,10 @@ exprList &lt;- purrr::map(seq_along(aVec), function(j) {
     substitute(a * x ^ power)
 })
 a &lt;- purrr::reduce(exprList, function(e1, e2) {
-    force(e1)
-    force(e2)
+    e1 &lt;- e1 # e1 should be a local variable, 
+    e2 &lt;- e2 # not to be used as a promise
     substitute(e1 + e2)
 })
-a &lt;- a
 fExpr &lt;- substitute(function(x) a, list(a=a))
 f &lt;- eval(fExpr)
 print(f, useSource=FALSE)
@@ -327,8 +326,9 @@ print(f, useSource=FALSE)
 
 ```
 ## function (x) 
-## out + elt
+## 5 * x^0 + -2 * x^1 + 3 * x^2
 ```
+
 
 ---
 

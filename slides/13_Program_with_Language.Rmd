@@ -230,15 +230,15 @@ exprList <- purrr::map(seq_along(aVec), function(j) {
     substitute(a * x ^ power)
 })
 a <- purrr::reduce(exprList, function(e1, e2) {
-    force(e1)
-    force(e2)
+    e1 <- e1 # e1 should be a local variable, 
+    e2 <- e2 # not to be used as a promise
     substitute(e1 + e2)
 })
-a <- a
 fExpr <- substitute(function(x) a, list(a=a))
 f <- eval(fExpr)
 print(f, useSource=FALSE)
 ```
+
 
 ---
 
