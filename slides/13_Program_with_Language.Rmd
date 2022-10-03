@@ -230,8 +230,8 @@ exprList <- purrr::map(seq_along(aVec), function(j) {
     substitute(a * x ^ power)
 })
 a <- purrr::reduce(exprList, function(e1, e2) {
-    e1 <- e1
-    e2 <- e2
+    force(e1)
+    force(e2)
     substitute(e1 + e2)
 })
 a <- a
