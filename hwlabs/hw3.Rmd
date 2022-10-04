@@ -1,0 +1,80 @@
+---
+title: 'Homework #3'
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Your submission should include both code and well-formatted explanation (not just R comments) and is expected to be reproducible. You may decide for yourself what reproducible file format do you use. 
+*Please post on Ed Discussion (accessible in bCourses) for technical questions.*
+
+For this homework, submit the following files on bCourses:
+
+- An R package bundle created using `devtools::build()`
+
+- A report including your analysis. For reproducibility, make sure to install your package first (`devtools::install()`), and load the library using `library()` (*not `devtools::load_all()`*). 
+
+# A `ModelList` class
+
+Implement an S3 or S4 class (your choice) `ModelList`, which is a container of regression models. The purpose of this class is for holding multiple models for easy manipulation. For example, suppose that you have three different models
+
+```{r}
+library(dplyr)
+dataOld <- gapminder::gapminder %>% filter(year <= 2000)
+mod1 <- lm(lifeExp ~ year + pop + gdpPercap, dataOld)
+mod2 <- rpart::rpart(lifeExp ~ year + pop + gdpPercap, dataOld)
+mod3 <- glmnetUtils::cv.glmnet(lifeExp ~ year + pop + gdpPercap, dataOld)
+```
+
+(In the code above, `rpart()` fits a regression tree, and `cv.glmnet()` fits a lasso regression. If you have not encountered these regression methods before, you can replace them with two different regression models you are familiar with, e.g., linear regression with different predictors/interaction terms.)
+
+A common analytic task is to try all models, make predictions for the more recent data, and evaluate which model does best. Usually, you would call `predict()` three times, once on each model to obtain the predicted values. But this could be tedious and erorr prone if you need to do it many times. Instead, we are going to use a `ModelList` object to contain all the models. You are going to create an R package also named `{ModelList}` to contain the functions and class definitions (if any), build the package, and install it. In the end, we would like to enable a workflow like the following:
+
+```{r, eval=FALSE}
+library(ModelList)
+mList <- CreateModelList(mod1, mod2, mod3)
+summary(mList) # compact summaries for the models in mList
+
+dataNew <- gapminder::gapminder %>% filter(year > 2000)
+
+# get all the predicted values. allPred should be a matrix of 3 columns, each containing the predicted values for one model evaluated on dataNew
+allPred <- predict(mList, newdata=dataNew)
+
+# a vector of length 3 containing the mean squared errors
+MSE <- colMeans((dataNew$lifeExp - allPred)^2) 
+```
+
+[Hint: If you are going to use S3, you could build the class `ModelList` upon a list object. So `mList` would look like a `list(mod1, mod2, mod3)` object with class. Then implement the S3 methods `summary.ModelList()` and `predict.ModelList()`]
+
+Make sure to include in your package
+
+- A generator function `CreateModelList()`. Users will input a few models, such as a function `CreateModelList <- function() ...`
+
+- A `summary()` and a `predict()` method for the `ModelList` class
+
+- At least one unit test for each function
+
+- The required components of an R package, e.g., `DESCRIPTION`, and `NAMESPACE` and documentation generated from roxygen2 comments
+
+You will need to run `devtools::document()` from time to time. When you think you are done, install the package using `devtools::install()`, restart RStudio, and load the library using `library()` to make sure it works (without using `devtools::load_all()`!). 
+
+Also create an analysis file outside of the R package directory. (The `R/` folder is only for R functions but not data analysis.) Include some code to demonstrate that your package work. Use a paragraph or two to comment on your findings and also on the general package building process.
+
+Finally, run `devtools::check()` to check your package. Try your best to eliminate any errors, warnings, and notes.
+
+
+# Setting up tools for the next few weeks
+
+1. (Finish this if you are on MacOS)
+
+    a. Change your shell to bash if your shell is not bash. See the tutorial [here](https://www.cyberciti.biz/faq/change-default-shell-to-bash-on-macos-catalina/)
+    a. Install xcode command line tools (for compiling C++ code) if you have not done so. See [here](https://mac.install.guide/commandlinetools/4.html)
+
+1. (Finish this if you are on Windows)
+    
+    a. Install RTools for compiling R code. Choose your R version [here](https://cran.r-project.org/bin/windows/Rtools/) and install RTools
+    a. You are going to install Windows Subsystem for Linux (WSL) to get access to a Linux environment. If you have not installed it, follow the steps [here](https://learn.microsoft.com/en-us/windows/wsl/install#set-up-and-best-practices). The first two steps are required (up to and including **Install WSL command**). If this is successful, open PowerShell again, type in `wsl`, and then enter, you should reach a the WSL interface. If you type in `uname -a`, you will see the information of your WSL.
+    a. Restart RStudio. Go to Tools -- Global Options -- Terminal -- General tab -- New terminals open with -- Select "Bash (Windows Subsystem for Linux)". Then click Code -- Terminal -- Open Terminal at File Location. You will have a WSL bash terminal within RStudio.
