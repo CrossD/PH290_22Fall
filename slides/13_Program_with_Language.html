@@ -403,7 +403,7 @@ Add a third augument `col` to `subset_base()` in order select a single column us
 
 1. In the function, use `substitute(col)` to capture the expression user supplies in code
 
-1. Turn that into a string (`deparse()`)
+1. Turn that into a string (`deparse1()`)
 
 1. Slice the data frame using `[`
 
@@ -443,22 +443,37 @@ f1(my_df, x == xval)
 - Under the hood, formula is an expression with an environment
 
 ```r
-fm &lt;- ~ x + y
+fm &lt;- ~ poly(x, m)
+environment(fm) &lt;- env(m=2)
 str(fm)
 ```
 
 ```
-## Class 'formula'  language ~x + y
-##   ..- attr(*, ".Environment")=&lt;environment: R_GlobalEnv&gt;
+## Class 'formula'  language ~poly(x, m)
+##   ..- attr(*, ".Environment")=&lt;environment: 0x1204a8ef0&gt;
 ```
 
-- Use formula to solve the previous issue...
+- Use formula to solve the previous issue:
+
+
+```r
+evalFormula &lt;- function(x) {
+    m &lt;- 0
+    do.call(substitute, list(x, env=environment(x)))
+}
+evalFormula(fm)
+```
+
+```
+## ~poly(x, 2)
+```
+
 
 ---
 
 
 ```r
-# SE in the 2nd argument
+# SE in the 2nd argument (a formula object)
 subset_base2 &lt;- function(data, rowsFm) {
 
   stopifnot(rlang::is_formula(rowsFm))
@@ -493,9 +508,281 @@ f2(my_df, ~(x == xval))
 
 class: big, middle
 
-## The tidyverse and tidyeval
+## The tidyverse evaluation
 
 ---
+
+## What tidyverse offers in addition to base R
+
+tidyverse uses NSE in many places. It uses several new techniques in additional to the base R system:
+
+- Quosures, like formula. They are to guarantee the evaluation is in the correct context
+
+- Data pronoun in data masks, for clarity and expressiveness
+
+- Selectively turn on SE, for flexibility
+
+---
+
+## Evaluating in the right context: Quosure
+
+A quosure is a data structure defined in `{rlang}` for containing an expression and an environment:
+
+```r
+q &lt;- new_quosure(expr(x + y), env(x = 1))
+x &lt;- 2
+y &lt;- 10
+eval_tidy(q)
+```
+
+```
+## [1] 11
+```
+
+- `expr()` works like `quote()` but extends it
+
+- `eval_tidy()` is like `eval()` but uses the most relevant context to evaluate when it sees a quosure
+
+---
+
+## Generating quosures from user input
+
+- `enquo()` works like `substitute()` when it is used in a function (captures the expression of a promise, except that `enquo()` returns a quosure
+
+- This is most often used to capture the input by user and later use it for evaluation
+
+
+```r
+f &lt;- function(x) {
+  enquo(x)
+}
+q1 &lt;- f(which(ID == xval))
+q1
+```
+
+```
+## &lt;quosure&gt;
+## expr: ^which(ID == xval)
+## env:  global
+```
+
+```r
+xval &lt;- 1
+eval_tidy(q1, data=sleep) 
+```
+
+```
+## [1]  1 11
+```
+
+- `enquo()` is *not* supposed to be used outside of a function
+
+---
+
+- No matter in what environment do you evaluate this, you get the right `xval`
+
+```r
+f2 &lt;- function(x) {
+  xval &lt;- 3
+  eval_tidy(enquo(x), data=sleep)
+}
+f2(which(ID == xval))
+```
+
+```
+## [1]  1 11
+```
+
+---
+
+## Data pronoun
+
+- `eval_tidy()` supports data pronoun `.data`, something really useful for programming
+
+```r
+ID &lt;- 10
+group &lt;- 1
+q2 &lt;- expr(.data$group == .env$group)
+eval_tidy(q2, data=sleep)
+```
+
+```
+##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
+## [15] FALSE FALSE FALSE FALSE FALSE FALSE
+```
+
+- Under the hood, many tidyverse functions such as `filter()` behave like `enquo()`ing the inputs first and then `eval_tidy()` it with a data mask
+
+- So when a tidyverse function is NSE in an argument, it usually supports data pronoun
+
+```r
+library(dplyr)
+dplyr::filter(sleep, .data$group == .env$group)
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
+---
+
+- Data pronoun is useful in a function that takes a character input in the SE fashion
+
+```r
+# A function that take out records that has the same value 
+# as the 1st observation in a specified column
+filter1 &lt;- function(v) {
+  dplyr::filter(sleep, .data[[v]] == .data[[v]][1])
+}
+filter1("group")
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
+---
+
+## Selectively turn on the SE behavior
+
+- Tidyverse NSE functions `expr()`, `enquo()` etc let you selectively turn on the SE behavior 
+
+- This is called injection. It is most commonly done using `!!` (similar to `substitute()`ing the values)
+
+- The `!!` (bang-bang) "operator" let you selectively turn on SE for a part of the expression, namely, inject into an expression
+
+```r
+x &lt;- expr(y + z)
+expr(!!x + !!x)
+```
+
+```
+## y + z + (y + z)
+```
+
+---
+
+- `!!` is very useful for programming
+
+```r
+v &lt;- as.symbol("group")
+dplyr::filter(sleep, !!v == (!!v)[1])
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
+
+```r
+# SE, inputs a column name
+filter2 &lt;- function(v) {
+  dplyr::filter(sleep, !!as.symbol(v) == (!!as.symbol(v))[1])
+}
+filter2("group")
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
+---
+
+If you like your function to be NSE:
+
+```r
+# NSE, inputs a column in code
+filter2_1 &lt;- function(v) {
+  v1 &lt;- enquo(v)
+  dplyr::filter(sleep, !!v1 == (!!v1)[1])
+}
+filter2_1(group)
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
+- The `{{` (embrace) operator let you pass through an NSE argument (preferred by RStudio)
+
+filter3 &lt;- function(v) {
+  dplyr::filter(sleep, {{v}} == ({{v}})[1])
+}
+filter3(group)
+
+---
+
+- The `!!!` (splice) operator let you inject multiple arguments
+
+```r
+# NSE, inputs many columns in code
+filter2_2 &lt;- function(...) {
+  vs &lt;- enquos(...)
+  vs &lt;- purrr::map(vs, function(e) expr(!!(e) == (!!e)[1]))
+  dplyr::filter(sleep, !!!vs)
+}
+filter2_2(group, ID)
+```
+
+```
+##   extra group ID
+## 1   0.7     1  1
+```
+
+---
+
+## Tidyverse example...
+
 
 
 
