@@ -68,4 +68,3 @@ BC_by_A <- function(data, varA, varB, varC) {
 }
 BC_by_A(dat, gender, A1Cresult, race)
 BC_by_A(dat, race, A1Cresult, gender)
-
