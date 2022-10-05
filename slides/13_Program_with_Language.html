@@ -354,7 +354,7 @@ plusToTimes(e)
 
 ---
 
-## Evaluate code
+## Evaluate code with a data mask
 
 - `eval(expr, envir)` evaluates expression `expr` in environment `envir`
 
@@ -367,20 +367,20 @@ eval(quote(ID == val), envir=sleep, enclos=rlang::current_env())
 ```
 
 ```
-##  [1]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
-## [15] FALSE FALSE FALSE FALSE FALSE FALSE
+##  [1]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [11]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 ```
 
 ---
 
-## The `subset()` (which has a problem)
+## The `subset()`
 
 The following is a re-implementation of `subset()` (taken from Adv-R). It is NSE in its 2nd argument and with a data mask:
 
 ```r
 subset_base &lt;- function(data, rows) {
   rows &lt;- substitute(rows)
-  rows_val &lt;- eval(rows, data, caller_env())
+  rows_val &lt;- eval(rows, data, rlang::caller_env())
 
   data[rows_val, , drop = FALSE]
 }
@@ -399,11 +399,11 @@ class: inverse
 
 ## Your turn
 
-Add a third augument `col` to `subset_base()` in order select a single column using NSE. E.g., `subset_base(my_df, x == xval, y)` should return a data frame with a single `y` column
+Add a third NSE augument `col` to `subset_base()` for selecting a single column. E.g., `subset_base(my_df, x == xval, y)` should return a data frame with a single `y` column
 
-1. In the function, use `substitute(col)` to capture the expression user supplies in code
+1. In the function, use `substitute(col)` to capture the code supplied by the user as an expression
 
-1. Turn that into a string (`deparse1()`)
+1. Turn the captured expression into a string (`deparse1()`)
 
 1. Slice the data frame using `[`
 
@@ -413,7 +413,7 @@ If you are unsure what is going on, use `browser()` to inspect the steps of the 
 
 ---
 
-## The problem
+## The problem with `subset()`
 
 - `base::subset()` and `subset_base()` always evaluate rows in the calling environment, but if the condition is passed to this function, then the expression might need to be evaluated elsewhere:
 
@@ -421,7 +421,7 @@ If you are unsure what is going on, use `browser()` to inspect the steps of the 
 ```r
 f1 &lt;- function(df, ...) {
   xval &lt;- 3
-  subset_base(df, ...) # same for subset()
+  subset_base(df, ...)
 }
 
 f1(my_df, x == xval)
@@ -431,6 +431,8 @@ f1(my_df, x == xval)
 ##   x y
 ## 3 3 1
 ```
+
+- Here, `...` let you pass arguments into `subset_base()`, keeping the NSE input intact
 
 - The problem lies in that the evaluation environment is not the environment where the condition is defined (recall [lazy evaluation](08_lazy_evaluation.html#5))
 
@@ -450,10 +452,10 @@ str(fm)
 
 ```
 ## Class 'formula'  language ~poly(x, m)
-##   ..- attr(*, ".Environment")=&lt;environment: 0x1204a8ef0&gt;
+##   ..- attr(*, ".Environment")=&lt;environment: 0x128042860&gt;
 ```
 
-- Use formula to solve the previous issue:
+- The environment let us always evaluate in the right context
 
 
 ```r
@@ -471,6 +473,8 @@ evalFormula(fm)
 
 ---
 
+- Use a formula to solve the subset problem:
+
 
 ```r
 # SE in the 2nd argument (a formula object)
@@ -482,12 +486,13 @@ subset_base2 &lt;- function(data, rowsFm) {
 
   data[rows_val, , drop = FALSE]
 }
+
 f2 &lt;- function(df, ...) {
   xval &lt;- 3
   subset_base2(df, ...)
 }
 
-subset_base2(my_df, ~(x == xval))
+subset_base2(my_df, ~x == xval)
 ```
 
 ```
@@ -496,7 +501,7 @@ subset_base2(my_df, ~(x == xval))
 ```
 
 ```r
-f2(my_df, ~(x == xval))
+f2(my_df, ~x == xval)
 ```
 
 ```
@@ -514,7 +519,7 @@ class: big, middle
 
 ## What tidyverse offers in addition to base R
 
-tidyverse uses NSE in many places. It uses several new techniques in additional to the base R system:
+`{tidyverse}` uses NSE in many places. It uses several new techniques in additional to the base R system:
 
 - Quosures, like formula. They are to guarantee the evaluation is in the correct context
 
@@ -541,15 +546,15 @@ eval_tidy(q)
 
 - `expr()` works like `quote()` but extends it
 
-- `eval_tidy()` is like `eval()` but uses the most relevant context to evaluate when it sees a quosure
+- `eval_tidy()` is like `eval()` but uses the most relevant context to evaluate when it sees a quosure, and more
 
 ---
 
 ## Generating quosures from user input
 
-- `enquo()` works like `substitute()` when it is used in a function (captures the expression of a promise, except that `enquo()` returns a quosure
+- `enquo()` works like `substitute()` when it is used in a function (captures the expression of a promise, except that `enquo()` returns a quosure)
 
-- This is most often used to capture the input by user and later use it for evaluation
+- This is used to capture the input by user and later use it for evaluation
 
 
 ```r
@@ -579,7 +584,7 @@ eval_tidy(q1, data=sleep)
 
 ---
 
-- No matter in what environment do you evaluate this, you get the right `xval`
+- No matter in what environment do you evaluate the quosure, you get the right `xval`
 
 ```r
 f2 &lt;- function(x) {
@@ -600,15 +605,14 @@ f2(which(ID == xval))
 - `eval_tidy()` supports data pronoun `.data`, something really useful for programming
 
 ```r
-ID &lt;- 10
 group &lt;- 1
 q2 &lt;- expr(.data$group == .env$group)
 eval_tidy(q2, data=sleep)
 ```
 
 ```
-##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
-## [15] FALSE FALSE FALSE FALSE FALSE FALSE
+##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [11] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 ```
 
 - Under the hood, many tidyverse functions such as `filter()` behave like `enquo()`ing the inputs first and then `eval_tidy()` it with a data mask
@@ -667,7 +671,7 @@ filter1("group")
 
 - Tidyverse NSE functions `expr()`, `enquo()` etc let you selectively turn on the SE behavior 
 
-- This is called injection. It is most commonly done using `!!` (similar to `substitute()`ing the values)
+- This is called injection. It is most commonly done using `!!` (similar to `substitute()`ing symbols)
 
 - The `!!` (bang-bang) "operator" let you selectively turn on SE for a part of the expression, namely, inject into an expression
 
@@ -703,6 +707,8 @@ dplyr::filter(sleep, !!v == (!!v)[1])
 ## 10   2.0     1 10
 ```
 
+---
+
 
 ```r
 # SE, inputs a column name
@@ -732,11 +738,11 @@ If you like your function to be NSE:
 
 ```r
 # NSE, inputs a column in code
-filter2_1 &lt;- function(v) {
+filter2_NSE &lt;- function(v) {
   v1 &lt;- enquo(v)
-  dplyr::filter(sleep, !!v1 == (!!v1)[1])
+  dplyr::filter(sleep, !!v1 == (!!v1)[1]) 
 }
-filter2_1(group)
+filter2_NSE(group)
 ```
 
 ```
@@ -753,12 +759,34 @@ filter2_1(group)
 ## 10   2.0     1 10
 ```
 
-- The `{{` (embrace) operator let you pass through an NSE argument (preferred by RStudio)
+- `!!` has a pretty high operator precedence but not higher than `[`, so we need parenthesis for the 2nd `!!v1`
 
+---
+
+- The `{{` (embrace) operator let you pass through an NSE argument (this approach is preferred by RStudio)
+
+
+```r
 filter3 &lt;- function(v) {
-  dplyr::filter(sleep, {{v}} == ({{v}})[1])
+  dplyr::filter(sleep, {{v}} == {{v}}[1])
 }
 filter3(group)
+```
+
+```
+##    extra group ID
+## 1    0.7     1  1
+## 2   -1.6     1  2
+## 3   -0.2     1  3
+## 4   -1.2     1  4
+## 5   -0.1     1  5
+## 6    3.4     1  6
+## 7    3.7     1  7
+## 8    0.8     1  8
+## 9    0.0     1  9
+## 10   2.0     1 10
+```
+
 
 ---
 
@@ -766,6 +794,7 @@ filter3(group)
 
 ```r
 # NSE, inputs many columns in code
+# Takes out records that has the same value as the first record in all specified columns
 filter2_2 &lt;- function(...) {
   vs &lt;- enquos(...)
   vs &lt;- purrr::map(vs, function(e) expr(!!(e) == (!!e)[1]))
