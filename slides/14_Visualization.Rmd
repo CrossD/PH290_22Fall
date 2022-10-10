@@ -42,9 +42,9 @@ xaringanExtra::use_tile_view()
 
 Here are some commonly used graphics file formats:
 
-- Vector graphics: Use mathematical formula to describe the graph. Does not lose resolution when enlarged. Common file formats: svg, pdf, eps
+- Vector graphics: Uses mathematical formula to describe the graph. Does not lose resolution when enlarged. Common file formats: svg, pdf, eps
 
-- Raster graphics: Use pixels to describe the graph. Loses resolution when enlarged. Common formats: png, jpeg, gif, tiff
+- Raster graphics: Uses pixels to describe the graph. Loses resolution when enlarged. Common formats: png, jpeg, gif, tiff
 
 - Interactive graphics: Usually made with `D3`,  a javascript library for creating interactive graphics. Usually in html + svg 
 
@@ -52,7 +52,7 @@ Here are some commonly used graphics file formats:
 
 class: middle, big
 
-## What tools are available out there?
+## What tools are available?
 
 ---
 
@@ -65,13 +65,13 @@ Interactive plot:
 
     - Easiest way to start is ggplot + `plotly::ggplotly()`. [Example](https://r-graph-gallery.com/interactive-charts.html)
 
-    - You can also create layered graphics using just `plotly`. [See](https://plotly.com/r/)
+    - You can also create layered graphics using just `plotly`. [Gallery](https://plotly.com/r/)
 
 Animation:
 
-- `gganimate`, an R package to create animation using ggplot. [Example](https://r-graph-gallery.com/271-ggplot2-animated-gif-chart-with-gganimate.html)
-
 - `ImageMagick`, a command line tool to stack static images into an animation
+
+- `gganimate`, an R package to create animation using ggplot. [Example](https://r-graph-gallery.com/271-ggplot2-animated-gif-chart-with-gganimate.html)
 
 ---
 
@@ -82,7 +82,7 @@ Animation:
 - `rgl`. An R package specialized in producing realistic 3D graphics. [Example](https://r-graph-gallery.com/3d.html#3dscatter)
 
 
-All tools here involve generating the graphics *ahead of time*. The figures will be sent to reader's machine (just once)
+All tools here involve generating the graphics *just once*, either on the server or on the reader's machine.
 
 ---
 
@@ -217,7 +217,7 @@ class: middle, big
 
 ---
 
-![:scale 100%](images/web-time-series-and-facetting.png)
+![:scale 90%](images/web-time-series-and-facetting.png)
 
 A [step-by-step guide](https://r-graph-gallery.com/web-time-series-and-facetting.html) to recreate this figure
 
