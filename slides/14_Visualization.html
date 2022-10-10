@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Advanced Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Advanced Visualization
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Visualization tools
+
+- Some principles of graphics
+
+---
+
+## References
+
+- Many examples are taken from the [excellent gallery](https://r-graph-gallery.com/index.html) made by Yan Holtz
+
+- Plotly [documentation in R](https://plotly.com/r/)
+
+- [Mastering Shiny](https://mastering-shiny.org/index.html) by Hadley Wickham
+
+- [Shiny cheatsheet](https://www.rstudio.com/resources/cheatsheets/)
+
+
+---
+
+## Some basics
+
+Here are some commonly used graphics file formats:
+
+- Vector graphics: Use mathematical formula to describe the graph. Does not lose resolution when enlarged. Common file formats: svg, pdf, eps
+
+- Raster graphics: Use pixels to describe the graph. Loses resolution when enlarged. Common formats: png, jpeg, gif, tiff
+
+- Interactive graphics: Usually made with `D3`,  a javascript library for creating interactive graphics. Usually in html + svg 
+
+---
+
+class: middle, big
+
+## What tools are available out there?
+
+---
+
+## What tools are available out there?
+
+
+Interactive plot: 
+
+- `plotly` is a cross-language tool for creating interactive graphics built upon `D3.js`
+
+    - Easiest way to start is ggplot + `plotly::ggplotly()`. [Example](https://r-graph-gallery.com/interactive-charts.html)
+
+    - You can also create layered graphics using just `plotly`. [See](https://plotly.com/r/)
+
+Animation:
+
+- `gganimate`, an R package to create animation using ggplot. [Example](https://r-graph-gallery.com/271-ggplot2-animated-gif-chart-with-gganimate.html)
+
+- `ImageMagick`, a command line tool to stack static images into an animation
+
+---
+
+3D plot:
+
+- `plotly`. Syntax is similar to its 2D versions
+
+- `rgl`. An R package specialized in producing realistic 3D graphics. [Example](https://r-graph-gallery.com/3d.html#3dscatter)
+
+
+All tools here involve generating the graphics *ahead of time*. The figures will be sent to reader's machine (just once)
+
+---
+
+class: inverse
+
+## Your turn
+
+- Create a ggplot figure and save it to a variable `p`. Use your favorite dataset and geom
+
+- Turn the static figure into an interactive one using `plotly::ggplotly(p)`
+
+---
+
+## Web app tools
+
+- [`shiny`](https://shiny.rstudio.com/) is an R package for creating a web app
+
+- Here is [an example](https://shiny.rstudio.com/gallery/radiant.html) letting you to interactively explore a dataset
+    
+- [`dash`](https://dash.plotly.com/r/introduction) serves a similar purpose 
+
+- These tools follow a server-client architecture, namely to generate and send over graphics *on the fly* by the server as the client requests
+
+---
+
+&lt;!-- ## Server-client architecture --&gt;
+
+![:scale 100%](images/serverClient.png)
+
+---
+
+## Building a toy shiny app
+
+- Ingredients:
+    1. UI (user interface): The webpage layout the users are going to see
+    1. server script: What code to be run in order to feed users the outputs they want
+
+- Mindset when writing the server script: We are writing *functions* to tell how to make the output given an input
+
+- An example is given below...
+
+---
+
+- We will show a scatter plot of life expectancy vs GDP. Each dot stands for a country. Data over the years are summarized by their means. 
+- The user will specify how recent the data should be used.
+
+```
+library(shiny)
+library(tidyverse)
+
+ui &lt;- fluidPage(
+  sliderInput("yearThresh", 
+              "Use data more recent than:", 1952, 2007, 1952),
+  plotOutput("lifeGDPPlot")
+)
+
+server &lt;- function(input, output, session) {
+  output$lifeGDPPlot &lt;- renderPlot({
+    lifeGDP &lt;- gapminder::gapminder %&gt;%
+      filter(year &gt;= input$yearThresh) %&gt;%
+      group_by(country) %&gt;%
+      summarize(lifeExp = mean(lifeExp),
+                gdpPercap = mean(gdpPercap))
+    
+    ggplot(lifeGDP(), aes(x = gdpPercap, y = lifeExp)) + 
+      geom_point()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+---
+
+class: inverse
+
+## Your turn
+
+Base your code upon the previous example. We will add another `plotly` interactive figure below the ggplot. Follow these steps:
+
+1. For the UI, add an output using `plotlyOutput("lifeGDPPlotly")`
+
+1. For the server, implement and output `output$lifeGDPPlotly`, but this time use `renderPlotly()` to render it. Make sure to create and return a plotly figure (`plotly::ggplotly()`)
+
+---
+
+## Reactivity
+
+- Reactivity: Code within `renderXXX()` and `reactive()` functions will be run only if the output is requested. They are rerun only if the inputs are changed
+
+- The order your code run is solely determined by the dependency of the reactivities
+
+- Notes:
+    - Input values can only be accessed within `renderXXX()` or `reactive()` functions
+    - Output values can only be set within `renderXXX()` functions. They cannot be read
+
+---
+
+## How to choose a tool?
+
+When we have a large dataset at hand and want to communicate a lot of information, we need to start to think about: 
+
+- Where are the data? Where should the computation be performed?
+
+- What do we need to communicate?
+
+- How are users going to read the graphics?
+
+---
+
+class: middle, big
+
+## Principles of Graphics
+
+---
+
+- One overarching principle: What is shown should be close to what readers perceive (faithfulness)
+    - Ordering is important
+    - Principle of proportional ink
+    - Color schemes
+
+- Many ways to go wrong
+
+---
+class: middle, big 
+
+## Some good examples
+
+---
+
+![:scale 100%](images/web-time-series-and-facetting.png)
+
+A [step-by-step guide](https://r-graph-gallery.com/web-time-series-and-facetting.html) to recreate this figure
+
+---
+
+## [French invasion of Russia](https://en.wikipedia.org/wiki/Charles_Joseph_Minard#/media/File:Minard_Update.png)
+
+&lt;img src='https://upload.wikimedia.org/wikipedia/commons/e/e2/Minard_Update.png'/ width=100%&gt;
+By [Charles Joseph Minard](https://en.wikipedia.org/wiki/Charles_Joseph_Minard) (original), DkEgy (translator)
+
+---
+
+## Principle of proportional ink
+
+The principle of proportional ink: If used to represent numerical values, the sizes of shaded areas, the width of a line, or the length of a line should be proportional to the data values they represent. (Edward  Tufte)
+
+&lt;div class="row"&gt;
+  &lt;div style="float: left;  width: 50%;"&gt;Bad: &lt;img src='http://serialmentor.com/dataviz/proportional_ink_files/figure-html/hawaii-income-bars-bad-1.png'/ width=90%&gt;&lt;/div&gt;
+  &lt;div style="float: left;  width: 50%;"&gt;Good: &lt;img src='http://serialmentor.com/dataviz/proportional_ink_files/figure-html/hawaii-income-bars-good-1.png'/ width=90%&gt;&lt;/div&gt;
+&lt;/div&gt; 
+(Wilke 2019, Fundamentals of Data Visualization)
+
+---
+
+## Lie factor (Tufte)
+
+&lt;center&gt; &lt;img src='https://infovis-wiki.net/w/images/e/ea/Lie_factor_formel.jpg' width=65%&gt; &lt;/center&gt;
+
+Bad: 
+&lt;img src='https://benjaminleroy.github.io/pages/blog/public/post/2018-05-16-review-of-tufte-s-the-visual-display-of-quantitative-information_files/figure-html/fuel-1.png' width=100%&gt; 
+
+---
+
+## Principle of Color Schemes
+
+Using an appropriate color scheme to represent information is crucial. We follow the language of [ColorBrewer](http://colorbrewer2.org) (Cynthia Brewer)
+
+---
+
+## Sequential color scheme for representing *ordered* data 
+&lt;img src='images/sequential.png' width=100%&gt;
+
+---
+
+## Diverging color scheme for *ordered* data with a meaningful center point
+&lt;img src='images/diverging.png' width=100%&gt;
+
+---
+
+## Qualitative color scheme for *unordered* categorical data 
+&lt;img src='images/qualitative.png' width=100%&gt;
+
+---
+
+## Bad patterns
+
+Here is a [gallery](https://www.data-to-viz.com/caveats.html) of common mistakes on a graph, made by Yan Holtz. E.g.,
+
+- Too much overlap
+- Unmeaningful ordering (e.g. for bar charts)
+- Rainbow color on maps
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
