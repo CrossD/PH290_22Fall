@@ -122,7 +122,11 @@ class: inverse
 
 - Mindset when writing the server script: We are writing *functions* to tell how to make the output given an input
 
-- An example is given below...
+- An example is given below. It pairs
+    - `plotOutput()` for UI with
+    - `renderPlot()` in the server script
+
+- There are many other such pairs, e.g., for showing text, table, and plotly plot
 
 ---
 
