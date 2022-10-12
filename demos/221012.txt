@@ -1,0 +1,1137 @@
+Last login: Wed Oct 12 08:40:29 on ttys012 
+ 
+The default interactive shell is now zsh. 
+To update your account to use zsh, please run `chsh -s /bin/zsh`. 
+For more details, please visit https://support.apple.com/kb/HT208050. 
+biostat-mbp14-04:~$ cat /Users/xdai/bashRecord/12-Oct-22_08-24-38_shell.log 
+Script started on Wed Oct 12 08:24:38 2022 
+command: bash -l 
+ 
+The default interactive shell is now zsh. 
+To update your account to use zsh, please run `chsh -s /bin/zsh`. 
+For more details, please visit https://support.apple.com/kb/HT208050. 
+Biostat-MBP14-04:~$  
+Biostat-MBP14-04:~$ pwd 
+/Users/xdai 
+Biostat-MBP14-04:~$ cd 
+Biostat-MBP14-04:~$ cd ~ 
+Biostat-MBP14-04:~$ cd ~/Downloads/PH290 
+PH290/        PH290_backup/  
+Biostat-MBP14-04:~$ cd ~/Downloads/PH290 
+Biostat-MBP14-04:PH290$ pwd 
+/Users/xdai/Downloads/PH290 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      expr.R        func.R        ggplotAll.R   myPackage     out           shiny.R 
+analysis.R    bashDemo      err           file          func_mod.R    installAndRun myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ mkdir demo 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      err           file          func_mod.R    installAndRun myscript      pkg1          tmp 
+analysis.R    bashDemo      demo          expr.R        func.R        ggplotAll.R   myPackage     out           shiny.R 
+Biostat-MBP14-04:PH290$ ls demo 
+expr.R 
+Biostat-MBP14-04:PH290$ cd demo/ 
+Biostat-MBP14-04:demo$ cp ../func.R func.R 
+Biostat-MBP14-04:demo$ ls 
+expr.R func.R 
+Biostat-MBP14-04:demo$ cp ../pkg1/R/S3.R . 
+Biostat-MBP14-04:demo$ ls 
+S3.R   expr.R func.R 
+Biostat-MBP14-04:demo$ mv expr.R expr.R.backup 
+Biostat-MBP14-04:demo$ ls 
+S3.R          expr.R.backup func.R 
+Biostat-MBP14-04:demo$ rm expr.R.backup  
+Biostat-MBP14-04:demo$ ls 
+S3.R   func.R 
+Biostat-MBP14-04:demo$ cd .. 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+analysis.R    bashDemo      demo          file          func_mod.R    installAndRun myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ rm demo 
+rm: demo: is a directory 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+analysis.R    bashDemo      demo          file          func_mod.R    installAndRun myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ rm -r demo 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myscript      pkg1          tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+Biostat-MBP14-04:PH290$ pwd 
+/Users/xdai/Downloads/PH290 
+Biostat-MBP14-04:PH290$ cp -r . ../backup 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myscript      pkg1          tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+Biostat-MBP14-04:PH290$ ls -a 
+.             .DS_Store     analysis.R    bashDemo      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+..            S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ ls -l 
+total 104 
+-rw-r--r--   1 xdai  staff    49 Oct 11 16:07 S3.R 
+-rw-r--r--   1 xdai  staff    18 Oct 11 17:14 analysis.R 
+-rw-r--r--@  1 xdai  staff  1152 Oct 12 07:50 bash.sh 
+drwxr-xr-x   2 xdai  staff    64 Oct 11 15:10 bashDemo 
+drwxr-xr-x   3 xdai  staff    96 Sep 25 20:25 dataCode 
+-rw-r--r--   1 xdai  staff    64 Oct 11 17:39 err 
+-rw-r--r--   1 xdai  staff   144 Oct 11 17:41 file 
+-rw-r--r--   1 xdai  staff   778 Oct 11 16:32 func.R 
+-rw-r--r--   1 xdai  staff   738 Oct 11 16:17 func_mod.R 
+-rw-r--r--@  1 xdai  staff  2106 Oct  5 09:27 ggplotAll.R 
+-rwxr--r--   1 xdai  staff    50 Oct 11 17:09 installAndRun 
+drwxr-xr-x  15 xdai  staff   480 Sep 28 10:16 myPackage 
+-rwxr--r--   1 xdai  staff    37 Oct 11 17:05 myscript 
+-rw-r--r--   1 xdai  staff    44 Oct 11 17:40 out 
+drwxr-xr-x  12 xdai  staff   384 Oct 11 16:00 pkg1 
+-rw-r--r--   1 xdai  staff  1396 Oct  9 17:38 shiny.R 
+-rw-r--r--   1 xdai  staff     5 Oct 12 07:43 tmp 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myscript      pkg1          tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+Biostat-MBP14-04:PH290$ ls *.R 
+S3.R        analysis.R  func.R      func_mod.R  ggplotAll.R shiny.R 
+Biostat-MBP14-04:PH290$ ls func*.R 
+func.R     func_mod.R 
+Biostat-MBP14-04:PH290$ ls analysis.? 
+analysis.R 
+Biostat-MBP14-04:PH290$ pwd 
+/Users/xdai/Downloads/PH290 
+Biostat-MBP14-04:PH290$ ln -s /Users/xdai/Downloads/PH290 ~ 
+Biostat-MBP14-04:PH290$ ls ~ 
+Applications         Desktop              GoogleDrive          PH290                Teaching             materials            tmpnotes.txt 
+Box                  Documents            Library              Pictures             bashDemo             researchOffline      tmux.conf.backup 
+Creative Cloud Files Downloads            Movies               Public               bashRecord           src                  tools 
+DS202demo            Google Drive         Music                Sites                dotfiles             tmpWriting.txt 
+Biostat-MBP14-04:PH290$ ls -l ~ 
+total 0 
+drwx------@    5 xdai  staff    160 Jun 14  2021 Applications 
+dr-x------     2 xdai  staff     64 Aug 15 09:17 Box 
+drwx------@    4 xdai  staff    128 Sep 22 21:50 Creative Cloud Files 
+drwxr-xr-x     8 xdai  staff    256 Sep  1  2021 DS202demo 
+drwx------@   33 xdai  staff   1056 Oct 11 11:07 Desktop 
+drwx------+   17 xdai  staff    544 Jul 17 14:25 Documents 
+drwx------@ 1299 xdai  staff  41568 Oct 12 08:31 Downloads 
+lrwx------     1 xdai  staff     20 Sep 22 21:52 Google Drive -> /Volumes/GoogleDrive 
+drwxr-xr-x@   42 xdai  staff   1344 Sep 25 08:01 GoogleDrive 
+drwx------+  112 xdai  staff   3584 Aug 22 15:38 Library 
+drwx------+    6 xdai  staff    192 Mar 30  2020 Movies 
+drwx------+    7 xdai  staff    224 Aug 19  2021 Music 
+lrwxr-xr-x     1 xdai  staff     27 Oct 12 08:39 PH290 -> /Users/xdai/Downloads/PH290 
+drwx------+    8 xdai  staff    256 Oct  5 21:54 Pictures 
+drwxr-xr-x+    4 xdai  staff    128 Aug 15  2018 Public 
+drwxr-xr-x+    3 xdai  staff     96 Aug 18 18:28 Sites 
+drwxr-xr-x     3 xdai  staff     96 Jun 22  2019 Teaching 
+drwxr-xr-x     2 xdai  staff     64 Oct 11 15:05 bashDemo 
+drwxr-xr-x    16 xdai  staff    512 Oct 12 08:24 bashRecord 
+lrwxr-xr-x     1 xdai  staff     49 Jun  9  2020 dotfiles -> /Users/xdai/GoogleDrive/Program Settings/dotfiles 
+drwxr-xr-x     7 xdai  staff    224 Sep 19 16:53 materials 
+drwxr-xr-x     5 xdai  staff    160 Nov  4  2019 researchOffline 
+drwxr-xr-x     4 xdai  staff    128 Sep 23 07:02 src 
+lrwxr-xr-x     1 xdai  staff     26 Feb  3  2022 tmpWriting.txt -> GoogleDrive/tmpWriting.txt 
+lrwxr-xr-x     1 xdai  staff     24 Oct 27  2021 tmpnotes.txt -> GoogleDrive/tmpnotes.txt 
+lrwxr-xr-x     1 xdai  staff     30 Jun  9  2020 tmux.conf.backup -> /Users/xdai/dotfiles/tmux.conf 
+drwxr-xr-x     9 xdai  staff    288 Aug 17  2020 tools 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myscript      pkg1          tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   myPackage     out           shiny.R 
+Biostat-MBP14-04:PH290$ touch "my analysis.R" 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   my analysis.R myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ mv my analysis.R ma.R 
+mv: ma.R is not a directory 
+Biostat-MBP14-04:PH290$ mv "my analysis.R" ma.R 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ mv my 
+myPackage/ myscript    
+Biostat-MBP14-04:PH290$ touch "my analysis.R" 
+Biostat-MBP14-04:PH290$ rm my 
+my analysis.R  myPackage/     myscript        
+Biostat-MBP14-04:PH290$ rm my\ analysis.R  
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ cat func.R 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+#' @importFrom praise praise 
+#' @export 
+f <- function(...) { 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+  sink() 
+     
+  diffviewer::visual_diff(f1, f2) 
+} 
+Biostat-MBP14-04:PH290$ cat  
+meow meow 
+meow meow 
+^C 
+Biostat-MBP14-04:PH290$  
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+#' @importFrom praise praise 
+#' @export 
+f <- function(...) { 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+library(shiny) 
+library(shiny) 
+library(tidyverse) 
+library(plotly) 
+ 
+# What interface the user sees 
+ui <- fluidPage( 
+  titlePanel("Hello world!"), 
+library(shiny) 
+library(tidyverse) 
+library(plotly) 
+ 
+# What interface the user sees 
+ui <- fluidPage( 
+  titlePanel("Hello world!"), 
+   
+library(shiny) 
+library(shiny) 
+library(shiny) 
+library(shiny) 
+library(tidyverse) 
+library(plotly) 
+ 
+# What interface the user sees 
+library(shiny) 
+library(tidyverse) 
+library(plotly) 
+ 
+# What interface the user sees 
+ui <- fluidPage( 
+  titlePanel("Hello world!"), 
+   
+  sliderInput("yearThresh", "Use data more recent than:", 1952, 2007, 1952), 
+   
+  plotOutput("lifeGDPPlot"),  
+   
+  plotlyOutput("lifeGDPPlotly") 
+)i <- fluidPage( 
+  titlePanel("Hello world!"), 
+server <- function(input, output, session) { 
+  sliderInput("yearThresh", "Use data more recent than:", 1952, 2007, 1952), 
+# These are all like functions! They will be called once the input$xxx is changed 
+  plotOutput("lifeGDPPlot"),  
+  lifeGDP <- reactive({ 
+    gapminder::gapminder %>%y") 
+      filter(year >= input$yearThresh) %>% recent than:", 1952, 2007, 1952), 
+      group_by(country) %>% 
+      summarize(lifeExp = mean(lifeExp), 
+                gdpPercap = mean(gdpPercap)) 
+  })otlyOutput("lifeGDPPlotly") 
+   
+  output$lifeGDPPlot <- renderPlot({a more recent than:", 1952, 2007, 1952), 
+    # lifeGDP <- gapminder::gapminder %>% 
+    #   filter(year >= input$yearThresh) %>% 
+    #   group_by(country) %>% 
+    #   summarize(lifeExp = mean(lifeExp), 
+    #             gdpPercap = mean(gdpPercap)) 
+    data <- lifeGDP() 
+    ggplot(data, aes(x = gdpPercap, y = lifeExp)) +  
+      geom_point() 
+  })ese are all like functions! They will be called once the input$xxx is changed 
+   
+  output$lifeGDPPlotly <- renderPlotly({ 
+    # lifeGDP <- gapminder::gapminder %>% 
+    #   filter(year >= input$yearThresh) %>% 
+    #   group_by(country) %>% 
+    #   summarize(lifeExp = mean(lifeExp), 
+    #             gdpPercap = mean(gdpPercap)) 
+     
+    data <- lifeGDP() 
+    p <- ggplot(data, aes(x = gdpPercap, y = lifeExp, country=country)) +  
+      geom_point()  
+     
+    ggplotly(p) 
+  }) 
+} 
+ 
+shinyApp(ui, server) 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+library(shiny) 
+library(tidyverse) 
+library(plotly) 
+ 
+# What interface the user sees 
+ui <- fluidPage( 
+Biostat-MBP14-04:PH290$ less func.R 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ less shiny.R  
+Biostat-MBP14-04:PH290$ ls func* 
+func.R     func_mod.R 
+Biostat-MBP14-04:PH290$ cat fun 
+func.R      func_mod.R   
+Biostat-MBP14-04:PH290$ cat func*.R 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+#' @importFrom praise praise 
+#' @export 
+f <- function(...) { 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+  sink() 
+     
+  diffviewer::visual_diff(f1, f2) 
+} 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+f <- function(...) { 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+  sink() 
+     
+  diffviewer::visual_diff(f1, f2) 
+} 
+Biostat-MBP14-04:PH290$ diff func.R func 
+func.R      func_mod.R   
+Biostat-MBP14-04:PH290$ diff func.R func_mod.R  
+6,7d5 
+< #' @importFrom praise praise 
+< #' @export 
+Biostat-MBP14-04:PH290$ diff -u func.R func_mod.R  
+Biostat-MBP14-04:PH290$ diff -u func.R func_mod.R  
+--- func.R	2022-10-11 16:32:09.000000000 -0700 
++++ func_mod.R	2022-10-11 16:17:06.000000000 -0700 
+@@ -3,8 +3,6 @@ 
+ #' Compare two models according to what their `summary()` method prints out 
+ #' 
+ #' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+-#' @importFrom praise praise 
+-#' @export 
+ f <- function(...) { 
+   praise() 
+ } 
+Biostat-MBP14-04:PH290$  
+ tabs   1 func.R                                                                                                                                    X  
+  1 #' Compare two models 
+  2 #' 
+  3 #' Compare two models according to what their `summary()` method prints out 
+  4 #' 
+  5 #' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+  6 #' @importFrom praise praise 
+  7 #' @export 
+  8 f <- function(...) { 
+  9   praise() 
+ 10   praise() 
+ 11   praise() 
+ 12 } 
+ 13  
+ 14  
+ 15 #' Compare two models 
+ Compa 
+ Compare two models according to what their `summary()` method prints out 
+ 18 #' 
+ 19 #' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+ 20 CompModels <- function(mod1, mod2, ...) { 
+ 21   f1 <- tempfile() 
+ 22   sink(f1) 
+ 23   print(summary(mod1)) 
+ 24   sink() 
+f2 <-  
+f2 <- tempfile() 
+ 27   sink(f2) 
+ 28   print(summary(mod2)) 
+ 29   sink() 
+ 30      
+ 31   diffviewer::visual_diff(f1, f2) 
+ 32 } 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+ NORMAL  func.R                                                                                                      r  utf-8[unix]  37% ㏑:12/32☰℅:1  
+"func.R" 32L, 800B written                                                                                                                    
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ vi func.R 
+Biostat-MBP14-04:PH290$  
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+#' @importFrom praise praise 
+#' @export 
+f <- function(...) { 
+  praise() 
+  praise() 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+  sink() 
+     
+  diffviewer::visual_diff(f1, f2) 
+} 
+...skipping... 
+ 
+                   SUMMARY OF LESS COMMANDS 
+ 
+      Commands marked with * may be preceded by a number, N. 
+      Notes in parentheses indicate the behavior if N is given. 
+      A key preceded by a caret indicates the Ctrl key; thus ^K is ctrl-K. 
+ 
+  h  H                 Display this help. 
+  q  :q  Q  :Q  ZZ     Exit. 
+ --------------------------------------------------------------------------- 
+ 
+                           MOVING 
+ 
+  e  ^E  j  ^N  CR  *  Forward  one line   (or N lines). 
+  y  ^Y  k  ^K  ^P  *  Backward one line   (or N lines). 
+  f  ^F  ^V  SPACE  *  Forward  one window (or N lines). 
+  b  ^B  ESC-v      *  Backward one window (or N lines). 
+  z                 *  Forward  one window (and set window to N). 
+  w                 *  Backward one window (and set window to N). 
+  ESC-SPACE         *  Forward  one window, but don't stop at end-of-file. 
+  d  ^D             *  Forward  one half-window (and set half-window to N). 
+  u  ^U             *  Backward one half-window (and set half-window to N). 
+  ESC-)  RightArrow *  Right one half screen width (or N positions). 
+  ESC-(  LeftArrow  *  Left  one half screen width (or N positions). 
+  ESC-}  ^RightArrow   Right to last column displayed. 
+  ESC-{  ^LeftArrow    Left  to first column. 
+  F                    Forward forever; like "tail -f". 
+  ESC-F                Like F but stop when search pattern is found. 
+  r  ^R  ^L            Repaint screen. 
+  R                    Repaint screen, discarding buffered input. 
+        --------------------------------------------------- 
+        Default "window" is the screen height. 
+        Default "half-window" is half of the screen height. 
+ --------------------------------------------------------------------------- 
+ 
+                          SEARCHING 
+ 
+  /pattern          *  Search forward for (N-th) matching line. 
+  ?pattern          *  Search backward for (N-th) matching line. 
+  n                 *  Repeat previous search (for N-th occurrence). 
+  N                 *  Repeat previous search in reverse direction. 
+  ESC-n             *  Repeat previous search, spanning files. 
+  ESC-N             *  Repeat previous search, reverse dir. & spanning files. 
+  ESC-u                Undo (toggle) search highlighting. 
+  ESC-U                Clear search highlighting. 
+  &pattern          *  Display only matching lines. 
+        --------------------------------------------------- 
+        A search pattern may begin with one or more of: 
+        ^N or !  Search for NON-matching lines. 
+        ^E or *  Search multiple files (pass thru END OF FILE). 
+        ^F or @  Start search at FIRST file (for /) or last file (for ?). 
+        ^K       Highlight matches, but don't move (KEEP position). 
+        ^R       Don't use REGULAR EXPRESSIONS. 
+        ^W       WRAP search if no match found. 
+ --------------------------------------------------------------------------- 
+ 
+Biostat-MBP14-04:PH290$ less fun 
+func.R      func_mod.R   
+Biostat-MBP14-04:PH290$ less func.R 
+Biostat-MBP14-04:PH290$ diff --help 
+Usage: diff [OPTION]... FILES 
+Compare files line by line. 
+ 
+  -i  --ignore-case  Ignore case differences in file contents. 
+  --ignore-file-name-case  Ignore case when comparing file names. 
+  --no-ignore-file-name-case  Consider case when comparing file names. 
+  -E  --ignore-tab-expansion  Ignore changes due to tab expansion. 
+  -b  --ignore-space-change  Ignore changes in the amount of white space. 
+  -w  --ignore-all-space  Ignore all white space. 
+  -B  --ignore-blank-lines  Ignore changes whose lines are all blank. 
+  -I RE  --ignore-matching-lines=RE  Ignore changes whose lines all match RE. 
+  --strip-trailing-cr  Strip trailing carriage return on input. 
+  -a  --text  Treat all files as text. 
+ 
+  -c  -C NUM  --context[=NUM]  Output NUM (default 3) lines of copied context. 
+  -u  -U NUM  --unified[=NUM]  Output NUM (default 3) lines of unified context. 
+    --label LABEL  Use LABEL instead of file name. 
+    -p  --show-c-function  Show which C function each change is in. 
+    -F RE  --show-function-line=RE  Show the most recent line matching RE. 
+  -q  --brief  Output only whether files differ. 
+  -e  --ed  Output an ed script. 
+  --normal  Output a normal diff. 
+  -n  --rcs  Output an RCS format diff. 
+  -y  --side-by-side  Output in two columns. 
+    -W NUM  --width=NUM  Output at most NUM (default 130) print columns. 
+    --left-column  Output only the left column of common lines. 
+    --suppress-common-lines  Do not output common lines. 
+  -D NAME  --ifdef=NAME  Output merged file to show `#ifdef NAME' diffs. 
+  --GTYPE-group-format=GFMT  Similar, but format GTYPE input groups with GFMT. 
+  --line-format=LFMT  Similar, but format all input lines with LFMT. 
+  --LTYPE-line-format=LFMT  Similar, but format LTYPE input lines with LFMT. 
+    LTYPE is `old', `new', or `unchanged'.  GTYPE is LTYPE or `changed'. 
+    GFMT may contain: 
+      %<  lines from FILE1 
+      %>  lines from FILE2 
+DIFF(1)                                                      User Commands                                                      DIFF(1) 
+ 
+NAME 
+       diff - compare files line by line 
+ 
+SYNOPSIS 
+       diff [OPTION]... FILES 
+ 
+DESCRIPTION 
+       Compare files line by line. 
+ 
+       -i  --ignore-case 
+              Ignore case differences in file contents. 
+ 
+       --ignore-file-name-case 
+              Ignore case when comparing file names. 
+ 
+       --no-ignore-file-name-case 
+              Consider case when comparing file names. 
+ 
+       -E  --ignore-tab-expansion 
+              Ignore changes due to tab expansion. 
+ 
+       -b  --ignore-space-change 
+              Ignore changes in the amount of white space. 
+ 
+       -w  --ignore-all-space 
+              Ignore all white space. 
+ 
+       -B  --ignore-blank-lines 
+              Ignore changes whose lines are all blank. 
+ 
+       -I RE  --ignore-matching-lines=RE 
+              Ignore changes whose lines all match RE. 
+ 
+       --strip-trailing-cr 
+              Strip trailing carriage return on input. 
+ 
+       -a  --text 
+              Treat all files as text. 
+ 
+       -c  -C NUM  --context[=NUM] 
+              Output NUM (default 3) lines of copied context. 
+ 
+       -u  -U NUM  --unified[=NUM] 
+              Output NUM (default 3) lines of unified context. 
+ 
+       --label LABEL 
+              Use LABEL instead of file name. 
+ 
+       -p  --show-c-function 
+              Show which C function each change is in. 
+ 
+       -F RE  --show-function-line=RE 
+              Show the most recent line matching RE. 
+ 
+       -q  --brief 
+              Output only whether files differ. 
+ 
+       -e  --ed 
+              Output an ed script. 
+ 
+       --normal 
+              Output a normal diff. 
+ 
+       -n  --rcs 
+              Output an RCS format diff. 
+ 
+       -y  --side-by-side 
+              Output in two columns. 
+ 
+       -W NUM  --width=NUM 
+              Output at most NUM (default 130) print columns. 
+ 
+       --left-column 
+              Output only the left column of common lines. 
+ 
+       --suppress-common-lines 
+              Do not output common lines. 
+ 
+       -D NAME  --ifdef=NAME 
+              Output merged file to show `#ifdef NAME' diffs. 
+ 
+       --GTYPE-group-format=GFMT 
+              Similar, but format GTYPE input groups with GFMT. 
+ 
+       --line-format=LFMT 
+              Similar, but format all input lines with LFMT. 
+ 
+       --LTYPE-line-format=LFMT 
+              Similar, but format LTYPE input lines with LFMT. 
+ 
+       LTYPE is `old', `new', or `unchanged'. 
+              GTYPE is LTYPE or `changed'. 
+ 
+              GFMT may contain: 
+ 
+       %<     lines from FILE1 
+ 
+       %>     lines from FILE2 
+ 
+       %=     lines common to FILE1 and FILE2 
+ 
+       %[-][WIDTH][.[PREC]]{doxX}LETTER 
+              printf-style spec for LETTER 
+ 
+              LETTERs are as follows for new group, lower case for old group: 
+ 
+       F      first line number 
+ 
+       L      last line number 
+ 
+       N      number of lines = L-F+1 
+ 
+       E      F-1 
+ 
+       M      L+1 
+ 
+              LFMT may contain: 
+ 
+       %L     contents of line 
+ 
+       %l     contents of line, excluding any trailing newline 
+ 
+       %[-][WIDTH][.[PREC]]{doxX}n 
+              printf-style spec for input line number 
+ 
+              Either GFMT or LFMT may contain: 
+ 
+       %%     % 
+ 
+       %c'C'  the single character C 
+DIFF(1)                                                      User Commands                                                      DIFF(1) 
+ 
+NAME 
+       diff - compare files line by line 
+ 
+SYNOPSIS 
+       diff [OPTION]... FILES 
+ 
+DESCRIPTION 
+       Compare files line by line. 
+ 
+       -i  --ignore-case 
+              Ignore case differences in file contents. 
+ 
+       --ignore-file-name-case 
+              Ignore case when comparing file names. 
+ 
+       --no-ignore-file-name-case 
+              Consider case when comparing file names. 
+ 
+       -E  --ignore-tab-expansion 
+              Ignore changes due to tab expansion. 
+ 
+       -b  --ignore-space-change 
+              Ignore changes in the amount of white space. 
+ 
+       -w  --ignore-all-space 
+              Ignore all white space. 
+ 
+       -B  --ignore-blank-lines 
+              Ignore changes whose lines are all blank. 
+ 
+       -I RE  --ignore-matching-lines=RE 
+              Ignore changes whose lines all match RE. 
+ 
+       --strip-trailing-cr 
+              Strip trailing carriage return on input. 
+      %=  lines common to FILE1 and FILE2 
+      %[-][WIDTH][.[PREC]]{doxX}LETTER  printf-style spec for LETTER 
+        LETTERs are as follows for new group, lower case for old group: 
+          F  first line number 
+          L  last line number 
+          N  number of lines = L-F+1 
+          E  F-1 
+          M  L+1 
+    LFMT may contain: 
+      %L  contents of line 
+      %l  contents of line, excluding any trailing newline 
+      %[-][WIDTH][.[PREC]]{doxX}n  printf-style spec for input line number 
+    Either GFMT or LFMT may contain: 
+      %%  % 
+      %c'C'  the single character C 
+      %c'\OOO'  the character with octal code OOO 
+ 
+  -l  --paginate  Pass the output through `pr' to paginate it. 
+  -t  --expand-tabs  Expand tabs to spaces in output. 
+  -T  --initial-tab  Make tabs line up by prepending a tab. 
+ 
+  -r  --recursive  Recursively compare any subdirectories found. 
+  -N  --new-file  Treat absent files as empty. 
+  --unidirectional-new-file  Treat absent first files as empty. 
+  -s  --report-identical-files  Report when two files are the same. 
+  -x PAT  --exclude=PAT  Exclude files that match PAT. 
+  -X FILE  --exclude-from=FILE  Exclude files that match any pattern in FILE. 
+  -S FILE  --starting-file=FILE  Start with FILE when comparing directories. 
+  --from-file=FILE1  Compare FILE1 to all operands.  FILE1 can be a directory. 
+  --to-file=FILE2  Compare all operands to FILE2.  FILE2 can be a directory. 
+ 
+  --horizon-lines=NUM  Keep NUM lines of the common prefix and suffix. 
+  -d  --minimal  Try hard to find a smaller set of changes. 
+  --speed-large-files  Assume large files and many scattered small changes. 
+ 
+  -v  --version  Output version info. 
+  --help  Output this help. 
+ 
+FILES are `FILE1 FILE2' or `DIR1 DIR2' or `DIR FILE...' or `FILE... DIR'. 
+If --from-file or --to-file is given, there are no restrictions on FILES. 
+If a FILE is `-', read standard input. 
+ 
+Report bugs to <bug-gnu-utils@gnu.org>. 
+Biostat-MBP14-04:PH290$ man  
+What manual page do you want? 
+Biostat-MBP14-04:PH290$ man diff 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ whoami 
+xdai 
+Biostat-MBP14-04:PH290$ hostname 
+Biostat-MBP14-04.local 
+Biostat-MBP14-04:PH290$ which R 
+/usr/local/bin/R 
+Biostat-MBP14-04:PH290$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: aarch64-apple-darwin20 (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+>  
+Save workspace image? [y/n/c]: n 
+Biostat-MBP14-04:PH290$  
+Biostat-MBP14-04:PH290$ echo $PATH 
+/Users/xdai/.gem/ruby/3.1.2/bin:/usr/local/lib/ruby/gems/3.1.0/bin:/Users/xdai/.rubies/ruby-3.1.2_1/bin:/usr/texbin:/usr/local/opt/python@3.8/bin:/Users/xdai/.gem/ruby/2.6.0/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Library/Globus/bin:/Library/Globus/sbin 
+Biostat-MBP14-04:PH290$ which bash 
+/bin/bash 
+Biostat-MBP14-04:PH290$ cat /proc/cpuinfo 
+cat: /proc/cpuinfo: No such file or directory 
+Biostat-MBP14-04:PH290$ cat /proc/meminfo 
+cat: /proc/meminfo: No such file or directory 
+Biostat-MBP14-04:PH290$ uname -a 
+Darwin Biostat-MBP14-04.local 21.6.0 Darwin Kernel Version 21.6.0: Wed Aug 10 14:28:23 PDT 2022; root:xnu-8020.141.5~2/RELEASE_ARM64_T6000 arm64 
+Biostat-MBP14-04:PH290$ lsb_release -a 
+bash: lsb_release: command not found 
+Biostat-MBP14-04:PH290$ A=pkg1 
+Biostat-MBP14-04:PH290$ echo $A 
+pkg1 
+Biostat-MBP14-04:PH290$ echo A 
+A 
+Biostat-MBP14-04:PH290$ ls $A 
+DESCRIPTION NAMESPACE   R           data-raw    man         pkg1.Rproj  tests 
+Biostat-MBP14-04:PH290$ ls ${A}/R 
+S3.R        S4.R        file        func.R      globalVar.R 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$ vi myscript 
+Biostat-MBP14-04:PH290$ chmod u+x myscript  
+Biostat-MBP14-04:PH290$ ./my 
+myPackage/ myscript    
+Biostat-MBP14-04:PH290$ ./myscript  
+mkdir: tmp: File exists 
+touch: tmp/file: Not a directory 
+Biostat-MBP14-04:PH290$ rm -rf tmp 
+Biostat-MBP14-04:PH290$ ./myscript  
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           shiny.R 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          tmp 
+Biostat-MBP14-04:PH290$  
+S3.R 
+analysis.R 
+bash.sh 
+bashDemo 
+dataCode 
+err 
+file 
+func.R 
+func_mod.R 
+ggplotAll.R 
+installAndRun 
+ma.R 
+myPackage 
+myscript 
+out 
+Biostat-MBP14-04:PH290$ vi ~/.bash_profile  
+Biostat-MBP14-04:PH290$ ls -l 
+total 96 
+-rw-r--r--   1 xdai  staff    49 Oct 11 16:07 S3.R 
+-rw-r--r--   1 xdai  staff    18 Oct 11 17:14 analysis.R 
+-rw-r--r--@  1 xdai  staff  1152 Oct 12 07:50 bash.sh 
+drwxr-xr-x   2 xdai  staff    64 Oct 11 15:10 bashDemo 
+drwxr-xr-x   3 xdai  staff    96 Sep 25 20:25 dataCode 
+-rw-r--r--   1 xdai  staff    64 Oct 11 17:39 err 
+-rw-r--r--   1 xdai  staff   144 Oct 11 17:41 file 
+-rw-r--r--   1 xdai  staff   800 Oct 12 08:57 func.R 
+-rw-r--r--   1 xdai  staff   738 Oct 11 16:17 func_mod.R 
+-rw-r--r--@  1 xdai  staff  2106 Oct  5 09:27 ggplotAll.R 
+-rwxr--r--   1 xdai  staff    50 Oct 11 17:09 installAndRun 
+-rw-r--r--   1 xdai  staff     0 Oct 12 08:46 ma.R 
+drwxr-xr-x  15 xdai  staff   480 Sep 28 10:16 myPackage 
+-rwxr--r--   1 xdai  staff    37 Oct 11 17:05 myscript 
+-rw-r--r--   1 xdai  staff    44 Oct 11 17:40 out 
+drwxr-xr-x  12 xdai  staff   384 Oct 11 16:00 pkg1 
+-rw-r--r--   1 xdai  staff  1396 Oct  9 17:38 shiny.R 
+drwxr-xr-x   3 xdai  staff    96 Oct 12 09:19 tmp 
+Biostat-MBP14-04:PH290$ ls >results 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           results       tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          shiny.R 
+Biostat-MBP14-04:PH290$ less results 
+Biostat-MBP14-04:PH290$ cat <func.R 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+#' @importFrom praise praise 
+#' @export 
+f <- function(...) { 
+  praise() 
+  praise() 
+  praise() 
+} 
+ 
+ 
+#' Compare two models 
+#' 
+#' Compare two models according to what their `summary()` method prints out 
+#' 
+#' More details: This is a very rudimentary implementation. The two models are compared according to the text output of the `summary()` method 
+CompModels <- function(mod1, mod2, ...) { 
+  f1 <- tempfile() 
+  sink(f1) 
+  print(summary(mod1)) 
+  sink() 
+ 
+  f2 <- tempfile() 
+  sink(f2) 
+  print(summary(mod2)) 
+  sink() 
+     
+  diffviewer::visual_diff(f1, f2) 
+} 
+Biostat-MBP14-04:PH290$ Rscript -e "print('prt'); stop('error')" 
+Usage: diff [OPTION]... FILES 
+Compare files line by line. 
+ 
+  -i  --ignore-case  Ignore case differences in file contents. 
+  --ignore-file-name-case  Ignore case when comparing file names. 
+  --no-ignore-file-name-case  Consider case when comparing file names. 
+  -E  --ignore-tab-expansion  Ignore changes due to tab expansion. 
+  -b  --ignore-space-change  Ignore changes in the amount of white space. 
+  -w  --ignore-all-space  Ignore all white space. 
+Biostat-MBP14-04:PH290$ Rscript -e "print('prt'); stop('error')" 
+[1] "prt" 
+Error: error 
+Execution halted 
+Biostat-MBP14-04:PH290$ Rscript -e "print('prt'); stop('error')" 1>out 2>err 
+Biostat-MBP14-04:PH290$ cat out 
+[1] "prt" 
+Biostat-MBP14-04:PH290$ cat err 
+Error: error 
+Execution halted 
+Biostat-MBP14-04:PH290$ wc func.R  
+      32     117     800 func.R 
+Biostat-MBP14-04:PH290$ ls 
+S3.R          bash.sh       dataCode      file          func_mod.R    installAndRun myPackage     out           results       tmp 
+analysis.R    bashDemo      err           func.R        ggplotAll.R   ma.R          myscript      pkg1          shiny.R 
+Biostat-MBP14-04:PH290$ ls | wc 
+      19      19     148 
+Biostat-MBP14-04:PH290$ ls | wc -l 
+      19 
+Biostat-MBP14-04:PH290$ diff --help | less 
+Biostat-MBP14-04:PH290$ top 
+Biostat-MBP14-04:PH290$ top -U xdai 
+Biostat-MBP14-04:PH290$ ps 
+  PID TTY           TIME CMD 
+11753 ttys000    0:00.02 bash -l 
+15919 ttys001    0:00.49 -bash 
+60608 ttys002    0:00.26 -bash 
+72815 ttys003    0:00.04 -bash 
+61657 ttys004    0:00.60 -bash 
+51248 ttys005    0:00.30 -bash 
+11857 ttys006    0:01.14 bash -l 
+64744 ttys007    0:00.92 -bash 
+58952 ttys008    0:00.05 -bash 
+ 7163 ttys009    0:00.06 -bash 
+ 7463 ttys010    0:00.05 -bash 
+ 7624 ttys011    0:00.31 -bash 
+ 8924 ttys014    0:00.25 -bash 
+11856 ttys014    0:00.38 script -F /Users/xdai/bashRecord/12-Oct-22_08-24-38_shell.log bash -l 
+Biostat-MBP14-04:PH290$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: aarch64-apple-darwin20 (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+>  
+[1]+  Stopped                 R 
+Biostat-MBP14-04:PH290$ ps 
+  PID TTY           TIME CMD 
+11753 ttys000    0:00.02 bash -l 
+15919 ttys001    0:00.49 -bash 
+60608 ttys002    0:00.26 -bash 
+72815 ttys003    0:00.04 -bash 
+61657 ttys004    0:00.60 -bash 
+51248 ttys005    0:00.30 -bash 
+11857 ttys006    0:01.17 bash -l 
+14172 ttys006    0:00.09 /Library/Frameworks/R.framework/Resources/bin/exec/R 
+64744 ttys007    0:00.92 -bash 
+58952 ttys008    0:00.05 -bash 
+ 7163 ttys009    0:00.06 -bash 
+ 7463 ttys010    0:00.05 -bash 
+ 7624 ttys011    0:00.31 -bash 
+ 8924 ttys014    0:00.25 -bash 
+11856 ttys014    0:00.39 script -F /Users/xdai/bashRecord/12-Oct-22_08-24-38_shell.log bash -l 
+Biostat-MBP14-04:PH290$ kill 14172 
+[1]+  Terminated: 15          R 
+Biostat-MBP14-04:PH290$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: aarch64-apple-darwin20 (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+>  
+[1]+  Stopped                 R 
+Biostat-MBP14-04:PH290$ jobs 
+[1]+  Stopped                 R 
+Biostat-MBP14-04:PH290$ bg 1 
+[1]+ R & 
+ 
+[1]+  Stopped                 R 
+Biostat-MBP14-04:PH290$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: aarch64-apple-darwin20 (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> Sys.s 
+Sys.setFileTime  Sys.setLanguage  Sys.setenv       Sys.setlocale    Sys.sleep         
+> Sys.sleep(10000) 
+^Z 
+[2]+  Stopped                 R 
+Biostat-MBP14-04:PH290$ bg 2 
+[2]+ R & 
+Biostat-MBP14-04:PH290$ jobs 
+[1]+  Stopped                 R 
+[2]-  Running                 R & 
+Biostat-MBP14-04:PH290$ fg 2 
+R 
+ 
+ 
+ 
+ 
+^C 
+>  
+Save workspace image? [y/n/c]: n 
+Biostat-MBP14-04:PH290$ logout 
+There are stopped jobs. 
+Biostat-MBP14-04:PH290$ fg 
+R 
+ 
+>  
+Save workspace image? [y/n/c]: n 
+Biostat-MBP14-04:PH290$ logout 
+ 
+Script done on Wed Oct 12 09:33:12 2022 
+biostat-mbp14-04:~$ 11;rgb:fdfd/f6f6/e3e30u62;4c11;rgb:fdfd/f6f6/e3e30u62;4c11;rgb:fdfd/f6f6/e3e30u62;4c 
