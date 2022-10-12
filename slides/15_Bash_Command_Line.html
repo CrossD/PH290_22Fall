@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Bash Command Line Interface</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Bash Command Line Interface
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Navigating Linux file system
+
+- Editing files
+
+- Working with remote machines
+
+---
+
+## References
+
+- Unix Power Tools, by Powers, Peek, O'Reilly, and Loukides
+
+- Many manuals and tutorials available online
+
+---
+
+## Kernels and bash
+
+.center[
+![:scale 80%](https://computersciencewiki.org/images/0/0d/Os_family_tree.png)
+&lt;/br&gt;Source: [Computer Science wiki](https://computersciencewiki.org/images/0/0d/Os_family_tree.png)
+]
+
+- Bash is one of the most popular Unix shells. It is a text-based user interface (TUI) to the system services
+
+- Bash allows us to note down all the commands in text and run them altogether, streamlining the workflow
+
+- Bash is the standard way to operate a remote machine
+
+---
+
+## Linux mindset
+
+- Everything is a file
+
+- Programs are designed to work together
+
+---
+
+## Where to use bash
+
+- If you finished the setup section in [HW3](../hwlabs/hw3.html#setting-up-tools-for-the-next-few-weeks), you can use bash in RStudio -- Terminal tab.
+
+- If you are on MacOS, you can alternatively open the Terminal app
+
+- If you are on Windows, you can alternatively open the WSL
+
+- If you have not done the installations, use [dataHub](https://datahub.berkeley.edu/hub/home) -- new -- Terminal
+
+---
+
+## Navigating the file system
+
+- `pwd`, show the (present) working directory
+
+- `ls`, list files. It accepts flags such as `-a` (show all), `-l` (list format)
+
+- `cd`, change directory
+
+- `cp`, copy files. `cp -r` copies a directory
+
+- `mv`, move/rename a file
+
+- `rm`, remove files
+
+---
+
+## WSL users
+
+- Your Windows files appear under `/mnt/` in WSL. It is fine to edit Windows files in WSL
+
+- Your WSL files appear under `%LOCALAPPDATA%` in Windows. ***Never edit WSL files using Windows apps***
+
+---
+
+## Wild cards
+
+- Wild card characters are used to specify file names that match a pattern
+
+- `*` matches any string of characters (0 or more). E.g., `ls *.R`
+
+- `?` matches any single character (0 or more). E.g., `ls analysis.?`
+
+---
+
+## Symbolic link
+
+- A symbolic link is like a shortcut
+
+- You can create a symbolic link to a file using `ln -s fileOrFolder putLinkHere`
+
+---
+
+class: inverse
+
+## Your turn
+
+- Go to your home directory (`cd ~`). If you are using WSL, go to somewhere under `/mnt/` that you are familiar with
+
+- Make a new directory called bashDemo (`mkdir dirName`; change the directory name!)
+
+- Move an R script into the directory into the new directory 
+
+- Backup the directory (and its contents) using `cp -r dirName backupName`
+
+---
+
+## Text manipulation
+
+- `cat fileName` prints the contents of a file
+
+- `less fileName` shows the content in a browser 
+    - `j/k` goes up/down. Arrow keys also work
+    - `q` to quit
+    - `h` to show help
+    - `/somethingYouWantToSearch&lt;CR&gt;` to perform search. `&lt;CR&gt;` means the enter key
+        - `n/p` for the next/previous result
+
+- `diff file1 file2` shows what is changed
+
+---
+
+## Vim
+
+- Vim is a highly powerful command-line editor. There are many other editors native to Unix like `Emacs` and `nano`
+
+- `vi filename` to edit a file
+
+- Vim is a modal editor. Namely, it has a normal (browsing) mode, insertion mode, etc
+
+- This design enables a great amount of shortcuts and thus quick modification
+
+- `vim` operations:
+    - `j/k/h/l` goes up/down/left/right. Arrow keys also work
+    - `i` to enter insertion mode. `&lt;Esc&gt;` to exit from insertion mode
+    - To save a file, in the normal mode, type `:w&lt;CR&gt;`. To exit, `:q&lt;CR&gt;`
+    - Search works as in `less`
+
+- Here is a [cheatsheet](http://www.viemu.com/vi-vim-cheat-sheet.gif) which lists commonly used Vim operations
+
+---
+
+class: inverse
+
+## Your turn
+
+- Use `vim` to add a line to the R script in your newly created folder
+
+- Save the file and quit `vim`
+
+- Compare the content of your new edit and the backup version in another folder using `diff`
+
+---
+
+## Getting information on Unix
+
+Getting help:
+
+- Most commands support `--help` or `-h` flags for a quick startup tip
+- `man cmdName` shows the full menu page in a `less` browser
+
+Getting info:
+- `whoami` shows your user name
+- `hostname` shows the hostname, i.e., the machine name on a network
+- `which cmdname` shows the location of a command
+- `uname -a` shows the kernel
+
+For Linux:
+- `cat /proc/cpuinfo` shows cpu info
+- `cat /proc/meminfo` shows memory info
+- `lsb_release -a` shows the distro (e.g., Ubuntu)
+
+---
+
+## Scripting in bash
+
+- Variables in bash are defined using `A=someValue`. There should be *no space* around `=`
+
+- `$A` gets the value of `A`. `echo $A` prints that out
+
+- To make an executable bash script, create a new file `vim myScript` and include `#!/bin/bash` on the first line. The rest of the lines should include bash commands. E.g., 
+
+```
+Biostat-MBP14-04:PH290$ cat myscript
+#!/bin/bash
+mkdir tmp
+touch tmp/file
+```
+
+---
+
+## dotfiles
+
+- File and folders with names starting with `.` are hidden
+
+- E.g., in your home directory
+    - `.bash_profile` include bash commands that will be run every time you log into bash
+    - `.Rprofile` include R commands that will be run before R starts up (For MacOS and Linux only)
+
+---
+
+## Permissions
+
+- `ls -l` shows the permissions and ownerships 
+![:scale 100%](images/ls.png)
+&lt;/br&gt;O'Reilly Open Books (CC)
+
+---
+
+- Permission: Who can do what to this file?
+.center[
+![:scale 70%](https://linuxcommand.org/images/file_permissions.png) 
+&lt;/br&gt;Linuxcommands.org
+]
+
+---
+
+## Input/output on Unix
+
+- Unix has one input channel *stdin* (standard input, like your keyboard input) and two output channels, *stdout* (standard output) and *stderr* (standard error)
+
+- Redirection 
+    
+    - `ls &gt;file` redirects the output of `ls` to `file`
+
+    - `cat &lt;file` redirects the content of `file` as input for `cat`
+
+    - `Rscript -e "print('prt'); message('msg'); stop('error')" 1&gt;out 2&gt;err` redirects stdout to `out` and stderr to `err`
+
+    - `Rscript -e "print('prt'); message('msg'); stop('error')" &gt;file 2&gt;&amp;1` combines stdout and stderr and redirect to `file`
+
+---
+
+## Pipes
+
+- Commands on linux are meant to work with each other
+
+- `|` is the pipe operator in linux (like `%&gt;%` in tidyverse)
+
+- `ls | wc` passes the output of `ls` as the input of `wc` (for word count)
+
+- `ls -l | grep analysis` shows only lines including "analysis" in the `ls -l` output
+
+---
+
+## Job management
+
+- `top` shows the dynamic status of the processes that are running (by everyone)
+
+- `ps` shows a static snapshow of the processes and the process ID
+
+- `kill PID` terminates a process. `kill -KILL PID` kills an unresponsive process
+
+- When you are interacting with a process, `&lt;C-C&gt;` interupt the process (eg, stop a long calculation in R)
+
+---
+
+To work with multiple processes
+
+- `&lt;C-Z&gt;` sends a process you are interacting with to the background. The process is stopped by default
+
+- `jobs` show all the jobs in the background. `Jobs` are processes spawned in the current bash session
+
+- `bg jobID` makes a stopped job in the background continue to run
+
+- `fg jobID` brings a background job to the foreground
+
+---
+
+## Working on a remote machine
+
+- `ssh destination` will remote login a machine. The destination specification often looks like `username@hpc.brc.berkeley.edu`
+
+- Authentication is needed before you can connect. So if you want to connect to a remote machine, look at its help webpage and see how to set up an account
+
+- `scp source:path/on/source destination:path/on/destination` copies a file from a source machine to a destination machine. This lets you copy from any local/remote machine to any other machine. If you prefer a GUI, try WinSCP on Windows or Cyberduck on mac
+
+---
+
+- When you are working on a remote machine (like savio later), your jobs will usually be killed after you log out
+
+- `tmux` is a program to let you run multiple windows within the same bash session. It also prevents your jobs in there from being kill when you log out or get disconnected
+    - It is usually installed on remote machines by default. But on a local machine you need to install yourself
+    - `tmux` creates a new session
+    - Within a session
+        - `&lt;C-B&gt;c` creates a new window
+        - `&lt;C-B&gt;n` goes to the next window
+        - `&lt;C-B&gt;p` goes to the previous window
+        - `&lt;C-B&gt;d` detaches the tmux session. You can safely log out bash
+    - Next time you log in, `tmux attach` reattach to the last session 
+
+---
+![:scale 100%](images/serverClient.png)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
