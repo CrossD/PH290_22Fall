@@ -310,6 +310,3 @@ To work with multiple processes
         - `<C-B>d` detaches the tmux session. You can safely log out bash
     - Next time you log in, `tmux attach` reattach to the last session 
 
----
-![:scale 100%](images/serverClient.png)
-
