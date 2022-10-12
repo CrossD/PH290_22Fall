@@ -1,6 +1,7 @@
 ### Global
 #export GOPATH=~/gosrc
 #mkdir -p $GOPATH
+export PLATFORM=$(uname -s)
 if [ "$PLATFORM" = 'Darwin' ]; then
   export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
   export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
