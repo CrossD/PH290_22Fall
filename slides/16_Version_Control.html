@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Version Control using Git</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Version Control using Git
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- The Git model
+
+- Basic Git workflow
+
+- Branching
+
+- Git on a server
+
+---
+
+## References
+
+- [Pro Git](https://git-scm.com/book/en/v2)
+
+- [Git flow, a git branching workflow](https://nvie.com/posts/a-successful-git-branching-model/)
+
+---
+
+
+## Mess in the code
+
+&lt;center&gt;
+&lt;img src="images/yelp1.png" width=600&gt;
+&lt;/center&gt;
+
+---
+
+## Mess in the code
+**Yelp's application update:**
+
+&lt;center&gt;
+&lt;img src="images/yelp2.png" width=900&gt;
+&lt;/center&gt;
+
+---
+
+class: big, middle
+
+## The Git model
+
+---
+
+## What is Git?
+
+- *version control system* that is created to track changes in source codes and manage collaborative projects. 
+`git` tracks the evolution of a folder containing code files and subfolders
+
+- Git is one of the most popular version control systems
+
+- Git helps us
+    - *make records* of the code files, creating snapshots
+    - *compare* snapshots to locate changes or bugs
+    - *rollback* to a previous version of a file/entire project
+    - store *master* and multiple versions of files, no more `paper_final_final_I_really_mean_it.docx`
+    - *merge* versions and *resolve conflicts* that arise from collaboration
+
+- Git works well with text files but not binary files
+
+---
+
+## Git 
+
+Some terminologies ([more here](https://help.github.com/articles/github-glossary/)):
+
+- **Repository/repo:** the basic element of `git` - like a project's folder. A repository contains all of the project files, and their __revision history__
+- **Commit:** A checkpoint, i.e., snapshot of the codes files at a time point. Every commit has a unique commit ID. Every commit has at least one parent (the previous snapshot it's based on), except for the initial commit which has no parents
+
+.center[
+![:scale 80%](images/commits.jpg)
+&lt;/br&gt;Source: [Pro Git](https://git-scm.com/book/en/v2)
+]
+
+---
+
+## Git mindsets
+
+- When passing repos between machines, Git always mirrors the entire repository, including the full history
+
+- Think about Git commits as snapshots, not differences
+
+- Nearly every operation is local
+
+---
+
+## File stages
+
+- A file can assume four *states* in a Git repo:
+
+    - Untracked means Git ignores the file when making snapshots
+    - Unmodified/Committed means that the data is safely stored in your local database and no newer modification exists
+    - Modified means that you have changed the file but have not committed it to your database yet
+    - Staged means that you have marked a modified file in its current version to go into your next commit snapshot
+
+.center[
+![:scale 80%](images/fourStates.jpg)
+]
+
+---
+
+class: big, middle
+
+## Basic Git workflow
+
+---
+
+## Basic Git workflow
+
+The basic Git workflow goes like this:
+
+1. You modify files in your working directory
+2. You selectively stage just those changes you want to be part of your next commit, addiing (only) those changes to the staging area
+3. Commit, which stores the files in the staging area into a new and permanent commit (snapshot) in your Git directory
+
+---
+
+## Using `git` from the command line
+
+- We will be using `git` from the bash command line
+
+- Type `git --version` in bash to check you have git installed
+
+- Configure `git` using 
+```
+git config --global user.name "your first and last name"
+git config --global user.email "your email"
+```
+
+---
+
+## Two ways to get started
+
+There are two ways to make/obtain a Git repo
+
+- Initiate a repo in a directory: In a *non-git* repository, issue `git init`. Caution: Do not nest a git repo within another
+
+- Clone an existing repo from elsewhere: In a *non-git* repository, issue `git clone someURLCopiedFromGitHub`
+
+---
+
+## `git` Demonstration...
+
+---
+
+## Git commands
+
+Here is a list of important git commands:
+
+- `git init` initialize a git repo
+- `git add` add files to the staging area
+- `git commit` flushes files in the staging area to a new commit
+- `git status` report the status of the repo
+- `git log` shows the commit history of the repo
+- `git diff` shows the difference in the modified files. `git diff c1 c2` shows the difference between two commits 
+
+---
+
+class: inverse
+
+## Your turn
+
+1.  Create a new folder for a git repository (`mkdir`) and change directory into that (`cd`)
+2.  Initiate the current directory as a Git repository (`git init`). What does `git status` show? 
+3.  Move an R script into this directory (`mv`, or use your file browser). Add the file to the staging area (`git add fileName`). Create a commit (`git commit`)
+4.  Modify the R script (using either `vi` or open it with a GUI text editor in your OS). Add the file and commit.
+5.  Look at the repo status (`git status`) and repo history (`git log`)
+6.  Look at the difference between the two commits (`git diff CID1 CID2`)
+
+---
+
+class: big, middle
+
+## Working with branches
+
+---
+
+## Branches in Git
+
+- A branch in Git is a reference/pointer to a commit
+
+- HEAD is a pointer to the branch you are currently working on
+
+.center[
+![:scale 80%](images/branch1.jpg)
+]
+
+- Branches are cheap to make. So branch often and branch early
+
+---
+
+## Working with branches
+
+- `git branch newBranchName` creates a new branch
+
+- `git checkout branchName` checks out a branch. If you make new commits, they will be found in this branch
+
+- `git checkout commitID` checks out a commit for inspection
+
+---
+
+## Merging branches
+
+- Different branches contains different snapshots
+
+- We can *merge* changes made in two branches into a combined version
+
+- `git merge` let us merge branches
+
+---
+
+Suppose you are on the `main` branch and want to merge in `branch1`. There are two scenarios that can happen when you run 
+
+```
+git merge branch1
+```
+
+- *Fast forward* is the simplest situation. This happens if `branch1` contains all changes made in `main`. Then, `main` will point to the same commit as `branch1`
+
+- If the histories of two branches diverge, then a *three-way merge* is performed
+
+---
+
+## Merge conflicts
+
+- If the two histories conflicts, you must manually resolve them
+
+- Open a file in conflict using a text editor and update the file
+
+- Edit the conflicted parts
+```
+I have:
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+a mouse
+|||||||
+a dog
+=======
+a cat
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+```
+    into a version that you want to keep
+
+    ```
+    I have:
+    a pet
+    ```
+---
+
+class: inverse
+
+## Your turn
+
+1. Create a new branch (`git branch branchNameHere`)
+
+1. Check out to that branch (`git checkout branchNameHere`)
+
+1. Make sure you are on the right branch (`git log` or `git status`)
+
+1. Create a new file, and make a commit
+
+1. Checkout out the `main` branch
+
+1. Merge your branch into `main` (`git merge branchNameHere`)
+
+
+---
+
+class: big, middle
+
+## Git on a server
+
+---
+
+## Git on a server
+
+- [GitHub](github.com) is one of many hosting services, which provides additional project management functions 
+
+- When `Git` send/receive info from the server, it copies the entire repo
+
+&lt;center&gt;
+&lt;img src="images/github.png" width=400&gt;
+&lt;/center&gt;
+
+---
+
+## More `git` commands for servers
+
+- `git remote`: Set up a remote to be used for a local repo
+- `git push`: Push updates in the local repo to the remote
+- `git pull`: Obtain updates from the remote and apply them to the local repo
+- `git fetch`: Obtain updates from the remote without applying them to the local repo
+- `git clone`: Clone a remote repo to the local machine. Use only once when you do not have a local copy
+
+---
+
+## Authentication
+
+When you push to a GitHub repo, you will need to authenticate. 
+
+If you use a HTTPS url (easier):
+- For security reasons, password does not work anymore
+- You will need to create a temporary password
+- Follow the guide in [creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) 
+
+If you use a SSH url:
+- Need to set up [SSH key authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
