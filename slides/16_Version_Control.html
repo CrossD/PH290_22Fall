@@ -266,9 +266,9 @@ git merge branch1
 
 - If the two histories conflicts, you must manually resolve them
 
-- Open a file in conflict using a text editor and update the file
+- Open a file in conflict using a text editor and resolve conflicts
 
-- Edit the conflicted parts
+- Edit the conflicted parts, e.g., 
 ```
 I have:
 &lt;&lt;&lt;&lt;&lt;&lt;&lt;
@@ -297,7 +297,7 @@ class: inverse
 
 1. Make sure you are on the right branch (`git log` or `git status`)
 
-1. Create a new file, and make a commit
+1. Create a new file, and include that in a new commit
 
 1. Checkout out the `main` branch
 
@@ -338,13 +338,13 @@ class: big, middle
 
 When you push to a GitHub repo, you will need to authenticate. 
 
-If you use a HTTPS url (easier):
-- For security reasons, password does not work anymore
-- You will need to create a temporary password
-- Follow the guide in [creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) 
+- If you use a HTTPS url like `https://github.com...` (easier to start):
+    - For security reasons, password does not work anymore
+    - You will need to create a temporary password
+    - Follow the guide in [creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) 
 
-If you use a SSH url:
-- Need to set up [SSH key authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+- If you use an SSH url like `git@github.com...`:
+    - Need to set up [SSH key authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
