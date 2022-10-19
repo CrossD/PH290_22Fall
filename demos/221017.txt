@@ -1,0 +1,749 @@
+Biostat-MBP14-04:gitDemo$ ls 
+git.sh 
+Biostat-MBP14-04:gitDemo$ ls 
+git.sh 
+Biostat-MBP14-04:gitDemo$ pwd 
+/Users/xdai/Downloads/PH290/gitDemo 
+Biostat-MBP14-04:gitDemo$ mkdir demoRepo 
+Biostat-MBP14-04:gitDemo$ ls 
+demoRepo git.sh 
+Biostat-MBP14-04:gitDemo$ cd demoRepo/ 
+Biostat-MBP14-04:demoRepo$ pwd 
+/Users/xdai/Downloads/PH290/gitDemo/demoRepo 
+Biostat-MBP14-04:demoRepo$ ls 
+Biostat-MBP14-04:demoRepo$ git status 
+fatal: not a git repository (or any of the parent directories): .git 
+Biostat-MBP14-04:demoRepo$ git init 
+Initialized empty Git repository in /Users/xdai/Downloads/PH290/gitDemo/demoRepo/.git/ 
+Biostat-MBP14-04:demoRepo$ ls 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+ 
+No commits yet 
+ 
+nothing to commit (create/copy files and use "git add" to track) 
+Biostat-MBP14-04:demoRepo$ echo "I don't have a pet" > file 
+Biostat-MBP14-04:demoRepo$ ls 
+file 
+Biostat-MBP14-04:demoRepo$ cat file 
+I don't have a pet 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+ 
+No commits yet 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	file 
+ 
+nothing added to commit but untracked files present (use "git add" to track) 
+Biostat-MBP14-04:demoRepo$ git add file 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+ 
+No commits yet 
+ 
+Changes to be committed: 
+  (use "git rm --cached <file>..." to unstage) 
+	new file:   file 
+ 
+Biostat-MBP14-04:demoRepo$ git commit 
+[main (root-commit) 03ddde3] initial commit 
+ 1 file changed, 1 insertion(+) 
+ create mode 100644 file 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ git log 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa (HEAD -> main) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ echo "I have a kid" >> file 
+Biostat-MBP14-04:demoRepo$ cat file 
+I don't have a pet 
+I have a kid 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ git add * 
+Biostat-MBP14-04:demoRepo$ git commit -m "update file" 
+[main 9fd557a] update file 
+ 1 file changed, 1 insertion(+) 
+Biostat-MBP14-04:demoRepo$ git log 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 (HEAD -> main) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git log 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 (HEAD -> main) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ git diff 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+diff --git a/file b/file 
+index 728c3ed..4b7d16a 100644 
+--- a/file 
++++ b/file 
+@@ -1 +1,2 @@ 
+ I don't have a pet 
++I have a kid 
+Biostat-MBP14-04:demoRepo$ ls 
+file 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ vi file 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ git diff 
+diff --git a/file b/file 
+index 4b7d16a..6596290 100644 
+--- a/file 
++++ b/file 
+@@ -1,2 +1,2 @@ 
+ I don't have a pet 
+-I have a kid 
++I have a son 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git diff --word-diff=color 
+diff --git a/file b/file 
+index 4b7d16a..6596290 100644 
+--- a/file 
++++ b/file 
+@@ -1,2 +1,2 @@ 
+I don't have a pet 
+I have a kidson 
+Biostat-MBP14-04:demoRepo$ ls 
+file 
+Biostat-MBP14-04:demoRepo$ touch tmp.RData 
+Biostat-MBP14-04:demoRepo$ ls 
+file      tmp.RData 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	tmp.RData 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	tmp.RData 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ vi .gitignore 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   file 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	.gitignore 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ git add .gitignore  
+Biostat-MBP14-04:demoRepo$ git commit -am "add gitignore" 
+[main f6bb59f] add gitignore 
+ 2 files changed, 2 insertions(+), 1 deletion(-) 
+ create mode 100644 .gitignore 
+Biostat-MBP14-04:demoRepo$ git log 
+commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c (HEAD -> main) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:47:30 2022 -0700 
+ 
+    add gitignore 
+ 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ git branch 
+* main 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git branch branch0 
+Biostat-MBP14-04:demoRepo$ git branch 
+  branch0 
+* main 
+Biostat-MBP14-04:demoRepo$ git checkout branch0 
+Switched to branch 'branch0' 
+Biostat-MBP14-04:demoRepo$ touch file0; git add file0; git commit -m "add file0" 
+[branch0 8792ebf] add file0 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 file0 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch branch0 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ ls 
+file      file0     tmp.RData 
+Biostat-MBP14-04:demoRepo$ git log 
+commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (HEAD -> branch0) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:59:17 2022 -0700 
+ 
+    add file0 
+ 
+commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c (main) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:47:30 2022 -0700 
+ 
+    add gitignore 
+ 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ git checkout main 
+Switched to branch 'main' 
+Biostat-MBP14-04:demoRepo$ ls 
+file      tmp.RData 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ ls 
+file      tmp.RData 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ git log --all --graph 
+* commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (branch0) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:59:17 2022 -0700 
+|  
+|     add file0 
+|  
+* commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c (HEAD -> main) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:47:30 2022 -0700 
+|  
+|     add gitignore 
+|  
+* commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:41:39 2022 -0700 
+|  
+|     update file 
+|  
+* commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+  Date:   Mon Oct 17 08:37:35 2022 -0700 
+   
+      initial commit 
+Biostat-MBP14-04:demoRepo$ git merge branch0 
+Updating f6bb59f..8792ebf 
+Fast-forward 
+ file0 | 0 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 file0 
+Biostat-MBP14-04:demoRepo$ git log --all --graph 
+* commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (HEAD -> main, branch0) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:59:17 2022 -0700 
+|  
+|     add file0 
+|  
+* commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:47:30 2022 -0700 
+|  
+|     add gitignore 
+|  
+* commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:41:39 2022 -0700 
+|  
+|     update file 
+|  
+* commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+  Date:   Mon Oct 17 08:37:35 2022 -0700 
+   
+      initial commit 
+Biostat-MBP14-04:demoRepo$ ls 
+file      file0     tmp.RData 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git checkout -b petowner 
+Switched to a new branch 'petowner' 
+Biostat-MBP14-04:demoRepo$ touch cat; git add cat; git commit -m "add cat file" 
+[petowner b5d48ac] add cat file 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 cat 
+Biostat-MBP14-04:demoRepo$ git log 
+commit b5d48ac29b48f5f8aa368369f3087636f26a2dff (HEAD -> petowner) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:08:40 2022 -0700 
+ 
+    add cat file 
+ 
+commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (main, branch0) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:59:17 2022 -0700 
+ 
+    add file0 
+ 
+commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:47:30 2022 -0700 
+ 
+    add gitignore 
+ 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ ls 
+cat       file      file0     tmp.RData 
+Biostat-MBP14-04:demoRepo$ touch dog; git add dog; git commit -m 'add dog; 
+>  
+Biostat-MBP14-04:demoRepo$ touch dog; git add dog; git commit -m 'add dog 
+>  
+Biostat-MBP14-04:demoRepo$ touch dog; git add dog; git commit -m 'add dog' 
+[petowner 51b0d42] add dog 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 dog 
+Biostat-MBP14-04:demoRepo$ git log 
+commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 (HEAD -> petowner) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:09:09 2022 -0700 
+ 
+    add dog 
+ 
+commit b5d48ac29b48f5f8aa368369f3087636f26a2dff 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:08:40 2022 -0700 
+ 
+    add cat file 
+ 
+commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (main, branch0) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:59:17 2022 -0700 
+ 
+    add file0 
+ 
+commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:47:30 2022 -0700 
+ 
+    add gitignore 
+ 
+commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:41:39 2022 -0700 
+ 
+    update file 
+ 
+commit 03ddde3dac0356721ee4bf27d5dc7100dd7b33fa 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:37:35 2022 -0700 
+ 
+    initial commit 
+Biostat-MBP14-04:demoRepo$ ls 
+cat       dog       file      file0     tmp.RData 
+Biostat-MBP14-04:demoRepo$ git checkout main 
+Switched to branch 'main' 
+Biostat-MBP14-04:demoRepo$ ls 
+file      file0     tmp.RData 
+Biostat-MBP14-04:demoRepo$ git merge petowner  
+Updating 8792ebf..51b0d42 
+Fast-forward 
+ cat | 0 
+ dog | 0 
+ 2 files changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 cat 
+ create mode 100644 dog 
+Biostat-MBP14-04:demoRepo$ git checkout petowner 
+Switched to branch 'petowner' 
+Biostat-MBP14-04:demoRepo$ touch mouse; git add mouse; git commit -m "add mouse" 
+[petowner 0a9980e] add mouse 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 mouse 
+Biostat-MBP14-04:demoRepo$ git checkout main 
+Switched to branch 'main' 
+Biostat-MBP14-04:demoRepo$ touch charlie; git add charlie; git commit -m "add charlie" 
+[main 10046ef] add charlie 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 charlie 
+Biostat-MBP14-04:demoRepo$ git log --all --graph 
+* commit 10046efb10b400fafbe7b43ba857591ac8bc6051 (HEAD -> main) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:11:03 2022 -0700 
+|  
+|     add charlie 
+|    
+| * commit 0a9980e07323db85a1cb29d860b207fb3fbe1629 (petowner) 
+|/  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+|   Date:   Mon Oct 17 09:10:40 2022 -0700 
+|    
+|       add mouse 
+|  
+* commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:09:09 2022 -0700 
+|  
+|     add dog 
+|  
+* commit b5d48ac29b48f5f8aa368369f3087636f26a2dff 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:08:40 2022 -0700 
+|  
+|     add cat file 
+|  
+* commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (branch0) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:59:17 2022 -0700 
+|  
+|     add file0 
+|  
+* commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:47:30 2022 -0700 
+|  
+|     add gitignore 
+|  
+* commit 9fd557a8c629ed28c9c2b2e3124e90e98ff38474 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:41:39 2022 -0700 
+|  
+|     update file 
+Biostat-MBP14-04:demoRepo$ git merge petowner 
+Merge made by the 'recursive' strategy. 
+ mouse | 0 
+ 1 file changed, 0 insertions(+), 0 deletions(-) 
+ create mode 100644 mouse 
+Biostat-MBP14-04:demoRepo$ git log 
+commit 298aa11621d65edf5d403a4d35f41a236e3ab448 (HEAD -> main) 
+Merge: 10046ef 0a9980e 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:11:29 2022 -0700 
+ 
+    Merge branch 'petowner' 
+ 
+commit 10046efb10b400fafbe7b43ba857591ac8bc6051 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:11:03 2022 -0700 
+ 
+    add charlie 
+ 
+commit 0a9980e07323db85a1cb29d860b207fb3fbe1629 (petowner) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:10:40 2022 -0700 
+ 
+    add mouse 
+ 
+commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:09:09 2022 -0700 
+ 
+    add dog 
+ 
+commit b5d48ac29b48f5f8aa368369f3087636f26a2dff 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:08:40 2022 -0700 
+ 
+    add cat file 
+ 
+commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (branch0) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:59:17 2022 -0700 
+ 
+    add file0 
+ 
+commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 08:47:30 2022 -0700 
+ 
+Biostat-MBP14-04:demoRepo$ git log --all --graph 
+*   commit 298aa11621d65edf5d403a4d35f41a236e3ab448 (HEAD -> main) 
+|\  Merge: 10046ef 0a9980e 
+| | Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| | Date:   Mon Oct 17 09:11:29 2022 -0700 
+| |  
+| |     Merge branch 'petowner' 
+| |  
+| * commit 0a9980e07323db85a1cb29d860b207fb3fbe1629 (petowner) 
+| | Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| | Date:   Mon Oct 17 09:10:40 2022 -0700 
+| |  
+| |     add mouse 
+| |  
+* | commit 10046efb10b400fafbe7b43ba857591ac8bc6051 
+|/  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+|   Date:   Mon Oct 17 09:11:03 2022 -0700 
+|    
+|       add charlie 
+|  
+* commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:09:09 2022 -0700 
+|  
+|     add dog 
+|  
+* commit b5d48ac29b48f5f8aa368369f3087636f26a2dff 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:08:40 2022 -0700 
+|  
+|     add cat file 
+|  
+* commit 8792ebfd4c5f61f33f45f2ba0650aaac184184da (branch0) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:59:17 2022 -0700 
+|  
+|     add file0 
+|  
+* commit f6bb59fe60fdaaed451f4c37a41c23e6d214b90c 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 08:47:30 2022 -0700 
+|  
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ ls 
+cat       charlie   dog       file      file0     mouse     tmp.RData 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ vi file 
+Biostat-MBP14-04:demoRepo$ git commit -am 'update file' 
+[main 0671233] update file 
+ 1 file changed, 1 insertion(+), 1 deletion(-) 
+Biostat-MBP14-04:demoRepo$ git checkout petowner 
+Switched to branch 'petowner' 
+Biostat-MBP14-04:demoRepo$ vi file  
+Biostat-MBP14-04:demoRepo$ git commit -am 'update file to include a dog' 
+[petowner 5c21e8a] update file to include a dog 
+ 1 file changed, 1 insertion(+), 1 deletion(-) 
+Biostat-MBP14-04:demoRepo$ git checkout main 
+Switched to branch 'main' 
+Biostat-MBP14-04:demoRepo$ git log --all --graph 
+* commit 5c21e8a6357b9cb2552f33da08d8b075ad1945b8 (petowner) 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:14:52 2022 -0700 
+|  
+|     update file to include a dog 
+|    
+| * commit 0671233cd58fc291bfaf745a7045f32836b0511f (HEAD -> main) 
+| | Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| | Date:   Mon Oct 17 09:14:35 2022 -0700 
+| |  
+| |     update file 
+| |    
+| *   commit 298aa11621d65edf5d403a4d35f41a236e3ab448 
+| |\  Merge: 10046ef 0a9980e 
+| |/  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+|/|   Date:   Mon Oct 17 09:11:29 2022 -0700 
+| |    
+| |       Merge branch 'petowner' 
+| |  
+* | commit 0a9980e07323db85a1cb29d860b207fb3fbe1629 
+| | Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| | Date:   Mon Oct 17 09:10:40 2022 -0700 
+| |  
+| |     add mouse 
+| |  
+| * commit 10046efb10b400fafbe7b43ba857591ac8bc6051 
+|/  Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+|   Date:   Mon Oct 17 09:11:03 2022 -0700 
+|    
+|       add charlie 
+|  
+* commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:09:09 2022 -0700 
+|  
+|     add dog 
+|  
+* commit b5d48ac29b48f5f8aa368369f3087636f26a2dff 
+| Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+| Date:   Mon Oct 17 09:08:40 2022 -0700 
+|  
+Biostat-MBP14-04:demoRepo$ git merge petowner 
+Auto-merging file 
+CONFLICT (content): Merge conflict in file 
+Automatic merge failed; fix conflicts and then commit the result. 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+You have unmerged paths. 
+  (fix conflicts and run "git commit") 
+  (use "git merge --abort" to abort the merge) 
+ 
+Unmerged paths: 
+  (use "git add <file>..." to mark resolution) 
+	both modified:   file 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ vi file 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+You have unmerged paths. 
+  (fix conflicts and run "git commit") 
+  (use "git merge --abort" to abort the merge) 
+ 
+Unmerged paths: 
+  (use "git add <file>..." to mark resolution) 
+	both modified:   file 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+Biostat-MBP14-04:demoRepo$ git add file; git commit -m 'resolve conflict' 
+[main de246fd] resolve conflict 
+Biostat-MBP14-04:demoRepo$ git log 
+commit de246fd14b12270addb57fd879ae482c7fb0de86 (HEAD -> main) 
+Merge: 0671233 5c21e8a 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:17:30 2022 -0700 
+ 
+    resolve conflict 
+ 
+commit 5c21e8a6357b9cb2552f33da08d8b075ad1945b8 (petowner) 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:14:52 2022 -0700 
+ 
+    update file to include a dog 
+ 
+commit 0671233cd58fc291bfaf745a7045f32836b0511f 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:14:35 2022 -0700 
+ 
+    update file 
+ 
+commit 298aa11621d65edf5d403a4d35f41a236e3ab448 
+Merge: 10046ef 0a9980e 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:11:29 2022 -0700 
+ 
+    Merge branch 'petowner' 
+ 
+commit 10046efb10b400fafbe7b43ba857591ac8bc6051 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:11:03 2022 -0700 
+ 
+    add charlie 
+ 
+commit 0a9980e07323db85a1cb29d860b207fb3fbe1629 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:10:40 2022 -0700 
+ 
+    add mouse 
+ 
+commit 51b0d424a5fe972bf5a6c5bc50013f2787d5e7b2 
+Author: Xiongtao Dai <xiongtao.dai@hotmail.com> 
+Date:   Mon Oct 17 09:09:09 2022 -0700 
+Biostat-MBP14-04:demoRepo$ ls 
+cat       charlie   dog       file      file0     mouse     tmp.RData 
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$  
+Biostat-MBP14-04:demoRepo$ git status 
+On branch main 
+nothing to commit, working tree clean 
+Biostat-MBP14-04:demoRepo$ git remote 
+Biostat-MBP14-04:demoRepo$ git remote add origin https://github.com/CrossD/testRepo.git 
+Biostat-MBP14-04:demoRepo$ git remote 
+origin 
+Biostat-MBP14-04:demoRepo$ git remote -vv 
+origin	https://github.com/CrossD/testRepo.git (fetch) 
+origin	https://github.com/CrossD/testRepo.git (push) 
+Biostat-MBP14-04:demoRepo$ git push -u origin main 
+Enumerating objects: 31, done. 
+Counting objects: 100% (31/31), done. 
+Delta compression using up to 10 threads 
+Compressing objects: 100% (22/22), done. 
+Writing objects: 100% (31/31), 2.44 KiB | 2.44 MiB/s, done. 
+Total 31 (delta 11), reused 0 (delta 0), pack-reused 0 
+remote: Resolving deltas: 100% (11/11), done. 
+To https://github.com/CrossD/testRepo.git 
+ * [new branch]      main -> main 
+Branch 'main' set up to track remote branch 'main' from 'origin'. 
+Biostat-MBP14-04:demoRepo$ ls 
+cat       charlie   dog       file      file0     mouse     tmp.RData 
+Biostat-MBP14-04:demoRepo$ cat file 
+I don't have a pet 
+I have a pet. 
+Biostat-MBP14-04:demoRepo$ git pull 
+remote: Enumerating objects: 5, done. 
+remote: Counting objects: 100% (5/5), done. 
+remote: Compressing objects: 100% (3/3), done. 
+remote: Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 
+Unpacking objects: 100% (3/3), 658 bytes | 219.00 KiB/s, done. 
+From https://github.com/CrossD/testRepo 
+   de246fd..e43c051  main       -> origin/main 
+Updating de246fd..e43c051 
+Fast-forward 
+ file | 1 + 
+ 1 file changed, 1 insertion(+) 
+Biostat-MBP14-04:demoRepo$ cat file 
+I don't have a pet 
+I have a pet. 
+I have another pet. 
+Biostat-MBP14-04:demoRepo$  

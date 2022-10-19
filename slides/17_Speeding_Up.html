@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Speeding Code Up</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <script src="libs/jquery-1.12.4/jquery.min.js"></script>
+    <script src="libs/d3-3.5.6/d3.min.js"></script>
+    <link href="libs/profvis-0.3.6.9000/profvis.css" rel="stylesheet" />
+    <script src="libs/profvis-0.3.6.9000/profvis.js"></script>
+    <script src="libs/profvis-0.3.6.9000/scroll.js"></script>
+    <link href="libs/highlight-6.2.0/textmate.css" rel="stylesheet" />
+    <script src="libs/highlight-6.2.0/highlight.js"></script>
+    <script src="libs/profvis-binding-0.3.7/profvis.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Speeding Code Up
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Benchmarking and profiling
+
+- Common ways to speed code up
+
+---
+
+## References
+
+- [Chapter 23 -- 24, Advanced R](https://adv-r.hadley.nz/)
+
+---
+
+## When to optimize code
+
+The priority of code is:
+
+1. Correct
+1. Clear
+1. Stable
+1. *Speed*
+
+- Make sure the code is mature enough to warranty optimization
+- Before making code faster, we must figure out what part makes it slow
+- Aim for code that is fast enough
+
+---
+
+class: big, middle
+
+## Benchmarking and profiling
+
+---
+
+## Benchmarking
+
+Benchmarking is the process of measuring how much time does a snippet of code runs.
+
+- `system.time()` is a build-in timer
+    
+    ```r
+    system.time(lm(price ~ ., data = ggplot2::diamonds))
+    ```
+    
+    ```
+    ##    user  system elapsed 
+    ##   0.040   0.001   0.042
+    ```
+
+    - `user` is the CPU time spent by the current process (R)
+    - `system` is the time spent by the operating system (e.g., for opening files)
+    - `elapsed` is the clock time used, which is usually the time we care about
+
+- Discard the timing for the first run of your code, since they often involve one-time overheads (e.g., loading libraries/data)
+
+- Repeat quick running code for an enough number of times so performance differences between expressions may show up
+
+
+---
+
+## `library(bench)`
+
+- `library(bench)` is a library for performing high-precision benchmarking
+
+- It repeats the expression adaptively for enough number of times
+
+- Tracks not just run time but also memory allocation
+
+
+```r
+library(bench)
+n &lt;- 1e3
+x &lt;- rnorm(n)
+bench::mark(mean(x))
+```
+
+```
+## # A tibble: 1 × 6
+##   expression      min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 mean(x)      2.99µs   3.12µs   312529.        0B        0
+```
+---
+
+- `bench::mark()` checks whether the results are the same by default:
+
+```r
+bench::mark(e1=var(x), 
+            e2=n / (n - 1) * (mean(x^2) - mean(x)^2), 
+            check=TRUE)
+```
+
+```
+## # A tibble: 2 × 6
+##   expression      min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 e1           6.19µs   6.52µs   151955.        0B     30.4
+## 2 e2           6.81µs   7.26µs   133111.    7.86KB     26.6
+```
+
+- `bench::press()` runs benchmarks against a grid of parameters
+
+```r
+press(n = 10^(2:4), {
+        x &lt;- rnorm(n)
+        bench::mark(var(x), n / (n - 1) * (mean(x^2) - mean(x)^2))
+})
+```
+
+---
+
+## Profiling
+
+- Benchmarking is for measuring the *total* run time of an expression
+
+- Profiling is the process of examining how much time and memory does *each component* of a complex expression/function take
+
+- Profiling is used to understand performance and itentify bottlenecks for potential optimization
+
+---
+
+## Base R profiler
+
+- `Rprof()` is a sampling profiler provided by R, which records the results in a text file. `summaryRprof()` summarizes the results
+
+```r
+Rprof()
+for (i in 1:10) lm(price ~ ., data = ggplot2::diamonds)
+Rprof(NULL)
+summaryRprof()
+```
+
+```
+## $by.self
+##                      self.time self.pct total.time total.pct
+## "lm.fit"                  0.24    70.59       0.24     70.59
+## ".External2"              0.02     5.88       0.06     17.65
+## "na.omit.data.frame"      0.02     5.88       0.04     11.76
+## "[.data.frame"            0.02     5.88       0.02      5.88
+## "[["                      0.02     5.88       0.02      5.88
+## "levels"                  0.02     5.88       0.02      5.88
+## 
+## $by.total
+##                           total.time total.pct self.time self.pct
+## "block_exec"                    0.34    100.00      0.00     0.00
+## "call_block"                    0.34    100.00      0.00     0.00
+## "eng_r"                         0.34    100.00      0.00     0.00
+## "eval_with_user_handlers"       0.34    100.00      0.00     0.00
+## "eval"                          0.34    100.00      0.00     0.00
+## "evaluate_call"                 0.34    100.00      0.00     0.00
+## "evaluate::evaluate"            0.34    100.00      0.00     0.00
+## "evaluate"                      0.34    100.00      0.00     0.00
+## "handle"                        0.34    100.00      0.00     0.00
+## "in_dir"                        0.34    100.00      0.00     0.00
+## "in_input_dir"                  0.34    100.00      0.00     0.00
+## "knitr::knit"                   0.34    100.00      0.00     0.00
+## "lm"                            0.34    100.00      0.00     0.00
+## "nvim.interlace.rmd"            0.34    100.00      0.00     0.00
+## "process_file"                  0.34    100.00      0.00     0.00
+## "process_group.block"           0.34    100.00      0.00     0.00
+## "process_group"                 0.34    100.00      0.00     0.00
+## "rmarkdown::render"             0.34    100.00      0.00     0.00
+## "timing_fn"                     0.34    100.00      0.00     0.00
+## "withCallingHandlers"           0.34    100.00      0.00     0.00
+## "withVisible"                   0.34    100.00      0.00     0.00
+## "lm.fit"                        0.24     70.59      0.24    70.59
+## ".External2"                    0.06     17.65      0.02     5.88
+## "na.omit.data.frame"            0.04     11.76      0.02     5.88
+## "model.frame.default"           0.04     11.76      0.00     0.00
+## "model.matrix.default"          0.04     11.76      0.00     0.00
+## "model.matrix"                  0.04     11.76      0.00     0.00
+## "na.omit"                       0.04     11.76      0.00     0.00
+## "stats::model.frame"            0.04     11.76      0.00     0.00
+## "[.data.frame"                  0.02      5.88      0.02     5.88
+## "[["                            0.02      5.88      0.02     5.88
+## "levels"                        0.02      5.88      0.02     5.88
+## ".getXlevels"                   0.02      5.88      0.00     0.00
+## "["                             0.02      5.88      0.00     0.00
+## "FUN"                           0.02      5.88      0.00     0.00
+## "lapply"                        0.02      5.88      0.00     0.00
+## 
+## $sample.interval
+## [1] 0.02
+## 
+## $sampling.time
+## [1] 0.34
+```
+
+- When running a complex expression, a profiler works by pausing every few miliseconds and recording what function is currently being called. Functions recorded more often this way takes more time
+
+- `Rprof()` also offers memory profiling
+
+---
+
+## `library(profvis)`
+
+`library(profvis)` provides a convenient interface to visualize the profiling results.
+
+
+```r
+profvis::profvis(
+    for (i in 1:10) lm(price ~ ., data = ggplot2::diamonds),
+    simplify=FALSE
+)
+```
+
+<div id="htmlwidget-89f9cee2eb5cef309748" style="width:100%;height:600px;" class="profvis html-widget"></div>
+<script type="application/json" data-for="htmlwidget-89f9cee2eb5cef309748">{"x":{"message":{"prof":{"time":[1,1,2,2,3,3,4,4,5,5,6,6,7,7,7,7,7,7,7,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,14,14,14,14,14,14,14,14,15,15,16,16,17,17,17,17,17,17,17,17,17,17,18,18,19,19,19,19,19,19,20,20,20,20,21,21,22,22,23,23,23,23,23,23,23,23,24,24,25,25,26,26,26,26,26,26,26,27,27,28,28,29,29,30,30,30,30,31,31,32,32,32,32,32],"depth":[2,1,2,1,2,1,2,1,2,1,2,1,9,8,7,6,5,4,3,2,1,2,1,2,1,2,1,2,1,2,1,2,1,10,9,8,7,6,5,4,3,2,1,2,1,2,1,10,9,8,7,6,5,4,3,2,1,2,1,6,5,4,3,2,1,4,3,2,1,2,1,2,1,8,7,6,5,4,3,2,1,2,1,2,1,7,6,5,4,3,2,1,2,1,2,1,2,1,4,3,2,1,2,1,5,4,3,2,1],"label":["lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","<GC>","na.omit.data.frame","na.omit",".External2","model.frame.default","stats::model.frame","eval","eval","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm","is.na","NextMethod","[.factor","[","unique","model.frame.default","stats::model.frame","eval","eval","lm","lm.fit","lm","lm.fit","lm","<GC>","NextMethod","[.factor","[","unique","model.frame.default","stats::model.frame","eval","eval","lm","lm.fit","lm","vapply","model.frame.default","stats::model.frame","eval","eval","lm",".External2","model.matrix.default","model.matrix","lm","lm.fit","lm","lm.fit","lm","na.omit.data.frame","na.omit",".External2","model.frame.default","stats::model.frame","eval","eval","lm","lm.fit","lm","lm.fit","lm","unique.default","unique","model.frame.default","stats::model.frame","eval","eval","lm","lm.fit","lm","lm.fit","lm","lm.fit","lm",".External2","model.matrix.default","model.matrix","lm","lm.fit","lm","[.data.frame","[","lapply",".getXlevels","lm"],"filenum":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"linenum":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"memalloc":[79.2142333984375,79.2142333984375,89.9148635864258,89.9148635864258,89.9153671264648,89.9153671264648,123.002227783203,123.002227783203,133.703102111816,133.703102111816,133.703102111816,133.703102111816,104.388328552246,104.388328552246,104.388328552246,104.388328552246,104.388328552246,104.388328552246,104.388328552246,104.388328552246,104.388328552246,78.3429565429688,78.3429565429688,89.043586730957,89.043586730957,89.043586730957,89.043586730957,132.008087158203,132.008087158203,132.831825256348,132.831825256348,132.831825256348,132.831825256348,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,94.1392822265625,117.44214630127,117.44214630127,117.44214630127,117.44214630127,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,124.461372375488,134.638404846191,134.638404846191,135.888450622559,135.888450622559,135.888450622559,135.888450622559,135.888450622559,135.888450622559,79.1650772094727,79.1650772094727,79.1650772094727,79.1650772094727,89.8664398193359,89.8664398193359,89.8664398193359,89.8664398193359,104.175514221191,104.175514221191,104.175514221191,104.175514221191,104.175514221191,104.175514221191,104.175514221191,104.175514221191,133.654678344727,133.654678344727,133.654678344727,133.654678344727,93.3132858276367,93.3132858276367,93.3132858276367,93.3132858276367,93.3132858276367,93.3132858276367,93.3132858276367,118.059234619141,118.059234619141,118.059234619141,118.059234619141,118.059234619141,118.059234619141,113.818618774414,113.818618774414,113.818618774414,113.818618774414,134.843788146973,134.843788146973,136.086578369141,136.086578369141,136.086578369141,136.086578369141,136.086578369141],"meminc":[0,0,10.7006301879883,0,0.0005035400390625,0,33.0868606567383,0,10.7008743286133,0,0,0,-29.3147735595703,0,0,0,0,0,0,0,0,-26.0453720092773,0,10.7006301879883,0,0,0,42.9645004272461,0,0.823738098144531,0,0,0,-38.6925430297852,0,0,0,0,0,0,0,0,0,23.302864074707,0,0,0,7.01922607421875,0,0,0,0,0,0,0,0,0,10.1770324707031,0,1.25004577636719,0,0,0,0,0,-56.7233734130859,0,0,0,10.7013626098633,0,0,0,14.3090744018555,0,0,0,0,0,0,0,29.4791641235352,0,0,0,-40.3413925170898,0,0,0,0,0,0,24.7459487915039,0,0,0,0,0,-4.24061584472656,0,0,0,21.0251693725586,0,1.24279022216797,0,0,0,0],"filename":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"interval":10,"files":[],"prof_output":"/var/folders/bq/kcmkq8913hdc8l8978f3_v5528hb8p/T//RtmpC5KjFB/file618f52db74e5.prof","highlight":{"output":["^output\\$"],"gc":["^<GC>$"],"stacktrace":["^\\.\\.stacktraceo(n|ff)\\.\\.$"]},"split":"h"}},"evals":[],"jsHooks":[]}</script>
+
+- `simplify=FALSE` shows more information including the run time of the lazy evaluation frames
+
+
+---
+
+class: inverse
+
+## Your turn
+
+- Use `bench::mark()` to compare the formula and the vector interfaces of `t.test`. 
+    - Compare `t.test(extra ~ group, sleep)` and `t.test(sleep$extra[sleep$group == 1], sleep$extra[sleep$group == 2])`
+    - Set `check=FALSE` since the results slightly differ in format
+
+- Inspect what is the slowest step in the following
+```
+profvis::profvis({
+for (i in 1:10) {
+    m &lt;- lm(price ~ ., data = ggplot2::diamonds)
+    summary(m)
+}
+}, simplify = FALSE)
+```
+
+---
+
+class: big, middle
+
+## Common ways to speed code up
+
+---
+
+## Do less
+
+- `lm`, `lm.fit`, `.lm.fit` perform decreasing amount of computation
+
+
+```r
+X &lt;- matrix(rnorm(200 * 2), 200, 2)
+y &lt;- rnorm(200)
+
+mark(lm(y~X), 
+     lm.fit(X,y), 
+     .lm.fit(X,y), 
+     check=FALSE)
+```
+
+```
+## # A tibble: 3 × 6
+##   expression         min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt;    &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 lm(y ~ X)     173.02µs  178.6µs     5541.   47.25KB     37.7
+## 2 lm.fit(X, y)   15.46µs  16.44µs    60061.    11.2KB     24.0
+## 3 .lm.fit(X, y)   4.63µs   5.21µs   186050.    6.39KB     18.6
+```
+
+- Read the documentation for tips to speed up
+
+---
+
+## Use more efficient algorithms
+
+- For most of common analytical tasks, there are existing implementations that are efficient and you don't have to reinvent the wheel
+
+- If you need to select tools for implementing a time-consuming computation, benchmark them
+
+- Numerical linear algebra could have quite different performance
+
+```r
+bench::mark(
+    t(X) %*% X,
+    crossprod(X)
+)
+```
+
+```
+## # A tibble: 2 × 6
+##   expression        min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt;   &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 t(X) %*% X     3.48µs   3.77µs   256946.    3.17KB        0
+## 2 crossprod(X) 861.01ns 942.96ns  1035809.        0B        0
+```
+
+- There are multi-thread numerical linear algebra libraries that can make use of multiple cores simultaneously. E.g., [Intel MKL](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
+
+---
+
+- Matrix-matrix multiplication is more expensive than matrix-vector multiplication
+
+```r
+bench::mark(
+    solve(t(X) %*% X) %*% t(X) %*% y, 
+    solve(t(X) %*% X) %*% (t(X) %*% y), 
+    check=FALSE)
+```
+
+```
+## # A tibble: 2 × 6
+##   expression                              min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt;                         &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 solve(t(X) %*% X) %*% t(X) %*% y     13.1µs   13.8µs    71120.    9.52KB     21.3
+## 2 solve(t(X) %*% X) %*% (t(X) %*% y)   11.8µs   12.6µs    78341.    6.34KB     23.5
+```
+... but both are much slower than `lm.fit` applies QR-decomposition
+
+- If you have a lot of regressions with the same predictors but a difference response, you can precalculate `solve(t(X) %*% X) %*% t(X)` and reuse them for different response
+
+---
+
+## Caching results
+
+- Caching means saving results. Given the same input, the results will be loaded the next time but not calculated
+
+- `library(memoise)` saves results in the memory; it can save to the hard disk as well
+
+
+```r
+library(dplyr)
+library(memoise)
+f &lt;- function(col) {
+  nycflights13::flights %&gt;%
+    group_by(year, month, day, !!as.symbol(col)) %&gt;%
+    summarize(mean=mean(arr_delay, na.rm=TRUE))
+}
+mf &lt;- memoise(f)
+system.time(mf("carrier"))
+```
+
+```
+##    user  system elapsed 
+##   0.032   0.001   0.033
+```
+
+```r
+system.time(mf("carrier"))
+```
+
+```
+##    user  system elapsed 
+##       0       0       0
+```
+
+---
+
+## Vectorize operations
+
+- R is an interpreted language, so is slower than compiled languages 
+
+- R functions call fast C/C++/Fortran functions under the hood. Most base R functions take vectors/matrices as input (`sqrt()`, `rnorm()`, `rowMeans()`, etc)
+
+- Vectorized code is faster than loops and the apply/map functions
+
+- Vectorized code is usually much clearer
+
+---
+
+- E.g., we would like to find the sum of `\(f(x, y) = \text{sin}(x y^2)\)` over `\(x,y \in \{0.001, 0.002, \dots, 0.999, 1\}\)`
+
+
+```r
+vals &lt;- seq(0, 1, by=0.01)
+mark(forloop={
+  sum &lt;- 0
+  for (x in vals) {
+    for (y in vals) {
+      sum &lt;- sum + sin(x * y^2)
+    }
+  }
+  sum
+}, vectorized={
+  len &lt;- length(vals)
+  X &lt;- matrix(vals, len, len)
+  Y &lt;- t(X)
+  sum(sin(X * Y^2))
+}
+)
+```
+
+```
+## # A tibble: 2 × 6
+##   expression      min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 forloop      1.39ms   1.41ms      700.    23.7KB     12.7
+## 2 vectorized 275.52µs 285.69µs     3480.   239.2KB      0
+```
+
+
+---
+
+## Case study: Susceptible, Infected, and Recovered (SIR) model
+
+The SIR model is widely used for modeling people infected with a contagious disease. `\(S\)`, `\(I\)`, and `\(R\)` are the proportions of susceptable, infected, and recovered people, respectively. Over time, the three processes the following relationship
+
+$$ dS/dt = -\beta S I$$
+$$ dI/dt = \beta S I - \gamma I$$
+$$ dR/dt = \gamma I$$
+
+where `\(\beta\)` is the infection rate and `\(\gamma\)` is the recovery rate. We would like to simulate the SIR model
+
+---
+
+
+```r
+SIR_orig &lt;- function(duration, dt, beta, gamma, initial) {
+  res &lt;- matrix(initial, nrow=1) # contains (S, I, R)
+  len &lt;- floor(duration / dt) + 1
+  for (i in seq(2, len)) {
+    # dS = -beta * S * I dt
+    S &lt;- res[i - 1, 1] - beta * res[i - 1, 1] * res[i - 1, 2] * dt
+
+    # dI = (beta * S * I - gamma * I) dt
+    I &lt;- res[i - 1, 2] + (beta * res[i - 1, 1] * res[i - 1, 2] - 
+                                  gamma * res[i - 1, 2]) * dt
+
+    # dR = gamma * I * dt
+    R &lt;- res[i - 1, 3] + gamma * res[i - 1, 2] * dt
+
+    res &lt;- rbind(res, c(S, I, R))
+  }
+  list(SIR=res, T=seq(0, duration, by=dt))
+}
+```
+
+---
+
+
+```r
+beta &lt;- 1/2
+gamma &lt;- 1/3
+duration &lt;- 100
+dt &lt;- 0.005
+initial &lt;- c(0.999, 0.001, 0)
+s &lt;- SIR_orig(duration, dt, beta, gamma, initial)
+matplot(s$T, s$SIR, type='l')
+```
+
+![](17_Speeding_Up_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+- Pretty slow for a reasonably simple task. Why?
+- Use profiling to investigate
+
+---
+
+## Don't grow an object
+
+- `profvis::profvis(SIR_orig(duration, dt, beta, gamma, initial))` shows that almost all time are spent in `rbind()`
+
+- It is allocating and releasing a lot of memory repeatedly
+
+---
+
+- So pre-allocate memory instead
+
+```r
+SIR_prealloc &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  len &lt;- floor(duration / dt) + 1
+  res &lt;- matrix(0, len, 3)
+  res[1, ] &lt;- initial
+  for (i in seq(2, len)) {
+    res[i, 1] &lt;- res[i - 1, 1] - beta * res[i - 1, 1] * res[i - 1, 2] * dt
+    res[i, 2] &lt;- res[i - 1, 2] + (beta * res[i - 1, 1] * res[i - 1, 2] - 
+                                  gamma * res[i - 1, 2]) * dt
+    res[i, 3] &lt;- res[i - 1, 3] + gamma * res[i - 1, 2] * dt
+  }
+  list(SIR=res, T=seq(0, duration, by=dt))
+}
+```
+
+
+```r
+bench::mark(
+  SIR_orig(duration, dt, beta, gamma, initial), 
+  SIR_prealloc(duration, dt, beta, gamma, initial), 
+  )
+```
+
+```
+## Warning: Some expressions had a GC in every iteration; so filtering is disabled.
+```
+
+```
+## # A tibble: 2 × 6
+##   expression                                            min   median `itr/sec` mem_alloc
+##   &lt;bch:expr&gt;                                       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;
+## 1 SIR_orig(duration, dt, beta, gamma, initial)     690.75ms 690.75ms      1.45    4.47GB
+## 2 SIR_prealloc(duration, dt, beta, gamma, initial)   5.87ms   6.01ms    165.   1007.66KB
+## # … with 1 more variable: `gc/sec` &lt;dbl&gt;
+```
+
+---
+
+## Save intermediate objects
+ 
+
+```r
+SIR_saveIntermediate &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  len &lt;- floor(duration / dt) + 1
+  res &lt;- matrix(0, len, 3)
+  res[1, ] &lt;- initial
+  for (i in seq(2, len)) {
+    a &lt;- beta * res[i - 1, 1] * res[i - 1, 2] * dt
+    b &lt;- gamma * res[i - 1, 2] * dt
+    res[i, 1] &lt;- res[i - 1, 1] - a
+    res[i, 2] &lt;- res[i - 1, 2] + a - b
+    res[i, 3] &lt;- res[i - 1, 3] + b
+  }
+  list(SIR=res, T=seq(0, duration, by=dt))
+}
+```
+
+
+```r
+bench::mark(
+  SIR_prealloc(duration, dt, beta, gamma, initial), 
+  SIR_saveIntermediate(duration, dt, beta, gamma, initial), 
+)
+```
+
+```
+## # A tibble: 2 × 6
+##   expression                                                  min median itr/s…¹ mem_a…²
+##   &lt;bch:expr&gt;                                               &lt;bch:&gt; &lt;bch:&gt;   &lt;dbl&gt; &lt;bch:b&gt;
+## 1 SIR_prealloc(duration, dt, beta, gamma, initial)         5.84ms 5.92ms    168.   860KB
+## 2 SIR_saveIntermediate(duration, dt, beta, gamma, initial) 4.42ms  4.5ms    221.   977KB
+## # … with 1 more variable: `gc/sec` &lt;dbl&gt;, and abbreviated variable names ¹​`itr/sec`,
+## #   ²​mem_alloc
+```
+
+---
+class: big, middle
+
+## Memory usage
+
+---
+
+## Avoid copying objects
+
+- R impliments a copy-on-modified mechanism
+
+- `tracemem()` traces when an object is copied
+
+```r
+x &lt;- seq(0, 1, length.out=100)
+tracemem(x)
+```
+
+```
+## [1] "&lt;0x117b0a2a0&gt;"
+```
+
+```r
+y &lt;- x
+y[1] &lt;- 1
+```
+
+```
+## tracemem[0x117b0a2a0 -&gt; 0x117b0c250]: eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; nvim.interlace.rmd
+```
+
+---
+
+
+- `x[1] &lt;- x[1] + 1` usually modifies `x` in-place, but if you pass `x` into a function, it is copied if modified
+
+```r
+x[2] &lt;- 2 # no copy
+```
+
+```
+## tracemem[0x117b0a2a0 -&gt; 0x117b08140]: eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; nvim.interlace.rmd
+```
+
+```r
+f &lt;- function(z) {
+  z[1] &lt;- 10
+  invisible(z)
+}
+f(x) # copy
+```
+
+```
+## tracemem[0x117b08140 -&gt; 0x117b053f0]: f eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; nvim.interlace.rmd
+```
+
+- Could use an environment to avoid copies 
+
+---
+
+## Rows and columns are not symmetric
+
+- Summing over the rows vs summing over the columns could have quite different performance
+
+```r
+n &lt;- 1e4
+p &lt;- 1e4
+X &lt;- matrix(rnorm(n * p), n, p)
+tX &lt;- t(X)
+mark(apply(X, 2, sum),
+     apply(tX, 1, sum))
+```
+
+```
+## Warning: Some expressions had a GC in every iteration; so filtering is disabled.
+```
+
+```
+## # A tibble: 2 × 6
+##   expression             min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt;        &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 apply(X, 2, sum)  699.55ms 699.55ms     1.43     1.86GB     2.86
+## 2 apply(tX, 1, sum)    1.13s    1.13s     0.884    1.86GB     2.65
+```
+
+---
+
+- This is because a matrix is stored like a linear vector in the memory, following one of these layouts:
+.center[
+![:scale 40%](images/Row_and_column_major_order.png)
+]
+
+- R is column major, so data within the same column are stored closer together in the memory
+
+---
+
+## Cache misses
+
+- Data need to be loaded into CPU caches from the memory for computation
+
+.center[
+![:scale 70%](https://i.stack.imgur.com/9fg0p.png)
+]
+
+- To save time, data needed and their neighbors on the memory are loaded in consecutive chunks into the caches
+
+- If the data does not exist in a CPU cache, it must be loaded again, which is time-consuming. This is called a cache miss
+
+- So in R, working with data within a column is faster than that within a row. This minimizes cache miss
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
