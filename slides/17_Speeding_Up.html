@@ -44,11 +44,14 @@ class: center, middle, inverse, title-slide
 
 - Common ways to speed code up
 
+- Memory considerations
+
+
 ---
 
 ## References
 
-- [Chapter 23 -- 24, Advanced R](https://adv-r.hadley.nz/)
+- [Chapter 2, 23, 24, Advanced R](https://adv-r.hadley.nz/)
 
 ---
 
@@ -59,10 +62,14 @@ The priority of code is:
 1. Correct
 1. Clear
 1. Stable
-1. *Speed*
+1. Finally, optimize speed and space
 
-- Make sure the code is mature enough to warranty optimization
+- Make sure the code is mature enough that warranties optimization
+
 - Before making code faster, we must figure out what part makes it slow
+
+- Focus on optimizing the bottlenecks but not unimportant components
+
 - Aim for code that is fast enough
 
 ---
@@ -92,9 +99,9 @@ Benchmarking is the process of measuring how much time does a snippet of code ru
     - `system` is the time spent by the operating system (e.g., for opening files)
     - `elapsed` is the clock time used, which is usually the time we care about
 
-- Discard the timing for the first run of your code, since they often involve one-time overheads (e.g., loading libraries/data)
+- Discard the timing for the first run of your code, since it often contains one-time overheads (e.g., loading libraries/data)
 
-- Repeat quick running code for an enough number of times so performance differences between expressions may show up
+- Repeat quick running code for an enough number of times so the total time reveals a meaningful difference
 
 
 ---
@@ -103,24 +110,23 @@ Benchmarking is the process of measuring how much time does a snippet of code ru
 
 - `library(bench)` is a library for performing high-precision benchmarking
 
-- It repeats the expression adaptively for enough number of times
+- It repeats the expression adaptively for a reasonable total amount of time
 
 - Tracks not just run time but also memory allocation
-
-
-```r
-library(bench)
-n &lt;- 1e3
-x &lt;- rnorm(n)
-bench::mark(mean(x))
-```
-
-```
-## # A tibble: 1 × 6
-##   expression      min   median `itr/sec` mem_alloc `gc/sec`
-##   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 mean(x)      2.99µs   3.12µs   312529.        0B        0
-```
+    
+    ```r
+    library(bench)
+    n &lt;- 1e3
+    x &lt;- rnorm(n)
+    bench::mark(mean(x))
+    ```
+    
+    ```
+    ## # A tibble: 1 × 6
+    ##   expression      min   median `itr/sec` mem_alloc `gc/sec`
+    ##   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+    ## 1 mean(x)      2.99µs    3.2µs   303866.        0B        0
+    ```
 ---
 
 - `bench::mark()` checks whether the results are the same by default:
@@ -139,22 +145,25 @@ bench::mark(e1=var(x),
 ## 2 e2           6.81µs   7.26µs   133111.    7.86KB     26.6
 ```
 
-- `bench::press()` runs benchmarks against a grid of parameters
+- `bench::press()` runs benchmarks against a grid of parameters, and `ggplot2::autoplot()` visualizes the pressed results
 
 ```r
-press(n = 10^(2:4), {
+res &lt;- press(n = 10^(2:4), {
         x &lt;- rnorm(n)
         bench::mark(var(x), n / (n - 1) * (mean(x^2) - mean(x)^2))
+ggplot2::autoplot(res)
 })
 ```
+
+- Lower quantiles of the timing results are more meaningful than the upper quantiles, since the performance can occasionally be affected by other tasks running on the same system (e.g. indexing files)
 
 ---
 
 ## Profiling
 
-- Benchmarking is for measuring the *total* run time of an expression
+- Benchmarking is for measuring the *total* run time of usually short expressions
 
-- Profiling is the process of examining how much time and memory does *each component* of a complex expression/function take
+- Profiling is the process of examining how much time does *each component* of a complex expression/function take
 
 - Profiling is used to understand performance and itentify bottlenecks for potential optimization
 
@@ -227,9 +236,11 @@ summaryRprof()
 ## [1] 0.34
 ```
 
+---
+
 - When running a complex expression, a profiler works by pausing every few miliseconds and recording what function is currently being called. Functions recorded more often this way takes more time
 
-- `Rprof()` also offers memory profiling
+- `Rprof(memory.profiling = TRUE)` offers memory profiling
 
 ---
 
@@ -257,9 +268,9 @@ class: inverse
 
 ## Your turn
 
-- Use `bench::mark()` to compare the formula and the vector interfaces of `t.test`. 
-    - Compare `t.test(extra ~ group, sleep)` and `t.test(sleep$extra[sleep$group == 1], sleep$extra[sleep$group == 2])`
-    - Set `check=FALSE` since the results slightly differ in format
+- Use `bench::mark()` to compare the formula and the vector interfaces of `t.test`. Set `check=FALSE` since the results slightly differ in format
+    - `t.test(extra ~ group, sleep)`, and 
+    - `t.test(sleep$extra[sleep$group == 1], sleep$extra[sleep$group == 2])`
 
 - Inspect what is the slowest step in the following
 ```
@@ -307,13 +318,13 @@ mark(lm(y~X),
 
 ---
 
-## Use more efficient algorithms
+## Use a more efficient algorithm
 
-- For most of common analytical tasks, there are existing implementations that are efficient and you don't have to reinvent the wheel
+- For most of common analytical tasks, there are existing efficient implementations so you won't need to reinvent the wheel
 
 - If you need to select tools for implementing a time-consuming computation, benchmark them
 
-- Numerical linear algebra could have quite different performance
+- Numerical linear algebra often take up significant amount of time. Different implementations could have quite different performance
 
 ```r
 bench::mark(
@@ -361,6 +372,10 @@ bench::mark(
 - Caching means saving results. Given the same input, the results will be loaded the next time but not calculated
 
 - `library(memoise)` saves results in the memory; it can save to the hard disk as well
+
+- Good for handling user-specified inputs with many possibilities
+
+---
 
 
 ```r
@@ -578,7 +593,7 @@ bench::mark(
 ---
 class: big, middle
 
-## Memory usage
+## Memory considerations
 
 ---
 
@@ -685,6 +700,46 @@ mark(apply(X, 2, sum),
 
 - So in R, working with data within a column is faster than that within a row. This minimizes cache miss
 
+---
+
+## Running out of memory
+
+- 1 byte = 8 bits = 256 potential values
+
+- An R numeric value takes 8 bytes, and an integer has 4 bytes
+
+- So 1 million = `\(10^6\)` numeric values takes 8Mb
+
+```r
+z &lt;- rnorm(1e6)
+lobstr::obj_size(z)
+```
+
+```
+## 8.00 MB
+```
+
+- Usually, memory issues start to appear when you have `\(&gt;10^8\)` observations
+
+- If memory is not large enough to perform the computation, software will utilize the *swap file*, a file on the hard disk. Namely, transfer contents back and forth from the memory and the hard disk until computation is finished
+
+---
+
+## Solutions for running out of memory
+
+From less to more amount of work:
+
+- Subsample your dataset and run with fewer observations
+
+- Use a machine with a larger memory
+
+- Use a package for making use of the harddisk for computation
+    - `library(biglm)`
+    - `library(bigmemory)`
+
+- Use a smarter algorithm. E.g., 
+    - linear regression can be performed by reading in and aggregating data chunk-by-chunk
+    - For bootstrapping a large dataset, consider using [bags of little bootstrap](https://arxiv.org/abs/1112.5016)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>
