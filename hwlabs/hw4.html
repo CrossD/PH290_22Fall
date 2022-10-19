@@ -378,18 +378,24 @@ function should accept the following arguments: A data frame; a
 character scalar specifying the name of the column to be aggregated; a
 character scalar for the group by column; and a function specifying the
 aggregator function (could be <code>mean</code> or <code>median</code>,
-say). Make sure to include some unit tests for correctness.</p></li>
-<li><p>Write an R script including a Shiny app for visualizing the
+say). An example call is
+<code>MyFun(gapminder, &quot;lifeExp&quot;, &quot;country&quot;, mean)</code>, which will
+return a data frame with two columns, country and the corresponding mean
+life expectancy. Make sure to include some unit tests for
+correctness.</p></li>
+<li><p>Write a Shiny app for visualizing the
 <code>gapminder::gapminder</code> dataset. The app will let the users
-visualize the one column grouped by another column. The user will select
-a column to visualize, and another column as the group by column (check
-out the examples in <code>?selectInput</code>). Your app should
-automatically choose an appropriate geom depending on the user
-inputs.</p></li>
+visualize one column grouped by another column. The user will select a
+column to visualize, and another column as the group by column (check
+out the examples in <code>?selectInput</code>). The column being
+visualized can be either numeric or categorical, and the group by column
+can only be categorical. Your app should automatically choose an
+appropriate geom depending on the user inputs. Please include the shiny
+app code in a separate R script.</p></li>
 <li><p>Look at <a href="https://www.data-to-viz.com/caveats.html">two
 pieces of caveats in visualization (summarized by Jan Holtz)</a> that
 you did not previously know. Find appropriate dataset(s) and implement a
-bad and a good version for each caveat.</p></li>
+bad and a good visualization for each caveat.</p></li>
 </ol>
 </div>
 
