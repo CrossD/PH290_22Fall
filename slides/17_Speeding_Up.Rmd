@@ -35,6 +35,8 @@ knitr::opts_chunk$set(
 
 - [Chapter 2, 23, 24, Advanced R](https://adv-r.hadley.nz/)
 
+- [The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)
+
 ---
 
 ## When to optimize code
@@ -302,17 +304,16 @@ mark(forloop={
 
 The SIR model is widely used for modeling people infected with a contagious disease. $S$, $I$, and $R$ are the proportions of susceptible, infected, and recovered people at a given time, respectively. Over time, the three processes the following relationship
 
-$$ dS/dt = -\beta S I$$
-$$ dI/dt = \beta S I - \gamma I$$
-$$ dR/dt = \gamma I$$
-
+$$ dS/dt = -\beta S I,$$
+$$ dI/dt = \beta S I - \gamma I,$$
+$$ dR/dt = \gamma I,$$
 where $\beta$ is the infection rate and $\gamma$ is the recovery rate. We would like to simulate the SIR model
 
 ---
 
 ```{r}
 SIR_orig <- function(duration, dt, beta, gamma, initial) {
-  res <- matrix(initial, nrow=1) # contains (S, I, R)
+  res <- matrix(initial, nrow=1)
   len <- floor(duration / dt) + 1
   for (i in seq(2, len)) {
     # dS = -beta * S * I dt
@@ -354,8 +355,6 @@ matplot(s$T, s$SIR, type='l')
 
 - It is allocating and releasing a lot of memory repeatedly
 
----
-
 - So pre-allocate memory instead
 ```{r}
 SIR_prealloc <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
@@ -371,6 +370,8 @@ SIR_prealloc <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) 
   list(SIR=res, T=seq(0, duration, by=dt))
 }
 ```
+
+---
 
 ```{r}
 bench::mark(
@@ -399,10 +400,12 @@ SIR_saveIntermediate <- function(duration, dt, beta, gamma, initial=c(0.999, 0.0
 }
 ```
 
+---
+
 ```{r}
 bench::mark(
-  SIR_prealloc(duration, dt, beta, gamma, initial), 
-  SIR_saveIntermediate(duration, dt, beta, gamma, initial), 
+  prealloc=SIR_prealloc(duration, dt, beta, gamma, initial), 
+  saveIntermediate=SIR_saveIntermediate(duration, dt, beta, gamma, initial), 
 )
 ```
 
@@ -415,7 +418,7 @@ class: big, middle
 
 ## Avoid copying objects
 
-- R impliments a copy-on-modified mechanism
+- R implements a copy-on-modified mechanism
 
 - `tracemem()` traces when an object is copied
 ```{r}
@@ -477,7 +480,7 @@ mark(apply(X, 2, sum),
 
 - If the data does not exist in a CPU cache, it must be loaded again, which is time-consuming. This is called a cache miss
 
-- So in R, working with data within a column is faster than that within a row. This minimizes cache miss
+- So in R, working with data within a column is faster than within a row. This minimizes cache miss
 
 ---
 
@@ -514,3 +517,7 @@ From less to more amount of work:
 - Use a smarter algorithm. E.g., 
     - linear regression can be performed by reading in and aggregating data chunk-by-chunk
     - For bootstrapping a large dataset, consider using [bags of little bootstrap](https://arxiv.org/abs/1112.5016)
+
+- Use a different framework
+    - database
+    - distributed computing

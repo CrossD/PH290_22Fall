@@ -53,6 +53,8 @@ class: center, middle, inverse, title-slide
 
 - [Chapter 2, 23, 24, Advanced R](https://adv-r.hadley.nz/)
 
+- [The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)
+
 ---
 
 ## When to optimize code
@@ -367,7 +369,7 @@ bench::mark(
 
 ---
 
-## Caching results
+## Cache results
 
 - Caching means saving results. Given the same input, the results will be loaded the next time but not calculated
 
@@ -410,15 +412,15 @@ system.time(mf("carrier"))
 
 - R is an interpreted language, so is slower than compiled languages 
 
-- R functions call fast C/C++/Fortran functions under the hood. Most base R functions take vectors/matrices as input (`sqrt()`, `rnorm()`, `rowMeans()`, etc)
+- R functions call fast C/C++/Fortran functions under the hood. Most base R functions accept vectors/matrices as input (`sqrt()`, `rnorm()`, `rowMeans()`, etc)
 
-- Vectorized code is faster than loops and the apply/map functions
+- Vectorized code is much faster than loops and the apply/map functions
 
-- Vectorized code is usually much clearer
+- Vectorized code is usually much clearer, so should be preferred
 
 ---
 
-- E.g., we would like to find the sum of `\(f(x, y) = \text{sin}(x y^2)\)` over `\(x,y \in \{0.001, 0.002, \dots, 0.999, 1\}\)`
+- E.g., we would like to find the sum of `\(f(x, y) = \text{sin}(x y^2)\)` over a grid of values `\(x,y \in \{0.001, 0.002, \dots, 0.999, 1\}\)`
 
 
 ```r
@@ -453,12 +455,11 @@ mark(forloop={
 
 ## Case study: Susceptible, Infected, and Recovered (SIR) model
 
-The SIR model is widely used for modeling people infected with a contagious disease. `\(S\)`, `\(I\)`, and `\(R\)` are the proportions of susceptable, infected, and recovered people, respectively. Over time, the three processes the following relationship
+The SIR model is widely used for modeling people infected with a contagious disease. `\(S\)`, `\(I\)`, and `\(R\)` are the proportions of susceptible, infected, and recovered people at a given time, respectively. Over time, the three processes the following relationship
 
-$$ dS/dt = -\beta S I$$
-$$ dI/dt = \beta S I - \gamma I$$
-$$ dR/dt = \gamma I$$
-
+$$ dS/dt = -\beta S I,$$
+$$ dI/dt = \beta S I - \gamma I,$$
+$$ dR/dt = \gamma I,$$
 where `\(\beta\)` is the infection rate and `\(\gamma\)` is the recovery rate. We would like to simulate the SIR model
 
 ---
@@ -466,7 +467,7 @@ where `\(\beta\)` is the infection rate and `\(\gamma\)` is the recovery rate. W
 
 ```r
 SIR_orig &lt;- function(duration, dt, beta, gamma, initial) {
-  res &lt;- matrix(initial, nrow=1) # contains (S, I, R)
+  res &lt;- matrix(initial, nrow=1)
   len &lt;- floor(duration / dt) + 1
   for (i in seq(2, len)) {
     # dS = -beta * S * I dt
@@ -511,8 +512,6 @@ matplot(s$T, s$SIR, type='l')
 
 - It is allocating and releasing a lot of memory repeatedly
 
----
-
 - So pre-allocate memory instead
 
 ```r
@@ -529,6 +528,8 @@ SIR_prealloc &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0
   list(SIR=res, T=seq(0, duration, by=dt))
 }
 ```
+
+---
 
 
 ```r
@@ -572,22 +573,22 @@ SIR_saveIntermediate &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 
 }
 ```
 
+---
+
 
 ```r
 bench::mark(
-  SIR_prealloc(duration, dt, beta, gamma, initial), 
-  SIR_saveIntermediate(duration, dt, beta, gamma, initial), 
+  prealloc=SIR_prealloc(duration, dt, beta, gamma, initial), 
+  saveIntermediate=SIR_saveIntermediate(duration, dt, beta, gamma, initial), 
 )
 ```
 
 ```
 ## # A tibble: 2 × 6
-##   expression                                                  min median itr/s…¹ mem_a…²
-##   &lt;bch:expr&gt;                                               &lt;bch:&gt; &lt;bch:&gt;   &lt;dbl&gt; &lt;bch:b&gt;
-## 1 SIR_prealloc(duration, dt, beta, gamma, initial)         5.84ms 5.92ms    168.   860KB
-## 2 SIR_saveIntermediate(duration, dt, beta, gamma, initial) 4.42ms  4.5ms    221.   977KB
-## # … with 1 more variable: `gc/sec` &lt;dbl&gt;, and abbreviated variable names ¹​`itr/sec`,
-## #   ²​mem_alloc
+##   expression            min   median `itr/sec` mem_alloc `gc/sec`
+##   &lt;bch:expr&gt;       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
+## 1 prealloc           5.91ms   6.04ms      165.       1MB        0
+## 2 saveIntermediate    4.5ms   4.59ms      217.     989KB        0
 ```
 
 ---
@@ -599,7 +600,7 @@ class: big, middle
 
 ## Avoid copying objects
 
-- R impliments a copy-on-modified mechanism
+- R implements a copy-on-modified mechanism
 
 - `tracemem()` traces when an object is copied
 
@@ -698,7 +699,7 @@ mark(apply(X, 2, sum),
 
 - If the data does not exist in a CPU cache, it must be loaded again, which is time-consuming. This is called a cache miss
 
-- So in R, working with data within a column is faster than that within a row. This minimizes cache miss
+- So in R, working with data within a column is faster than within a row. This minimizes cache miss
 
 ---
 
@@ -740,6 +741,10 @@ From less to more amount of work:
 - Use a smarter algorithm. E.g., 
     - linear regression can be performed by reading in and aggregating data chunk-by-chunk
     - For bootstrapping a large dataset, consider using [bags of little bootstrap](https://arxiv.org/abs/1112.5016)
+
+- Use a different framework
+    - database
+    - distributed computing
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>
