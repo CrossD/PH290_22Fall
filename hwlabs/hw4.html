@@ -385,11 +385,13 @@ life expectancy. Make sure to include some unit tests for
 correctness.</p></li>
 <li><p>Write a Shiny app for visualizing the
 <code>gapminder::gapminder</code> dataset. The app will let the users
-visualize one column grouped by another column. The user will select a
-column to visualize, and another column as the group by column (check
-out the examples in <code>?selectInput</code>). The column being
-visualized can be either numeric or categorical, and the group by column
-can only be categorical. Your app should automatically choose an
+visualize one column grouped by another column. For example, when
+visualizing life expectancy grouped by continent, a side-by-side
+histogram can be used, showing one histogram per continent. The user
+will select a column to visualize, and another column as the group by
+column (check out the examples in <code>?selectInput</code>). The column
+being visualized can be either numeric or categorical, and the group by
+column can only be categorical. Your app should automatically choose an
 appropriate geom depending on the user inputs. Please include the shiny
 app code in a separate R script.</p></li>
 <li><p>Look at <a href="https://www.data-to-viz.com/caveats.html">two
