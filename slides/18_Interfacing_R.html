@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Interfacing R with Low-level Code</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Interfacing R with Low-level Code
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Background in R and in C
+
+- Two calling mechanisms, `.C()` and `.Call()`
+
+---
+
+## References
+
+- [Writing R Extensions](https://cran.r-project.org/doc/manuals/R-exts.html)
+
+- Software for Data Analysis (2008) by John Chambers
+
+---
+
+## Interfacing in R
+
+R is able to interface with many other languages (C, C++, Python, Julia, etc)
+
+- Pros for interfacing with C/C++: Speed and memory efficiency, and flexibility
+
+- Cons: Harder to read code, program, debug, and install than pure-R code; bug-prone; potential platform dependency; 
+
+- Use cases: When R code is not fast enough; when there is an external library that you want to use but is written in a low-level language
+
+---
+
+class: big, middle
+
+## Brief Introduction to C++
+
+---
+
+.center[
+![:scale 15%](https://m.media-amazon.com/images/I/51duxbtyTYL._SX406_BO1,204,203,200_.jpg)
+]
+.center[
+![:scale 75%](https://i.redd.it/esh6cnquhzm31.png)
+]
+
+
+---
+
+## Introduction to C++
+
+- C++ is a compiled language. It extends (is a superset of) the C language
+
+- R itself is written in C, so it is natural to use C++ to extend R
+
+- C++ files end with `.cpp`. Code lines end with a semi-colon `;`
+
+- C++ libraries offer header files ending with `.h` for specifying the function signatures they implement. These files will be `#include`'d in other `.h`/`.cpp` files
+
+- The compiler is called `g++` accessible in bash
+
+---
+
+## A first program
+
+hello.cpp:
+
+```
+#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; "Hello world \n";
+    return 0;
+}
+```
+
+Compile and run in bash:
+```
+g++ hello.cpp -o hello
+./hello
+```
+
+---
+
+- C++ is a strongly typed language -- results are *very much* dependent on the types of objects, even for `1 / 3`
+
+- Variables must have a declared type. E.g., `int i = 0;`
+
+- Function arguments and returned values are also typed
+
+&lt;/br&gt; &lt;/br&gt;
+
+Data type correspondence between R/Rcpp/C++. Adapted from [here](https://teuder.github.io/rcpp4everyone_en/070_data_types.html)
+
+|Value | R vector|Rcpp vector|Rcpp matrix|C++ scalar|
+|:---:|:---:|:---:|:---:|:---:|
+|Logical|`logical`  |`LogicalVector`| `LogicalMatrix`|`bool`|
+|Integer|`integer`  |`IntegerVector`|`IntegerMatrix`|`int`|
+|Real|`numeric` |`NumericVector`|`NumericMatrix`|`double`|
+|String|`character`|`CharacterVector`| `CharacterMatrix`|`string`|
+
+---
+
+## Declaring C++ variables
+
+- C++ is very primitive (not smart). Must declare variables before use. Uninitialized variables contain garbage
+
+- Result of a function (here division or integer division, both `/`) depends on the types of inputs. This behavior is called operator/function overloading
+
+```
+#include &lt;iostream&gt;
+
+int main() {
+    int i;
+    int j = 1;
+    int l = 3;
+    bool k = true;
+    double ld = 3.0;
+
+    std::cout &lt;&lt; i &lt;&lt; "\n" // garbage
+              &lt;&lt; j / l &lt;&lt; "\n"
+              &lt;&lt; l / ld &lt;&lt; "\n" 
+              &lt;&lt; k &lt;&lt; "\n";
+    return 0;
+}
+```
+
+---
+
+## C++ works with the memory directly
+
+- C++ works with the memory directly via pointers, memory allocation, and de-allocation
+
+- Pointers in C++ let you work with references, like working with environments in R
+
+- A pointer is a reference to the memory address. 
+    - `int* i` creates a pointer `i` to an integer
+    - `&amp;j` obtains the address of `j`, which can then be saved to a pointer (say, `i = &amp;j` if `i` is an integer pointer and `j` is an integer)
+    - `*i` (outside of variable declaration) dereferences `i`, namely, take out the integer value pointed to by `i`
+
+---
+
+- C++ is very flexible in what a function can do with objects. E.g., 
+
+    - Call by value: `int f_by_val(int i)` takes input `i` by value (makes copy, no side effects)
+
+    - Call by value: `int f_by_pt(int* i)` takes input pointer `i` by value. This makes it possible for the function to modify the value pointed to by `i` (leaving side-effects)
+
+    - Call by reference: `int f_by_ref(int &amp;i)` takes input `i` by reference. This makes it possible for the function to modify the value `i` directly (leaving side-effects)
+
+---
+
+```
+#include &lt;iostream&gt;
+int f_by_val(int i) { // declaration goes before use
+    i += 1;
+    return i;
+}
+int f_by_pt(int* i) {
+    *i += 1;
+    return *i;
+}
+int f_by_ref(int &amp;i) {
+    i += 1;
+    return i;
+}
+int main() {
+    int a = 0, b = 0, c = 0;
+    int* bp=&amp;b;
+
+    int a2 = f_by_val(a);
+    f_by_pt(bp);
+    f_by_ref(c);
+
+    std::cout &lt;&lt; a &lt;&lt; "\n"
+              &lt;&lt; a2 &lt;&lt; "\n"
+              &lt;&lt; b &lt;&lt; "\n" 
+              &lt;&lt; c &lt;&lt; "\n"
+              &lt;&lt; bp &lt;&lt; "\n";
+    return 0;
+}
+```
+
+---
+
+- An array is defined by `int vec[3] = {2, 5, 3}`. 
+
+- *C++ counts from 0*. So `vec[0]` has value 2 and `vec[1]` is 5
+
+- An array is a pointer under the hood, and `vec[1]` is the same as `*(vec + 1)`
+    - So when a function takes an array as argument, it is capable of modifying the array in-place
+
+- The previous array declaration only supports a static length (e.g., 3 there)
+
+- C++ uses `new` to allocate memory dynamically (create a vector of unknown length at the compilation time) and `delete` to deallocate
+
+---
+
+```
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    double a[3] = {1.5, 3.1, -1.2};
+    std::cout &lt;&lt; a &lt;&lt; "\n"
+              &lt;&lt; a[0] &lt;&lt; "\n"
+              &lt;&lt; *a &lt;&lt; "\n"
+              &lt;&lt; *(a + 1) &lt;&lt; "\n";
+
+    int n;
+    cout &lt;&lt; "Enter n: \n";
+    cin &gt;&gt; n;
+    double *arr = new double(n);
+    for (int i = 0; i &lt; n; i++) {
+        arr[i] = std::pow((double) i, 3.0);
+        cout &lt;&lt; arr[i] &lt;&lt; '\n';
+    }
+    delete[] arr;
+
+    return 0;
+}
+```
+
+
+---
+
+class: big, middle
+
+## Interfacing R with C/C++
+
+---
+
+## Interfaces available in R
+
+- `.C()` and `.Call()` are two interfaces to call low-level code in R
+
+- The essential difference is whether C/C++ code is written to manipulate C objects only (`.C()`) or existing R objects (`.Call()`)
+
+
+---
+
+- `R CMD SHLIB mycode.c` to compile a shared library to be loaded by R
+
+- `dyn.load(mycode.so)` loads the shared library
+
+- When used in a package, `NAMESPACE` should include a line `useDynLib(mycode)`
+
+- You can register a C/C++ function so R checks the number and types of the arguments
+
+---
+
+## `.C()` interface
+
+- `.C()` let you call C or Fortran code in R
+
+    - More restrictive
+
+    - No need to deal with the structure of R objects
+
+    - Copies are made to protect the validity of R objects
+
+---
+
+## SIR model using the `.C` interface
+
+`SIR_c.c`:
+```
+void SIR_c(double* dt, double* beta, double* gamma, 
+       double* initial, double* res, int* dim) {
+
+  int n = dim[0];
+  res[0] = initial[0];
+  res[0 + n] = initial[1]; // stride to index the column:
+  res[0 + 2 * n] = initial[2]; // R matrix is a long vector
+
+    double a, b;
+  for (int i = 1; i &lt; n; i++) {
+    a = *beta * res[i - 1] * res[i - 1 + n] * dt[0];
+    b = *gamma * res[i - 1 + n] * dt[0];
+    res[i] = res[i - 1] - a;
+    res[i + n] = res[i - 1 + n] + a - b;
+    res[i + 2 * n] = res[i - 1 + 2 * n] + b;
+  }
+}
+```
+
+---
+
+In R:
+
+```r
+system("R CMD SHLIB SIR_c.c")
+dyn.load("SIR_c.so")
+
+SIR_c_R &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  res &lt;- matrix(0.0, 1 + floor(duration / dt), 3)
+  a &lt;- .C("SIR_c", 
+     as.double(dt),
+     as.double(beta),
+     as.double(gamma),
+     as.double(initial), 
+     res,
+     dim(res))
+  a[[5]]
+}
+```
+
+---
+
+## `.Call()` interface
+
+- `.Call()` is a more flexible calling mechanism
+
+    - The programmer needs to manipulate references to R objects
+
+    - Copies are *not* made, so is more efficient. But very dangerous if your program does not behave and get killed while running
+
+    - One single C++ type `SEXP` encompasses all possible R objects
+
+---
+
+## SIR model using the `.Call` interface
+
+```
+#include &lt;R.h&gt;
+#include &lt;Rdefines.h&gt;
+#include &lt;cmath&gt;
+
+extern "C" 
+SEXP SIR_cpp0(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
+
+  double *duration = REAL(Duration);
+  double *dt = REAL(Dt);
+  double *beta = REAL(Beta);
+  double *gamma = REAL(Gamma);
+  double *initial = REAL(Initial);
+
+  int n = std::floor(*duration / *dt) + 1;
+  SEXP myreturn;
+  PROTECT(myreturn = allocMatrix(REALSXP, n, 3));
+  double* res = REAL(myreturn);
+  res[0] = initial[0];
+  res[0 + n] = initial[1];
+  res[0 + 2 * n] = initial[2];
+
+  double a, b;
+  for (int i = 1; i &lt; n; i++) {} // ... same as before
+  UNPROTECT(1);
+  return(myreturn);
+}
+```
+
+---
+
+- We are allocating an R matrix `myreturn` dynamically. We must protect it from garbage collection using the `PROTECT` macro, and `UNPROTECT` before returning
+
+- In R, 
+
+```r
+system("R CMD SHLIB SIR_cpp0.cpp")
+dyn.load("SIR_cpp0.so")
+SIR_cpp0 &lt;- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  .Call("SIR_cpp0", 
+        as.double(duration), 
+        as.double(dt), 
+        as.double(beta),
+        as.double(gamma),
+        as.double(initial))
+}
+```
+
+---
+
+## Registering compiled code
+
+- Though `.C()` and `.Call()` interfaces are very flexible, they rely on the programmer to specify the quantity and order of arguments correctly, and thus are error prone
+
+- Errors in passing arguments to C can easily cause addressing errors and will crash R
+
+- The registration mechanism can catch some of these errors. You can register the number and types of the input arguments
+
+- Registration is available when used within a package. 
+
+---
+
+An example registration code from [Writing R Extensions](https://cran.r-project.org/doc/manuals/R-exts.html#Registering-native-routines)
+
+```
+// Consider a C routine
+void myC(double *x, int *n, char **names, int *status);
+
+// We would register it as
+static R_NativePrimitiveArgType myC_type[] = {
+    REALSXP, INTSXP, STRSXP, LGLSXP
+};
+
+static const R_CMethodDef cMethods[] = {
+   {"myC", (DL_FUNC) &amp;myC, 4, myC_type},
+   {NULL, NULL, 0, NULL}
+};
+
+void
+R_init_myLib(DllInfo *info)
+{
+   R_registerRoutines(info, cMethods, NULL, NULL, NULL);
+}
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

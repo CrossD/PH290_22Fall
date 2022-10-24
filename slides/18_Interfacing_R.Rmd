@@ -1,0 +1,423 @@
+---
+title: "Interfacing R with Low-level Code"
+subtitle: "PH 290"
+author: "Xiongtao Dai"
+output:
+  xaringan::moon_reader:
+    css: [myslides.css, myslides-fonts.css]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      beforeInit: "macros.js"
+      highlightLines: false
+      countIncrementalSlides: false
+---
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+knitr::opts_chunk$set(
+  cache=TRUE, fig.width = 6, fig.height = 6
+)
+```
+
+## Outline
+
+- Background in R and in C
+
+- Two calling mechanisms, `.C()` and `.Call()`
+
+---
+
+## References
+
+- [Writing R Extensions](https://cran.r-project.org/doc/manuals/R-exts.html)
+
+- Software for Data Analysis (2008) by John Chambers
+
+---
+
+## Interfacing in R
+
+R is able to interface with many other languages (C, C++, Python, Julia, etc)
+
+- Pros for interfacing with C/C++: Speed and memory efficiency, and flexibility
+
+- Cons: Harder to read code, program, debug, and install than pure-R code; bug-prone; potential platform dependency; 
+
+- Use cases: When R code is not fast enough; when there is an external library that you want to use but is written in a low-level language
+
+---
+
+class: big, middle
+
+## Brief Introduction to C++
+
+---
+
+.center[
+![:scale 15%](https://m.media-amazon.com/images/I/51duxbtyTYL._SX406_BO1,204,203,200_.jpg)
+]
+.center[
+![:scale 75%](https://i.redd.it/esh6cnquhzm31.png)
+]
+
+
+---
+
+## Introduction to C++
+
+- C++ is a compiled language. It extends (is a superset of) the C language
+
+- R itself is written in C, so it is natural to use C++ to extend R
+
+- C++ files end with `.cpp`. Code lines end with a semi-colon `;`
+
+- C++ libraries offer header files ending with `.h` for specifying the function signatures they implement. These files will be `#include`'d in other `.h`/`.cpp` files
+
+- The compiler is called `g++` accessible in bash
+
+---
+
+## A first program
+
+hello.cpp:
+
+```
+#include <iostream>
+
+int main() {
+    std::cout << "Hello world \n";
+    return 0;
+}
+```
+
+Compile and run in bash:
+```
+g++ hello.cpp -o hello
+./hello
+```
+
+---
+
+- C++ is a strongly typed language -- results are *very much* dependent on the types of objects, even for `1 / 3`
+
+- Variables must have a declared type. E.g., `int i = 0;`
+
+- Function arguments and returned values are also typed
+
+</br> </br>
+
+Data type correspondence between R/Rcpp/C++. Adapted from [here](https://teuder.github.io/rcpp4everyone_en/070_data_types.html)
+
+|Value | R vector|Rcpp vector|Rcpp matrix|C++ scalar|
+|:---:|:---:|:---:|:---:|:---:|
+|Logical|`logical`  |`LogicalVector`| `LogicalMatrix`|`bool`|
+|Integer|`integer`  |`IntegerVector`|`IntegerMatrix`|`int`|
+|Real|`numeric` |`NumericVector`|`NumericMatrix`|`double`|
+|String|`character`|`CharacterVector`| `CharacterMatrix`|`string`|
+
+---
+
+## Declaring C++ variables
+
+- C++ is very primitive (not smart). Must declare variables before use. Uninitialized variables contain garbage
+
+- Result of a function (here division or integer division, both `/`) depends on the types of inputs. This behavior is called operator/function overloading
+
+```
+#include <iostream>
+
+int main() {
+    int i;
+    int j = 1;
+    int l = 3;
+    bool k = true;
+    double ld = 3.0;
+
+    std::cout << i << "\n" // garbage
+              << j / l << "\n"
+              << l / ld << "\n" 
+              << k << "\n";
+    return 0;
+}
+```
+
+---
+
+## C++ works with the memory directly
+
+- C++ works with the memory directly via pointers, memory allocation, and de-allocation
+
+- Pointers in C++ let you work with references, like working with environments in R
+
+- A pointer is a reference to the memory address. 
+    - `int* i` creates a pointer `i` to an integer
+    - `&j` obtains the address of `j`, which can then be saved to a pointer (say, `i = &j` if `i` is an integer pointer and `j` is an integer)
+    - `*i` (outside of variable declaration) dereferences `i`, namely, take out the integer value pointed to by `i`
+
+---
+
+- C++ is very flexible in what a function can do with objects. E.g., 
+
+    - Call by value: `int f_by_val(int i)` takes input `i` by value (makes copy, no side effects)
+
+    - Call by value: `int f_by_pt(int* i)` takes input pointer `i` by value. This makes it possible for the function to modify the value pointed to by `i` (leaving side-effects)
+
+    - Call by reference: `int f_by_ref(int &i)` takes input `i` by reference. This makes it possible for the function to modify the value `i` directly (leaving side-effects)
+
+---
+
+```
+#include <iostream>
+int f_by_val(int i) { // declaration goes before use
+    i += 1;
+    return i;
+}
+int f_by_pt(int* i) {
+    *i += 1;
+    return *i;
+}
+int f_by_ref(int &i) {
+    i += 1;
+    return i;
+}
+int main() {
+    int a = 0, b = 0, c = 0;
+    int* bp=&b;
+
+    int a2 = f_by_val(a);
+    f_by_pt(bp);
+    f_by_ref(c);
+
+    std::cout << a << "\n"
+              << a2 << "\n"
+              << b << "\n" 
+              << c << "\n"
+              << bp << "\n";
+    return 0;
+}
+```
+
+---
+
+- An array is defined by `int vec[3] = {2, 5, 3}`. 
+
+- *C++ counts from 0*. So `vec[0]` has value 2 and `vec[1]` is 5
+
+- An array is a pointer under the hood, and `vec[1]` is the same as `*(vec + 1)`
+    - So when a function takes an array as argument, it is capable of modifying the array in-place
+
+- The previous array declaration only supports a static length (e.g., 3 there)
+
+- C++ uses `new` to allocate memory dynamically (create a vector of unknown length at the compilation time) and `delete` to deallocate
+
+---
+
+```
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main() {
+    double a[3] = {1.5, 3.1, -1.2};
+    std::cout << a << "\n"
+              << a[0] << "\n"
+              << *a << "\n"
+              << *(a + 1) << "\n";
+
+    int n;
+    cout << "Enter n: \n";
+    cin >> n;
+    double *arr = new double(n);
+    for (int i = 0; i < n; i++) {
+        arr[i] = std::pow((double) i, 3.0);
+        cout << arr[i] << '\n';
+    }
+    delete[] arr;
+
+    return 0;
+}
+```
+
+
+---
+
+class: big, middle
+
+## Interfacing R with C/C++
+
+---
+
+## Interfaces available in R
+
+- `.C()` and `.Call()` are two interfaces to call low-level code in R
+
+- The essential difference is whether C/C++ code is written to manipulate C objects only (`.C()`) or existing R objects (`.Call()`)
+
+
+---
+
+- `R CMD SHLIB mycode.c` to compile a shared library to be loaded by R
+
+- `dyn.load(mycode.so)` loads the shared library
+
+- When used in a package, `NAMESPACE` should include a line `useDynLib(mycode)`
+
+- You can register a C/C++ function so R checks the number and types of the arguments
+
+---
+
+## `.C()` interface
+
+- `.C()` let you call C or Fortran code in R
+
+    - More restrictive
+
+    - No need to deal with the structure of R objects
+
+    - Copies are made to protect the validity of R objects
+
+---
+
+## SIR model using the `.C` interface
+
+`SIR_c.c`:
+```
+void SIR_c(double* dt, double* beta, double* gamma, 
+       double* initial, double* res, int* dim) {
+
+  int n = dim[0];
+  res[0] = initial[0];
+  res[0 + n] = initial[1]; // stride to index the column:
+  res[0 + 2 * n] = initial[2]; // R matrix is a long vector
+
+    double a, b;
+  for (int i = 1; i < n; i++) {
+    a = *beta * res[i - 1] * res[i - 1 + n] * dt[0];
+    b = *gamma * res[i - 1 + n] * dt[0];
+    res[i] = res[i - 1] - a;
+    res[i + n] = res[i - 1 + n] + a - b;
+    res[i + 2 * n] = res[i - 1 + 2 * n] + b;
+  }
+}
+```
+
+---
+
+In R:
+```{r, eval=FALSE}
+system("R CMD SHLIB SIR_c.c")
+dyn.load("SIR_c.so")
+
+SIR_c_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  res <- matrix(0.0, 1 + floor(duration / dt), 3)
+  a <- .C("SIR_c", 
+     as.double(dt),
+     as.double(beta),
+     as.double(gamma),
+     as.double(initial), 
+     res,
+     dim(res))
+  a[[5]]
+}
+```
+
+---
+
+## `.Call()` interface
+
+- `.Call()` is a more flexible calling mechanism
+
+    - The programmer needs to manipulate references to R objects
+
+    - Copies are *not* made, so is more efficient. But very dangerous if your program does not behave and get killed while running
+
+    - One single C++ type `SEXP` encompasses all possible R objects
+
+---
+
+## SIR model using the `.Call` interface
+
+```
+#include <R.h>
+#include <Rdefines.h>
+#include <cmath>
+
+extern "C" 
+SEXP SIR_cpp0(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
+
+  double *duration = REAL(Duration);
+  double *dt = REAL(Dt);
+  double *beta = REAL(Beta);
+  double *gamma = REAL(Gamma);
+  double *initial = REAL(Initial);
+
+  int n = std::floor(*duration / *dt) + 1;
+  SEXP myreturn;
+  PROTECT(myreturn = allocMatrix(REALSXP, n, 3));
+  double* res = REAL(myreturn);
+  res[0] = initial[0];
+  res[0 + n] = initial[1];
+  res[0 + 2 * n] = initial[2];
+
+  double a, b;
+  for (int i = 1; i < n; i++) {} // ... same as before
+  UNPROTECT(1);
+  return(myreturn);
+}
+```
+
+---
+
+- We are allocating an R matrix `myreturn` dynamically. We must protect it from garbage collection using the `PROTECT` macro, and `UNPROTECT` before returning
+
+- In R, 
+```{r, eval=FALSE}
+system("R CMD SHLIB SIR_cpp0.cpp")
+dyn.load("SIR_cpp0.so")
+SIR_cpp0 <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+  .Call("SIR_cpp0", 
+        as.double(duration), 
+        as.double(dt), 
+        as.double(beta),
+        as.double(gamma),
+        as.double(initial))
+}
+```
+
+---
+
+## Registering compiled code
+
+- Though `.C()` and `.Call()` interfaces are very flexible, they rely on the programmer to specify the quantity and order of arguments correctly, and thus are error prone
+
+- Errors in passing arguments to C can easily cause addressing errors and will crash R
+
+- The registration mechanism can catch some of these errors. You can register the number and types of the input arguments
+
+- Registration is available when used within a package. 
+
+---
+
+An example registration code from [Writing R Extensions](https://cran.r-project.org/doc/manuals/R-exts.html#Registering-native-routines)
+
+```
+// Consider a C routine
+void myC(double *x, int *n, char **names, int *status);
+
+// We would register it as
+static R_NativePrimitiveArgType myC_type[] = {
+    REALSXP, INTSXP, STRSXP, LGLSXP
+};
+
+static const R_CMethodDef cMethods[] = {
+   {"myC", (DL_FUNC) &myC, 4, myC_type},
+   {NULL, NULL, 0, NULL}
+};
+
+void
+R_init_myLib(DllInfo *info)
+{
+   R_registerRoutines(info, cMethods, NULL, NULL, NULL);
+}
+```
