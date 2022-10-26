@@ -353,7 +353,7 @@ SIR_c_R <- function(duration, dt, beta, gamma,
 #include <cmath>
 
 extern "C" 
-SEXP SIR_cpp0(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
+SEXP SIR_call(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
 
   double *duration = REAL(Duration);
   double *dt = REAL(Dt);
@@ -382,10 +382,10 @@ SEXP SIR_cpp0(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
 
 - In R, 
     ```{r, eval=FALSE}
-    system("R CMD SHLIB SIR_cpp0.cpp")
-    dyn.load("SIR_cpp0.so")
-    SIR_cpp0_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
-      .Call("SIR_cpp0", 
+    system("R CMD SHLIB SIR_call.cpp")
+    dyn.load("SIR_call.so")
+    SIR_call_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+      .Call("SIR_call", 
             as.double(duration), 
             as.double(dt), 
             as.double(beta),
