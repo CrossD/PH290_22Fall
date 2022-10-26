@@ -252,43 +252,48 @@ class: big, middle
 
 - `.C()` and `.Call()` are two interfaces to call low-level code in R
 
-- The essential difference is whether C/C++ code is written to manipulate C objects only (`.C()`) or existing R objects (`.Call()`)
+- The essential difference is:
+    - `.C()` manipulates C objects only 
+    - `.Call()` works with existing R objects
 
 
 ---
 
-- `R CMD SHLIB mycode.c` to compile a shared library to be loaded by R
+- In bash, issue `R CMD SHLIB mycode.cpp` to compile a shared library to be loaded by R
 
 - `dyn.load(mycode.so)` loads the shared library
 
-- When used in a package, `NAMESPACE` should include a line `useDynLib(mycode)`
+- If C++ code is used in a package, `NAMESPACE` should include a line `useDynLib(mycode)`
 
-- You can register a C/C++ function so R checks the number and types of the arguments
+- You can register a C++ function so R checks the number and types of the arguments
 
 ---
 
 ## `.C()` interface
 
-- `.C()` let you call C or Fortran code in R
+- `.C()` let you call low-level code in R
+
+    - Easy to start with since you don't need to deal with the structure of R objects
 
     - More restrictive
 
-    - No need to deal with the structure of R objects
-
     - Copies are made to protect the validity of R objects
+    
+    - Your C++ function should not return, but instead store the results by modifying the input arguments which get passed back to R
 
 ---
 
 ## SIR model using the `.C` interface
 
-`SIR_c.c`:
+`SIR_c.cpp`:
 ```
+extern "C"        // Compile the C++ code into a C-friendly format
 void SIR_c(double* dt, double* beta, double* gamma, 
        double* initial, double* res, int* dim) {
 
   int n = dim[0];
   res[0] = initial[0];
-  res[0 + n] = initial[1]; // stride to index the column:
+  res[0 + n] = initial[1];     // stride to index the column:
   res[0 + 2 * n] = initial[2]; // R matrix is a long vector
 
     double a, b;
@@ -309,16 +314,18 @@ In R:
 system("R CMD SHLIB SIR_c.c")
 dyn.load("SIR_c.so")
 
-SIR_c_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+SIR_c_R <- function(duration, dt, beta, gamma, 
+                    initial=c(0.999, 0.001, 0)) {
   res <- matrix(0.0, 1 + floor(duration / dt), 3)
   a <- .C("SIR_c", 
-     as.double(dt),
-     as.double(beta),
-     as.double(gamma),
-     as.double(initial), 
-     res,
-     dim(res))
-  a[[5]]
+          dt      = as.double(dt),
+          beta    = as.double(beta),
+          gamma   = as.double(gamma),
+          initial = as.double(initial),
+          res     = res,
+          dim     = dim(res))
+
+  a$res
 }
 ```
 
@@ -328,19 +335,21 @@ SIR_c_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
 
 - `.Call()` is a more flexible calling mechanism
 
-    - The programmer needs to manipulate references to R objects
+    - The programmer needs to manipulate *references* to R objects
 
-    - Copies are *not* made, so is more efficient. But very dangerous if your program does not behave and get killed while running
+    - Copies are *not* made, so is more efficient. 
 
-    - One single C++ type `SEXP` encompasses all possible R objects
+    - Can be dangerous if your program does not behave and get killed while running
+
+    - R uses only one single C++ type `SEXP` which encompasses all possible R objects
 
 ---
 
 ## SIR model using the `.Call` interface
 
 ```
+#include <Rinternals.h>
 #include <R.h>
-#include <Rdefines.h>
 #include <cmath>
 
 extern "C" 
@@ -372,18 +381,32 @@ SEXP SIR_cpp0(SEXP Duration, SEXP Dt, SEXP Beta, SEXP Gamma, SEXP Initial) {
 - We are allocating an R matrix `myreturn` dynamically. We must protect it from garbage collection using the `PROTECT` macro, and `UNPROTECT` before returning
 
 - In R, 
-```{r, eval=FALSE}
-system("R CMD SHLIB SIR_cpp0.cpp")
-dyn.load("SIR_cpp0.so")
-SIR_cpp0 <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
-  .Call("SIR_cpp0", 
-        as.double(duration), 
-        as.double(dt), 
-        as.double(beta),
-        as.double(gamma),
-        as.double(initial))
-}
-```
+    ```{r, eval=FALSE}
+    system("R CMD SHLIB SIR_cpp0.cpp")
+    dyn.load("SIR_cpp0.so")
+    SIR_cpp0_R <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
+      .Call("SIR_cpp0", 
+            as.double(duration), 
+            as.double(dt), 
+            as.double(beta),
+            as.double(gamma),
+            as.double(initial))
+    }
+    ```
+
+---
+class: inverse
+
+## Your turn
+
+- Compile the two implementations in C++ and run them in R
+    - Save the C++ code into a `.cpp` script
+    - In R: `system("R CMD SHLIB xxx.cpp")`
+    - `dyn.load("...")`
+    - Write driver functions in R
+    - Run the driver functions
+
+- In either implementation, modify an input in-place in C++, and see whether the input variable in R is changed
 
 ---
 
@@ -401,7 +424,10 @@ SIR_cpp0 <- function(duration, dt, beta, gamma, initial=c(0.999, 0.001, 0)) {
 
 An example registration code from [Writing R Extensions](https://cran.r-project.org/doc/manuals/R-exts.html#Registering-native-routines)
 
+Put this in, e.g., `init.cpp`
 ```
+#include <Rinternals.h>
+extern "C" {
 // Consider a C routine
 void myC(double *x, int *n, char **names, int *status);
 
@@ -420,4 +446,191 @@ R_init_myLib(DllInfo *info)
 {
    R_registerRoutines(info, cMethods, NULL, NULL, NULL);
 }
+}
 ```
+
+---
+
+## Rcpp
+
+- `library(Rcpp)` is a hugely popular R package which automatizes the process wrapping C++ code for R to be called using the `.Call()` interface
+
+- `Rcpp::cppFunction(code)` makes available a C++ function as an R function  
+    ```{r, eval=FALSE}
+    Rcpp::cppFunction("
+    int whichExceeds(NumericVector x, double thresh) {
+        for (int i = 0; i < x.length(); i++) {
+            if (x[i] > thresh) {
+                return(i + 1); // R index
+            } 
+        }
+        return(0); // If not found
+    }
+    ")
+    whichExceeds(c(1, 5, 2), 4)
+    ```
+
+
+---
+
+Another example:
+```{r, eval=FALSE}
+src <- "
+NumericVector movingAverage(NumericVector x, IntegerVector lag) {
+  int ll = lag[0], start, stop, n = x.length();
+  NumericVector y = NumericVector(n, 0.0);
+  for (int i = 0; i < n; i++) {
+    start = std::max(i - ll, 0);
+    stop = std::min(i + ll, n);
+    for (int l = start; l <= stop; l++) {
+      y[i] += x[l];
+    }
+    y[i] /= (double) (stop - start + 1);
+  } 
+  return y;
+}"
+Rcpp::cppFunction(src)
+movingAverage(c(6, 1, 2, 2.5), 1)
+```
+
+---
+
+- Data types in R are mapped to Rcpp data types in C++:
+
+| Value   | R vector    | Rcpp vector       | Rcpp matrix       | C++ scalar |
+| :---:   | :---:       | :---:             | :---:             | :---:      |
+| Logical | `logical`   | `LogicalVector`   | `LogicalMatrix`   | `bool`     |
+| Integer | `integer`   | `IntegerVector`   | `IntegerMatrix`   | `int`      |
+| Real    | `numeric`   | `NumericVector`   | `NumericMatrix`   | `double`   |
+| String  | `character` | `CharacterVector` | `CharacterMatrix` | `string`   |
+| List    | `list`      | `List`            |                   |            |
+
+
+- [Rcpp quick reference](https://dirk.eddelbuettel.com/code/rcpp/Rcpp-quickref.pdf) includes some quick examples
+
+---
+class: inverse
+
+## Your turn
+
+Using Rcpp, write a C++ function to find the first entry of a vector that falls outside of [-3, 3]
+
+1. Write the C++ code into an R string 
+```
+code <- "IntegerVector findFirst(NumericVector x) {
+    ...
+}"
+```
+
+1. Create an R function using `Rcpp::sourceCpp(code)`
+
+1. Test out your code
+
+---
+
+## Convenient C++ functions offered by Rcpp
+
+- `Rcpp::Rcout << "hello world"` prints out info in R
+
+- Vectorized operations `+`, `-`, `*`, `/` for Rcpp vectors and matrices
+
+- R-like functions for
+    - random numbers `[dpqr]norm` etc
+    - vectorized math functions `abs`, `sin`, etc
+    - aggregators `sum/cumsum/var/sd`
+
+- See Ch 8 of the Rcpp book for a complete list
+
+---
+## Linear algebra 
+
+- Rcpp itself does not offer matrix computation functions, but its extensions do
+
+- `library(RcppEigen)` builds upon [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page), a C++ template library for linear algebra
+
+- `library(RcppArmadillo)` builds upon [Armadillo](https://arma.sourceforge.net); similar to Eigen but with a different set of features
+
+- Both offer numerical linear algebra functions
+
+- Implement template programming, so matrix operations are highly optimized
+
+```
+cppFunction(depends = "RcppArmadillo", "
+arma::vec invDiag(arma::vec v) {
+  return arma::diagvec(arma::inv(arma::diagmat(v)));
+}")
+v <- rnorm(1e3)
+bench::mark(invDiag(v))
+```
+
+---
+
+## `Makevars`
+
+- `Makevars` is a file to control the compiler options
+
+- `~/.R/Makevars` contains a global version. If you are in an R package, `src/Makevars` takes precedence over the global version
+
+- An example `Makevars`:
+```
+CC = clang -arch arm64    # C compiler
+CXX = clang++ -arch arm64 # C++ compiler
+CFLAGS = -Wall -O0 -g     # C complier flags
+CXXFLAGS = -Wall -O0 -g   # C++ complier flags
+```
+    - `-arch arm64` makes the compiled code work on my apple-silicon laptop
+    - `-O0`, `-O1`, `-O2`, `-O3`: level of compiler optimization, from zero to most optimization
+    - `-g` enables debuggers to debug the code
+    - `-Wall` shows all warnings
+
+---
+
+## Debugging C++ code
+
+Debug C/C++ code using lldb and gdb:
+- Make sure your compiler flags are set to `-O0` and `-g`
+- `R -d lldb` to start R with lldb. If you are on WSL, replace `lldb` by `gdb`
+- `r` to run R
+- `<Ctrl-C>` to go back to lldb
+- `b SIR_c` to set a breakpoint in `SIR_c()` (C++ code)
+- `c` to continue to R
+- run buggy code in R, and you will be broken at the breakpoint (you are back in lldb)
+- lldb commands: `n`, step over
+- `s`, step into
+- `c`, continue execution until the next breakpoint
+- `fr v` shows all variables
+- `p res[2]` prints the 3rd entry in res
+
+Here is a debugger [cheatsheet](https://lldb.llvm.org/use/map.html#id4)
+
+---
+
+## Using Rcpp in a package
+
+- Issue `usethis::use_rcpp()` to add boilerplate code for Rcpp (your working directory should be within a package)
+
+- C++ source code should be put in `src/`
+
+- `Rcpp::sourceCpp("file.cpp")` sources a single Rcpp file. Make sure to include necessary header files at the beginning of the cpp files, e.g., `#include <Rcpp.h>`
+
+- In a cpp file, `// [[Rcpp::export]]` wraps a C++ function as an R function
+
+- Roxygen comments are parsed in C++ files as well E.g.,
+    ```{r,eval=FALSE}
+    //' Multiply x by 2
+    //' ...
+    //' @export
+    // [[Rcpp::export]]
+    NumericVector timesTwo(NumericVector x) {
+      return x * 2;
+    }
+    ```
+
+---
+
+## References for Rcpp
+
+- [Quick reference](https://dirk.eddelbuettel.com/code/rcpp/Rcpp-quickref.pdf)
+
+- The Rcpp book: [Seamless R and C++ Integration with Rcpp](https://berkeley.primo.exlibrisgroup.com/discovery/search?vid=01UCS_BER:UCB&tab=Default_UCLibrarySearch&search_scope=DN_and_CI&offset=0&query=any,contains,Seamless%20R%20and%20C%20%20%20Integration%20with%20Rcpp) by Dirk Eddelbuettel
+
