@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Algorithms</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Algorithms
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- TODO
+
+---
+
+## References
+
+- [Introduction to Algorithms 3rd Edition](https://cran.r-project.org/doc/manuals/R-exts.html) by Cormen, Leiserson, Rivest, and Stein (CLRS)
+
+---
+
+## Algorithms
+
+- Informally, an *algorithm* is a computational procedure (series of computational steps) that takes a set of values as input and produces a set of values as output
+
+- An *"efficient"* algorithm is a smart algorithm that is either "fast" or "save memory"
+
+- Space-time tradeoff: An algorithm trades increased space usage with decreased time
+
+    - E.g., if you cache results, then space `\(\uparrow\)` but time `\(\downarrow\)`
+
+- Algorithms operates upon *data structures*, which are ways to organize data in the computer memory/harddisk. E.g.,
+
+    - Array
+    - Linked list
+    - Hash table
+
+---
+
+## Insertion sort
+
+- Input: An array `A` of numbers
+- Output: Sorted version of `A`
+- Algorithm: The insertion sort. Work from the left to the right, and insert the number into the right location on the left
+
+Pseudocode:
+
+```r
+INSERTION-SORT(A)
+for j = 2:length(A)
+    key = A[j] # current card
+    # Insert A[j] into the sorted sequence A[1:(j-1)]
+    i = j - 1
+    while (i &gt; 0 and A[i] &gt; key)
+        A[i + 1] = A[i]
+        i = i - 1
+    A[i + 1] = key
+```
+
+---
+
+## Correctness
+
+Proof that this algorithm is correct through mathematical induction:
+- (*Initialization*) In the first iteration, you pick `A[2]`, and the cards on the left (just `A[1]`) are sorted
+- (*Maintenance*) 
+    - (*Loop invariance*) As the algorithm progresses, for each card `A[j]` to be inserted, the cards on the left to it are sorted versions of the cards originally on the left to `A[j]`
+    - After you insert card `A[j]`, the cards on the left to the next card `A[j+1]` are sorted versions of the cards originally on the left to `A[j+1]`
+- (*Termination*) The algorithm terminates if no cards remains to be sorted (on the right of the sorted cards). So all cards are sorted
+
+---
+
+## Measuring efficiency
+
+- We would need a theoretical model to measure the efficiency of algorithms, should they be invoked on inputs with a large size 
+
+- The amount of time/space taken by an algorithm is determined by the *input size*, e.g., the array size `\(n\)`
+
+- Assume we have a one-processor, *random-access machine (RAM) model
+
+- The following primitive operations take constant amounts of time
+    - read/write a single number into a given address in the memory (e.g., write an array entry)
+    - add, subtract, multiply, divide, remainder, floor, ceiling
+    - raising powers, taking exponential, taking logarithm
+    - control flows (if/else branches, function calls, return)
+
+- The run time for these operations are comparable, and we assume all are the same
+
+- The *cost in time* of the algorithm is measured by the number of primitive operations executed
+
+---
+
+## Worst- and average-case analysis
+
+- *Average-case* time complexity is the cost in time averaged over the distribution of user inputs. This is what we care about in practice
+
+- *Worst-case* time complexity gives an upper bound on the running time for any input. It gives the time cost under an adversarial input
+
+- *Best-case* analysis is not very useful
+
+---
+
+## Order of growth
+
+Asymptotic notations:
+
+- An algorithm takes `\(\Theta(g(n))\)` time if its run time `\(T(n)\)` scales like `\(g(n)\)` (i.e., `\(c_1 g(n) \le T(n) \le c_2 g(n)\)` for some `\(0&lt;c_1&lt;c_2&lt;\infty\)` for large enough `\(n\)`). E.g., the average time complexity of insertion sort is `\(\Theta(n^2)\)`
+
+- An algorithm takes `\(O(g(n))\)` time if its run time is at most a constant multiply of `\(g(n)\)` (between `\(c_1 g(n)\)` and `\(c_2 g(n)\)` for some `\(0&lt;c_1&lt;c_2&lt;\infty\)`). The average time complexity of insertion sort is `\(O(n^2)\)`
+
+- Worst-case and average-case analyses may have different time complexities
+
+---
+
+## The divide-and-conquer approach
+
+- Many problems can be solved via solving smaller subproblems, the latter of which are much easier to solve
+
+- This type of problems can benefit from a divide-and-conquer approach
+
+- The subproblems are often similar to the main problem in nature, so if you have an algorithm to solve the subproblem, you can use that to build a solution for the main problem. This is called a recursive algorithm
+
+---
+
+- E.g., the following is a recursive algorithm to find the nth Fibonacci number. The first few values of the Fibonacci numbers are: `\(F_0=0\)`, `\(F_1=1\)`, `\(F_2=1\)`, `\(F_3=2\)`, `\(F_4=3\)`, `\(F_5=5\)`, ... (the nth number is the sum of the two numbers preceeding it)
+    
+    ```r
+    fib &lt;- function(n) {
+        if (n &gt;= 2) {
+            fib(n - 1) + fib(n - 2)
+        } else if (n == 1) {
+            1
+        } else if (n == 0) {
+            0
+        }
+    }
+    ```
+
+---
+
+## E.g., binary search
+
+- Input: A value `v` and an array `A` of numbers. `A` is sorted in an increasing order
+- Output: The first index `i` such that `v=A[i]`, or `-Inf` if `v` does not exist in `A`
+- Algorithm: The binary search. Idea: Bipartite the array, and search in only one half of the array
+
+
+```r
+BINARY-SEARCH(A, v)
+    cand = floor(length(A) / 2)
+    if (A[cand] &gt;= v) {
+        i = BINARY-SEARCH(A[1:cand], v)
+    } else {
+        i = BINARY-SEARCH(A[(cand+1):length(A)], v)
+    } ## WRONG! does not terminate if v is not found
+```
+
+---
+
+
+```r
+BINARY-SEARCH(A, v)
+    cand = floor(length(A) / 2)
+    if (length(A) == 1) {
+        if (A == v) {
+            return(indexOf(v))
+        } else {
+            return(-Inf)
+        }
+    } else if (A[cand] &gt; v) {
+        i = BINARY-SEARCH(A[1:cand], v)
+    } else {
+        i = BINARY-SEARCH(A[(cand+1):length(A)], v)
+    }
+```
+
+---
+
+## Correctness
+
+- The subarray we search is the first subarray that may contain value `v`
+
+- Every time we create a partition, we search in the first subarray that may contain `v`
+
+- The algorithm terminates if there is only one element in a subarray. It either finds the first index i so that `A[i]=v`,  or if `v` does not exist in `A`, a negative number
+
+---
+
+## Time complexity analysis
+
+- Let `\(T(n)\)` be the worst-case time cost required for BINARY-SEARCH to search an array with length `\(n\)`
+
+- Then `\(T(n) = T(n / 2) + c_0\)`, and `\(T(1) = c_1\)` where `\(c_0, c_1\)` are positive constants (like 5)
+    - `\(T(1) = c_1\)`, 
+    - `\(T(2) = c_1 + c_0\)`, 
+    - `\(T(4) = c_1 + 2c_0\)`, 
+    - `\(T(8) = c_1+ 3c_0\)`, 
+    - `\(T(16) = c_1 + 4 c_0\)`, ...
+
+- Turns out `\(T(n) = \Theta(\log(n))\)` for binary search
+
+---
+
+## Analytic derivation
+
+From the book of CLRS:
+.center[
+![:scale 90%](images/masterThm.png)
+]
+
+---
+
+## Code implementation
+
+R implementation (does not have time scaled as intended. Why?)
+
+
+```r
+binarySearch &lt;- function(A, v) {
+    cand = floor(length(A) / 2)
+    if (length(A) == 1) {
+        if (A == v) {
+            return(1L)
+        } else {
+            return(-Inf)
+        }
+    } else if (A[cand] &gt;= v) {
+        binarySearch(A[1:cand], v)
+    } else {
+        binarySearch(A[(cand+1):length(A)], v) + cand
+    }
+}
+```
+
+---
+
+C++ implementation `binarySearch.cpp`:
+```
+#include &lt;cmath&gt;
+#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+int bs (double* A, int n, double v) {
+    int cand = n / 2;
+    if (n == 1) {
+        if (A[0] == v) {
+            return(0);
+        } else {
+            return(-n);
+        }
+    } else if (A[cand - 1] &gt;= v) {
+        return(bs(A, cand, v));
+    } else {
+        return(bs(A + cand, n - cand, v) + cand);
+    }
+}
+
+// [[Rcpp::export()]]
+int binarySearchCpp(NumericVector A, double v) {
+  return(bs(A.begin(), A.size(), v) + 1);
+}
+```
+---
+
+In R:
+
+
+```r
+library(Rcpp)
+sourceCpp("binarySearch.cpp")
+
+res &lt;- bench::press(n = 10^(4:7), {
+  x &lt;- sort(rnorm(n))
+  v &lt;- sample(x, 1)
+  bench::mark(
+    which(x == v),
+    binarySearch(x, v), 
+    binarySearchCpp(x, v)
+  )
+})
+ggplot2::autoplot(res)
+```
+
+- `which` in R uses a linear search. It grows linearly
+- R implementation `binarySearch()` copies data
+
+---
+
+class: inverse
+
+## Your turn
+
+- Implement an algorithm the returns all of the elements in an array `\(A\)` that is smaller than `\(v\)` (exclusive). We assume the array `\(A\)` is sorted. `\(v\)` does not have to be an element of `\(A\)`
+
+- Find the time complexity of the algorithm
+
+---
+
+class: inverse
+
+## Your turn (Partial solution)
+
+Complexity: 
+- Invoke a modified version of the binary search algorithm. Even if `\(v\)` does not exists in `\(A\)`, return the index `\(i\)` of the last search element. This step takes `\(\Theta(\log(n))\)`. 
+    - If `\(i =1\)`, no element in `\(A\)` is less than `\(v\)`
+    - If `\(i &gt; 1\)`, we must have `\(A[i - 1] &lt; v\)` and `\(A[i] &gt;= v\)`
+
+- Then returns `\(A[1], \dots, A[i-1]\)`. This step takes `\(i-1\)` operations, where `\(i-1\)` is the number of elements in `\(A\)` that are smaller than `\(v\)`. Worst case is `\(n\)` operation and the average case is `\(n/2\)`
+
+---
+
+## Quicksort
+
+- *Quicksort* is a fast algorithm to sort an array 
+
+- Its average-time complexity is `\(\Theta(n\log(n))\)`, and the worst-case complexity is `\(\Theta(n^2)\)`
+
+- It performs sorting *in-place*, i.e., only a small and constant amount of memory is required to store temperary variables
+
+- Idea: 
+    - Divide: Partition the array around a pivot `\(A[q]\)`, so that the subarray left to the pivot are all no larger than `\(A[q]\)`, and the subarray right to `\(A[q]\)` are no smaller than `\(A[q]\)`
+    - Conquer: Sort the two subarrays by recursively calling quicksort
+
+---
+
+## Quicksort algorithm
+
+
+```r
+# Sort subarray A[p:r] in place
+QUICKSORT(A, p, r)
+if (p &lt; r)
+    q = PARTITION(A, p, r) # q is the index for the pivot
+    QUICKSORT(A, p, q-1)
+    QUICKSORT(A, q+1, r)
+```
+
+
+```r
+PARTITION(A, p, r)
+x = A[r]
+i = p - 1
+for j = p:(r - 1)
+    if (A[j] &lt;= x)
+        i = i + 1
+        swap(A[i], A[j])
+swap(A[i+1], A[r])
+return(i + 1)
+```
+
+---
+
+## Time analysis
+
+- Partitioning an array of length `\(n\)` takes `\(\Theta(n)\)` time
+
+- Worst-case scenario happens when the array is already sorted. Everytime the partition will result in an empty right-subarray and a left-subarray containing all but the pivot. There will be `\(n\)` partitions needed. So the complexity is `\(\Theta((n-1) + (n-2) + \dots + 1) = \Theta(n(n-1)/2) = \Theta(n^2)\)`.
+
+- Best-case scenario happends when the pivots are all medians. Each partition results in two subarrays roughly half as large as the unpartitioned array. So `\(T(n) = 2 T(n-1) + \Theta(n - 1)\)`. By the master theorem `\(T(n) = \Theta(n\log(n))\)`
+
+- The average-case time complexity is also `\(\Theta(n\log(n))\)`, since really bad partitions are rare to occur
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
