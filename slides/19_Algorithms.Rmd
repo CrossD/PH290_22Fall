@@ -22,7 +22,18 @@ knitr::opts_chunk$set(
 
 ## Outline
 
-- TODO
+- Show correctness
+
+- Computation complexity
+
+- The divide-and-conquer approach
+
+- Classical algorithms and data structure
+    - Binary search
+    - Quicksort
+    - Hash table
+
+<!-- - Matrix algorithms -->
 
 ---
 
@@ -36,11 +47,12 @@ knitr::opts_chunk$set(
 
 - Informally, an *algorithm* is a computational procedure (series of computational steps) that takes a set of values as input and produces a set of values as output
 
-- An *"efficient"* algorithm is a smart algorithm that is either "fast" or "save memory"
+- An *"efficient"* algorithm is a smart one that is either "fast" or "save memory"
 
 - Space-time tradeoff: An algorithm trades increased space usage with decreased time
 
     - E.g., if you cache results, then space $\uparrow$ but time $\downarrow$
+    - Will see again in hash tables
 
 - Algorithms operates upon *data structures*, which are ways to organize data in the computer memory/harddisk. E.g.,
 
@@ -56,10 +68,11 @@ knitr::opts_chunk$set(
 - Output: Sorted version of `A`
 - Algorithm: The insertion sort. Work from the left to the right, and insert the number into the right location on the left
 
-Pseudocode:
+Pseudocode: Suppose `length(A) = n`.
+
 ```{r, eval=FALSE}
 INSERTION-SORT(A)
-for j = 2:length(A)
+for j = 2:n
     key = A[j] # current card
     # Insert A[j] into the sorted sequence A[1:(j-1)]
     i = j - 1
@@ -73,12 +86,14 @@ for j = 2:length(A)
 
 ## Correctness
 
-Proof that this algorithm is correct through mathematical induction:
+Prove that this algorithm is correct through mathematical induction:
 - (*Initialization*) In the first iteration, you pick `A[2]`, and the cards on the left (just `A[1]`) are sorted
+
 - (*Maintenance*) 
-    - (*Loop invariance*) As the algorithm progresses, for each card `A[j]` to be inserted, the cards on the left to it are sorted versions of the cards originally on the left to `A[j]`
-    - After you insert card `A[j]`, the cards on the left to the next card `A[j+1]` are sorted versions of the cards originally on the left to `A[j+1]`
-- (*Termination*) The algorithm terminates if no cards remains to be sorted (on the right of the sorted cards). So all cards are sorted
+    - (*Loop invariance*) As the algorithm progresses, before each card `A[j]` is inserted, the first `j-1` cards (on the left to it) are sorted 
+    - After you insert card `A[j]`, the first `j` cards (on the left to the next card `A[j+1]`) are sorted 
+
+- (*Termination*) The algorithm terminates when you are done with the `n`th card. So all `n` cards are sorted
 
 ---
 
@@ -88,31 +103,35 @@ Proof that this algorithm is correct through mathematical induction:
 
 - The amount of time/space taken by an algorithm is determined by the *input size*, e.g., the array size $n$
 
-- Assume we have a one-processor, *random-access machine (RAM) model
+- Assume we have a one-processor, *random-access machine (RAM)* model
 
 - The following primitive operations take constant amounts of time
     - read/write a single number into a given address in the memory (e.g., write an array entry)
     - add, subtract, multiply, divide, remainder, floor, ceiling
-    - raising powers, taking exponential, taking logarithm
+    - raising powers, exponential, logarithm, basic math functions
     - control flows (if/else branches, function calls, return)
 
-- The run time for these operations are comparable, and we assume all are the same
+- The run time for these operations are comparable. They are assumed to be the same for simplicity
 
 - The *cost in time* of the algorithm is measured by the number of primitive operations executed
 
 ---
 
-## Worst- and average-case analysis
+## Worst-, average-, and best-case analysis
+
+The run-time for a particular instance depends on the exact input. To simplify analysis, consider
 
 - *Average-case* time complexity is the cost in time averaged over the distribution of user inputs. This is what we care about in practice
 
 - *Worst-case* time complexity gives an upper bound on the running time for any input. It gives the time cost under an adversarial input
 
-- *Best-case* analysis is not very useful
+- *Best-case* analysis is seldomly useful
 
 ---
 
 ## Order of growth
+
+- The *order* of growth in time as $n$ increases is the most important measure for time
 
 Asymptotic notations:
 
@@ -122,6 +141,14 @@ Asymptotic notations:
 
 - Worst-case and average-case analyses may have different time complexities
 
+- Insertion sort: Worst $\Theta(n^2)$, average $\Theta(n^2)$, best $\Theta(n)$
+
+---
+
+class: big, middle
+
+## The divide-and-conquer approach
+
 ---
 
 ## The divide-and-conquer approach
@@ -130,11 +157,11 @@ Asymptotic notations:
 
 - This type of problems can benefit from a divide-and-conquer approach
 
-- The subproblems are often similar to the main problem in nature, so if you have an algorithm to solve the subproblem, you can use that to build a solution for the main problem. This is called a recursive algorithm
+- The subproblems are often similar to the main problem in nature, so if you have an algorithm to solve the subproblem, you can use that to build a solution for the main problem. If your algorithm utilizes itself to solve subproblems, it is called *recursive*
 
 ---
 
-- E.g., the following is a recursive algorithm to find the nth Fibonacci number. The first few values of the Fibonacci numbers are: $F_0=0$, $F_1=1$, $F_2=1$, $F_3=2$, $F_4=3$, $F_5=5$, ... (the nth number is the sum of the two numbers preceeding it)
+- E.g., the following is a recursive algorithm to find the nth Fibonacci number. The first few values of the Fibonacci numbers are: $F_0=0$, $F_1=1$, $F_2=1$, $F_3=2$, $F_4=3$, $F_5=5$, ... The $n$th number is the sum of the two numbers preceeding it
     ```{r}
     fib <- function(n) {
         if (n >= 2) {
@@ -151,9 +178,13 @@ Asymptotic notations:
 
 ## E.g., binary search
 
-- Input: A value `v` and an array `A` of numbers. `A` is sorted in an increasing order
+- Input: A value `v` and an array `A` of numbers. We require that `A` is *sorted* in an increasing order
+
 - Output: The first index `i` such that `v=A[i]`, or `-Inf` if `v` does not exist in `A`
-- Algorithm: The binary search. Idea: Bipartite the array, and search in only one half of the array
+
+- Algorithm: The binary search. Idea: Cut the array into two halfs. You only need to search in one half because the numbers are ordered
+
+---
 
 ```{r, eval=FALSE}
 BINARY-SEARCH(A, v)
@@ -167,6 +198,7 @@ BINARY-SEARCH(A, v)
 
 ---
 
+Pseudocode:
 ```{r, eval=FALSE}
 BINARY-SEARCH(A, v)
     cand = floor(length(A) / 2)
@@ -189,7 +221,7 @@ BINARY-SEARCH(A, v)
 
 - The subarray we search is the first subarray that may contain value `v`
 
-- Every time we create a partition, we search in the first subarray that may contain `v`
+- Every time we create a partition, we will then search in the first subarray that may contain `v`
 
 - The algorithm terminates if there is only one element in a subarray. It either finds the first index i so that `A[i]=v`,  or if `v` does not exist in `A`, a negative number
 
@@ -208,13 +240,15 @@ BINARY-SEARCH(A, v)
 
 - Turns out $T(n) = \Theta(\log(n))$ for binary search
 
+- Proof method: Make a guess, and show by mathematical induction
+
 ---
 
 ## Analytic derivation
 
 From the book of CLRS:
 .center[
-![:scale 90%](images/masterThm.png)
+![:scale 100%](images/masterThm.png)
 ]
 
 ---
