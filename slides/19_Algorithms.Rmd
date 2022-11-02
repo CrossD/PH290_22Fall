@@ -398,3 +398,199 @@ return(i + 1)
 - Best-case scenario happends when the pivots are all medians. Each partition results in two subarrays roughly half as large as the unpartitioned array. So $T(n) = 2 T(n-1) + \Theta(n - 1)$. By the master theorem $T(n) = \Theta(n\log(n))$
 
 - The average-case time complexity is also $\Theta(n\log(n))$, since really bad partitions are rare to occur (see CLRS Chp 7)
+
+---
+
+## Code
+quickSort.cpp:
+```{r,eval=FALSE}
+#include <algorithm>
+#include <Rcpp.h>
+using namespace Rcpp;
+
+int partition(double* A, int p, int r) {
+  double x = A[r];
+  int i = p - 1;
+  for (int j = p; j < r; j++) {
+    if (A[j] <= x) {
+      i++;
+      std::swap(A[i], A[j]);
+    }
+  }
+  std::swap(A[i + 1], A[r]);
+  return(i + 1);
+}
+
+void qs(double* A, int p, int r) {
+  if (p < r) {
+    int q = partition(A, p, r);
+    qs(A, p, q - 1);
+    qs(A, q + 1, r);
+  }
+}
+
+// [[Rcpp::export()]]
+NumericVector quicksort(NumericVector A) {
+  NumericVector B = clone(A);
+  qs(B.begin(), 0, B.length() - 1);
+  return(B);
+}
+```
+
+---
+
+```{r,eval=FALSE}
+Rcpp::sourceCpp("quicksort.cpp")
+n <- 1e5
+y <- rnorm(n)
+x <- quicksort(y)
+```
+
+---
+
+## Extensions of quicksort:
+
+- The partition-and-conquer idea can be extended to find the sample median (or any order statistic) in average $O(n)$ time: 
+
+```{r,eval=FALSE}
+# Get the ith order statistics in an unsorted array A
+ORDER-STAT(A, p, r, i)
+if (p == r)
+    return A[p]
+q = PARTITION(A, p, r) # q is the index for the pivot
+k = q - p + 1 # Number of elements on the left
+if (i == k)
+    return A[q]
+else if (i < k)
+    return ORDER-STAT(A, p, q-1, i)
+else
+    return ORDER-STAT(A, q+1, r, i-k)
+```
+
+---
+
+## Array
+
+Operations and time-complexity:
+
+- Access the $i$th entry (random access): $O(1)$
+
+- Sort: $O(n\log(n))$
+
+- Binary search: $O(\log(n))$
+
+- Range query: $O(\log(n)) + O(m)$ where $m$ is the number of entries found
+
+Other supported operations:
+
+- Insertion: $O(n)$. Search is $O(\log(n))$, but we need to shift entries to the right
+
+- Deletion: $O(n)$, since we need to shift elements to the left
+
+
+---
+
+## Hash table
+
+- Array entries are indexed by integer, but we often would like to index by a string
+
+- Hash table is an effective data structure for implementing dictionaries indexed by strings
+
+- Average search time is $O(1)$
+
+---
+
+## How it works
+
+Suppose our data looks like
+```
+("Mary", 22), ("Peter", 25), ("John", 30), ...
+```
+
+- $T$ is an array of $m$ slots, storing addresses
+
+- Use a *hash function* $h$ to compute the slot from key $k$. A hash function is any function mapping keys to a number between 0 and $m-1$
+
+- If the number $n$ of inputs is greater than the number $m$ of slots, then collision is inevitable. Colision is resolved through *chaining* (i.e., using a linked list)
+
+- The *load factor* is defined as $\alpha=n/m$
+
+---
+
+- Search: 
+    - Needs $O(1)$ time to calculate the hash $h(k)$, and some time to traverse the $h(k)$th linked list
+    - Worst-case $O(n)$ if all elements are hashed into the same slot. $O(\alpha)$ if the slots have roughly the same amount $\approx \alpha = n/m$ of records
+
+- So we wish the slots to be balanced, i.e., the hash function produces values that follows a uniform distribution on $\{0,\dots,m-1\}$. If this is the case, we say $h()$ satisfies *simple uniform hashing*
+
+- Under simple uniform hashing, the average-case search time is $\Theta(1 + \alpha)$
+
+---
+
+## Choosing a good hash function
+
+- A good hash function approximately satisfies simple uniform hashing
+    - Heuristics: 
+        - We want to minimize collision, so hash similar inputs into distinct slots
+        - If the key is an integer, then $h(k) = k \text{ mod } m$ is a hash function. A good choice of $m$ is to be a prime number unrelated to potential pattens in the input $k$
+        - If the key is a string, turn it into an integer according to the ASCII alphabet
+    - Hard to find one exactly
+
+- Hash function is an important tool in an even broader context (not necessarily used for hash tables). A hash functions can be used to fingerprint a file. Choose a hash function (e.g., MD5) to map a file into a 128-bit hash ($3.4 \times 10^{38}$ different states; collision is highly unlikely). Files with the same hash are regarded as the same
+    ```{r}
+    digest::digest(iris)
+    ```
+
+---
+
+## Hash table operations
+
+- Search: Average $O(\alpha)$ under simple uniform hashing; worst $O(n)$ if all keys are hashed into one slot
+
+- Insertion: Worst-case $O(1)$ by inserting at the head of each linked list
+
+- Deletion: Worst-case $O(1)$ if given the address of the record
+
+Operations not well supported by a hash table:
+
+- Range query: $O(n)$, since we need to traverse the hash table
+
+---
+
+## Implementations in R
+
+- Array: R vectors (numeric or list)
+
+- Hash table: `new.env(hash=TRUE)`
+
+---
+
+## Matrix linear algebra
+
+Suppose that $X_{n\times p}$, $B_{p \times m}$, $T_{p\times p}$ is triangular, $H_{p\times p}$ is a symmetric matrix, and $b_{p\times 1}$. Then
+
+| Computation | Number of operations (flops) |
+| :----------:| :--------------------------:|
+| $XB$ | $2mnp$|
+| $H^{-1}$ | $p^3$ | 
+| $T^{-1}$ | $p^3 / 3$ |
+| Solve $Hx= b$ for $x$| $2p^3/3$ |
+|  Solve $Tx = b$ for $x$| $p^2$ |
+| QR decomposition of $X$ | $2p^2n - 2p^3/3$ | 
+
+- QR decomposition factorizes $X = Q_{n\times p}R_{p\times p}$ where $Q^TQ = I_{p\times p}$ and $R$ is upper triangular. $Q$ is an orthogonalized version of the columns in $X$
+
+- Solving $Hx = b$ is much faster than calculating $H^{-1}$ and then $H^{-1}b$. In R, the former is `solve(H, b)`
+
+---
+
+- X more efficient way to perform linear regression: Let $(Q, R)$ be the QR decomposition of $X$. Then the least squares $\hat\beta$ is the solution of $R = Q^T Y$. The number of operations required is $2p^2n - 2p^3/3 + p^2 + pn$, while a naive method may take $2p^2 + 2p^3$ operations
+
+---
+
+## References for matrices
+
+- Functions of Matrices, Table C.1 and C.2 by Higham 2008
+
+- Matrix Computations, Ch 5 by Golub 1983
+

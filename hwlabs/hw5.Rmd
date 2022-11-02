@@ -1,0 +1,60 @@
+---
+title: 'Homework #5'
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Your submission should include both code and well-formatted explanation (not just R comments) and is expected to be reproducible. You may decide for yourself what reproducible file format do you use. 
+*Please post on Ed Discussion (accessible in bCourses) for technical questions.*
+
+For this homework, submit the following files on bCourses:
+
+- A report including your answers/discussion for the HW questions.
+
+- Optionally, separate C++ file(s) for `Rcpp::sourceCpp()`
+
+
+# Questions
+
+1. You are going to mock a collaboration on a shared GitHub repo [here](https://github.com/CrossD/PH290_HW5). You will add a code file (which you are supposed to work on in a real colllaboration) and describe the file in an index file. 
+
+    Before getting started,
+    - Email the instructor your GitHub username, so you are given the push access. The email should be titled "PH290 HW5 Q1" (exactly).
+    - To authenticate your account within bash, you will use the your username/email with a personal access token. Follow the guide [here](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) to create a personal access token. 
+
+    Next, do the following in bash.
+
+    a. In a non-git directory (`git status` should report empty), clone the repo using `git clone https://github.com/CrossD/PH290_HW5.git`
+    a. Create a new (local) branch and name it as your first name (`git branch ...`), and check out to it (`git checkout`)
+    a. Add a file to the repo, and modify the `index.txt` file
+    a. Include your changes in a new commit (`git add ...; git commit ...`)
+    a. Check out the `main` (`git checkout main`), and merge in your branch (`git merge your branch`)
+    a. At this point, your local repo has a main branch and your own branch. 
+        - Make sure to `git pull` before you push, so your work is based on the up-to-date version of the `main` branch
+        - Now we will push the main branch: `git checkout main; git push`
+        - and your own branch: `git checkout yourBranch; git push -u origin yourBranch`, replacing `yourBranch` by your branch name
+    a. Resolve merge conflicts if any, and then commit and push again. Otherwise, you are done!
+
+1. Write some C++ code for simulating the SIR model using the Rcpp interface. You can write it from scratch or adapt the C++ code [here](https://xiongtaodai.com/PH290_22Fall/slides/18_Interfacing_R.html#20) and call it using the Rcpp interface instead. If you adapt existing code, note the following: 
+    - Note that you need to map the [types from R to Rcpp](https://xiongtaodai.com/PH290_22Fall/slides/18_Interfacing_R.html#30)
+    - If `res` is an Rcpp `NumericMatrix`, then you can use e.g., `res[1, 5]` to index by row and column (no need to do the index algebra yourself)
+
+    When you are done, test that your code is correct, and benchmark it against an implementation demonstrated in-class.
+
+1. Benchmark the performance of a hash table vs a list in R. Note that `ht <- new.env(hash=TRUE)` creates a hash table in R that can be operated like a list, except that you can only index an entry by name. E.g., `ht[["a"]] <- 1` inserts an entry, `ht[["a"]]` obtains the value in an entry, and `names(ht)` shows all the entry names in `ht`.
+
+    Benchmark the following:
+    - Create a hash table containing $n$ entries. The entry names should be be distinct characters, and the entry values will just a random value. (E.g., `ht[["1"]] <- rnorm(1)`)
+    - Repeat the last step, but this time use a list instead of a hash table
+
+    Then benchmark the following:
+    - Obtain the values in the entries one at a time from the hash table
+    - Repeat for the list
+
+    Vary $n$ and investigate how the run time changes.
+
+1. (Optional) Implement a sample median-finding algorithm in C++ with average-case $O(n)$ complexity (see the lecture notes). Show that it roughly scales on average as $\Theta(n)$ as the input vector length $n$ increases.
