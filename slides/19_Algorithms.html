@@ -410,9 +410,11 @@ return(i + 1)
 
 - Partitioning an array of length `\(n\)` takes `\(\Theta(n)\)` time
 
-- Worst-case scenario happens when the array is already sorted. Everytime the partition will result in an empty right-subarray and a left-subarray containing all but the pivot. There will be `\(n\)` partitions needed. So the complexity is `\(\Theta((n-1) + (n-2) + \dots + 1) = \Theta(n(n-1)/2) = \Theta(n^2)\)`.
+- Worst-case scenario happens when the array is already sorted. Everytime the partition will result in an empty right-subarray and a left-subarray containing all but the pivot. There will be `\(n\)` partitions needed, and the `\(j\)`th  partition will need `\(j-1\)` comparisons. So the complexity is `\(\Theta((n-1) + (n-2) + \dots + 1) = \Theta(n(n-1)/2) = \Theta(n^2)\)`.
 
-- Best-case scenario happends when the pivots are all medians. Each partition results in two subarrays roughly half as large as the unpartitioned array. So `\(T(n) = 2 T(n-1) + \Theta(n - 1)\)`. By the master theorem `\(T(n) = \Theta(n\log(n))\)`
+- Best-case scenario happens when the pivots are all medians. Each partition results in two subarrays roughly half as large as the unpartitioned array (needs `\(2T(n-1)\)`), and a partition step (needs `\(\Theta(n)\)`). So `\(T(n) = 2 T(n-1) + \Theta(n - 1)\)`. By the master theorem `\(T(n) = \Theta(n\log(n))\)`
+
+    - Another way to think about this is that we are partitioning the array in at most `\(\log_2(n)\)` depths. Each depth takes `\(\Theta(1)\)` operations
 
 - The average-case time complexity is also `\(\Theta(n\log(n))\)`, since really bad partitions are rare to occur (see CLRS Chp 7)
 
@@ -425,7 +427,6 @@ quickSort.cpp:
 #include &lt;algorithm&gt;
 #include &lt;Rcpp.h&gt;
 using namespace Rcpp;
-
 int partition(double* A, int p, int r) {
   double x = A[r];
   int i = p - 1;
@@ -438,7 +439,6 @@ int partition(double* A, int p, int r) {
   std::swap(A[i + 1], A[r]);
   return(i + 1);
 }
-
 void qs(double* A, int p, int r) {
   if (p &lt; r) {
     int q = partition(A, p, r);
@@ -446,17 +446,20 @@ void qs(double* A, int p, int r) {
     qs(A, q + 1, r);
   }
 }
+```
+---
 
+```r
+// ... continue above
 // [[Rcpp::export()]]
 NumericVector quicksort(NumericVector A) {
-  NumericVector B = clone(A);
+  NumericVector B = clone(A); // Make a deep copy
   qs(B.begin(), 0, B.length() - 1);
   return(B);
 }
 ```
 
----
-
+In R:
 
 ```r
 Rcpp::sourceCpp("quicksort.cpp")
@@ -469,39 +472,43 @@ x &lt;- quicksort(y)
 
 ## Extensions of quicksort:
 
-- The partition-and-conquer idea can be extended to find the sample median (or any order statistic) in average `\(O(n)\)` time: 
+- The each array can contain not just one number, but any data structure as long as we can compare data structures in a consistent manner (has a total ordering)
 
+- To avoid the worst-case `\(O(n^2)\)` time, in each partition, instead of taking the last element as the pivot, choose a random one
 
-```r
-# Get the ith order statistics in an unsorted array A
-ORDER-STAT(A, p, r, i)
-if (p == r)
-    return A[p]
-q = PARTITION(A, p, r) # q is the index for the pivot
-k = q - p + 1 # Number of elements on the left
-if (i == k)
-    return A[q]
-else if (i &lt; k)
-    return ORDER-STAT(A, p, q-1, i)
-else
-    return ORDER-STAT(A, q+1, r, i-k)
-```
+- The partition-and-conquer idea can be extended to find any order statistic (including the sample median) in average `\(O(n)\)` time: 
+    
+    ```r
+    # Get the ith order statistics in an unsorted array A
+    ORDER-STAT(A, p, r, i)
+    if (p == r)
+        return A[p]
+    q = PARTITION(A, p, r) # q is the index for the pivot
+    k = q - p + 1 # Number of elements on the left
+    if (i == k)
+        return A[q]
+    else if (i &lt; k)
+        return ORDER-STAT(A, p, q-1, i)
+    else
+        return ORDER-STAT(A, q+1, r, i-k)
+    ```
 
 ---
 
-## Array
+## Operations for an Array
 
-Operations and time-complexity:
+Operations and time-complexity for a general array:
 
 - Access the `\(i\)`th entry (random access): `\(O(1)\)`
 
-- Sort: `\(O(n\log(n))\)`
+- Quick sort: `\(O(n\log(n))\)`
 
+Operations for a sorted array:
 - Binary search: `\(O(\log(n))\)`
 
 - Range query: `\(O(\log(n)) + O(m)\)` where `\(m\)` is the number of entries found
 
-Other supported operations:
+Other operations for maintaining a sorted array:
 
 - Insertion: `\(O(n)\)`. Search is `\(O(\log(n))\)`, but we need to shift entries to the right
 
@@ -514,9 +521,9 @@ Other supported operations:
 
 - Array entries are indexed by integer, but we often would like to index by a string
 
-- Hash table is an effective data structure for implementing dictionaries indexed by strings
+- Hash table is an effective data structure for implementing dictionaries, which are indexed by strings
 
-- Average search time is `\(O(1)\)`
+- Highlight: Average search time is `\(O(1)\)`
 
 ---
 
@@ -524,39 +531,51 @@ Other supported operations:
 
 Suppose our data looks like
 ```
-("Mary", 22), ("Peter", 25), ("John", 30), ...
+("Cory", 22), ("Cody", 25), ("Fanny", 25), ("John", 30), ...
 ```
+The first name is the key, and support that the *keys are unique*.
 
-- `\(T\)` is an array of `\(m\)` slots, storing addresses
+- A hash table is made up of an array `\(T\)` with `\(m\)` slots, storing addresses, and some linked lists for storing data
 
-- Use a *hash function* `\(h\)` to compute the slot from key `\(k\)`. A hash function is any function mapping keys to a number between 0 and `\(m-1\)`
+- Use a *hash function* `\(h()\)` to compute the slot `\(h(k)\)` for key `\(k\)`. A hash function is any function mapping keys to a number between 0 and `\(m-1\)`
 
-- If the number `\(n\)` of inputs is greater than the number `\(m\)` of slots, then collision is inevitable. Colision is resolved through *chaining* (i.e., using a linked list)
+- If the number `\(n\)` of inputs is greater than the number `\(m\)` of slots, then collision is inevitable. In general, colision is resolved through *chaining* (i.e., using a linked list)
 
 - The *load factor* is defined as `\(\alpha=n/m\)`
 
 ---
 
 - Search: 
-    - Needs `\(O(1)\)` time to calculate the hash `\(h(k)\)`, and some time to traverse the `\(h(k)\)`th linked list
-    - Worst-case `\(O(n)\)` if all elements are hashed into the same slot. `\(O(\alpha)\)` if the slots have roughly the same amount `\(\approx \alpha = n/m\)` of records
+    - Needs `\(O(1)\)` time to calculate the hash `\(h(k)\)`, and some time to traverse the linked list for the `\(h(k)\)`th slot
+    - Worst-case is 
+        - `\(O(n)\)` if all elements are hashed into the same slot; 
+        - `\(O(\alpha)\)` if the slots have roughly the same amount of records that approximately equals  `\(\alpha = n/m\)`
 
 - So we wish the slots to be balanced, i.e., the hash function produces values that follows a uniform distribution on `\(\{0,\dots,m-1\}\)`. If this is the case, we say `\(h()\)` satisfies *simple uniform hashing*
 
 - Under simple uniform hashing, the average-case search time is `\(\Theta(1 + \alpha)\)`
 
+- If we set `\(m = n\)`, then the average-case time is `\(\Theta(1)\)`
+
+- Space-time tradeoff: As `\(m\uparrow\)`, space `\(\uparrow\)`, but search time `\(\downarrow\)`
 ---
 
 ## Choosing a good hash function
 
 - A good hash function approximately satisfies simple uniform hashing
+
+    - Hard to find one exactly, which could be expensive
+
     - Heuristics: 
         - We want to minimize collision, so hash similar inputs into distinct slots
         - If the key is an integer, then `\(h(k) = k \text{ mod } m\)` is a hash function. A good choice of `\(m\)` is to be a prime number unrelated to potential pattens in the input `\(k\)`
         - If the key is a string, turn it into an integer according to the ASCII alphabet
-    - Hard to find one exactly
 
-- Hash function is an important tool in an even broader context (not necessarily used for hash tables). A hash functions can be used to fingerprint a file. Choose a hash function (e.g., MD5) to map a file into a 128-bit hash ($3.4 \times 10^{38}$ different states; collision is highly unlikely). Files with the same hash are regarded as the same
+---
+
+## Hash function
+
+- Hash function is an important tool in a broader context (not necessarily used for hash tables). A hash functions can be used to fingerprint a file. Choose a hash function (e.g., MD5) to map a file into a 128-bit hash (it has `\(3.4 \times 10^{38}\)` different states, so collision is highly unlikely). Files with the same hash are regarded as the same
     
     ```r
     digest::digest(iris)
@@ -564,6 +583,14 @@ Suppose our data looks like
     
     ```
     ## [1] "d3c5d071001b61a9f6131d3004fd0988"
+    ```
+    
+    ```r
+    digest::digest(iris3)
+    ```
+    
+    ```
+    ## [1] "40beeb27e7bb0b84d415d6bdc06f4a62"
     ```
 
 ---
@@ -578,7 +605,7 @@ Suppose our data looks like
 
 Operations not well supported by a hash table:
 
-- Range query: `\(O(n)\)`, since we need to traverse the hash table
+- Range query: `\(O(n + m)\)`. We need to traverse the hash table
 
 ---
 
@@ -592,7 +619,7 @@ Operations not well supported by a hash table:
 
 ## Matrix linear algebra
 
-Suppose that `\(X_{n\times p}\)`, `\(B_{p \times m}\)`, `\(T_{p\times p}\)` is triangular, `\(H_{p\times p}\)` is a symmetric matrix, and `\(b_{p\times 1}\)`. Then
+Suppose that `\(X_{n\times p}\)`, `\(B_{p \times m}\)` are general matrices, `\(T_{p\times p}\)` is triangular, `\(H_{p\times p}\)` is a symmetric matrix, and `\(b_{p\times 1}\)`. Then
 
 | Computation | Number of operations (flops) |
 | :----------:| :--------------------------:|
