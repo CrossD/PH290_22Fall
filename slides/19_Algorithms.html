@@ -42,7 +42,7 @@ class: center, middle, inverse, title-slide
     - Quicksort
     - Hash table
 
-&lt;!-- - Matrix algorithms --&gt;
+- Matrix algorithms
 
 ---
 
@@ -617,6 +617,12 @@ Operations not well supported by a hash table:
 
 ---
 
+class: big, middle
+
+## Matrix linear algebra
+
+---
+
 ## Matrix linear algebra
 
 Suppose that `\(X_{n\times p}\)`, `\(B_{p \times m}\)` are general matrices, `\(T_{p\times p}\)` is triangular, `\(H_{p\times p}\)` is a symmetric matrix, and `\(b_{p\times 1}\)`. Then
@@ -630,13 +636,15 @@ Suppose that `\(X_{n\times p}\)`, `\(B_{p \times m}\)` are general matrices, `\(
 |  Solve `\(Tx = b\)` for `\(x\)`| `\(p^2\)` |
 | QR decomposition of `\(X\)` | `\(2p^2n - 2p^3/3\)` | 
 
-- QR decomposition factorizes `\(X = Q_{n\times p}R_{p\times p}\)` where `\(Q^TQ = I_{p\times p}\)` and `\(R\)` is upper triangular. `\(Q\)` is an orthogonalized version of the columns in `\(X\)`
+- Solving `\(Hx = b\)` is faster than calculating `\(H^{-1}\)` and then `\(H^{-1}b\)`. In R, the former is `solve(H, b)`
 
-- Solving `\(Hx = b\)` is much faster than calculating `\(H^{-1}\)` and then `\(H^{-1}b\)`. In R, the former is `solve(H, b)`
+- Solving a triangular system `\(Tx = b\)` is much faster than solving a general system `\(Hx = b\)`
 
 ---
 
-- X more efficient way to perform linear regression: Let `\((Q, R)\)` be the QR decomposition of `\(X\)`. Then the least squares `\(\hat\beta\)` is the solution of `\(R = Q^T Y\)`. The number of operations required is `\(2p^2n - 2p^3/3 + p^2 + pn\)`, while a naive method may take `\(2p^2 + 2p^3\)` operations
+- QR decomposition of `\(X\)` with `\(n\ge p\)` is `\(X = Q_{n\times p}R_{p\times p}\)`, where `\(Q^TQ = I_{p\times p}\)` and `\(R\)` is upper triangular. `\(Q\)` is an orthogonalized version of the columns in `\(X\)`
+
+- A more efficient way to perform linear regression: Let `\((Q, R)\)` be the QR decomposition of `\(X\)`. Then the least squares `\(\hat\beta\)` is the solution of `\(R = Q^T Y\)`. The number of operations required is `\(2p^2n - 2p^3/3 + p^2 + pn\)`, while a naive method takes `\(2p^2n + 2p^3\)` operations
 
 ---
 
