@@ -53,9 +53,9 @@ class: center, middle, inverse, title-slide
 
 - E.g., electronic medical record database [MIMIC](mimic.physionet.org/) includes the following tables (and much more; download the demo dataset [here](demoData.zip))
 
+![:scale 40%](images/patient.png) &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;
 ![:scale 49%](images/admission.png)
-![:scale 50%](images/diagnosis.png)
-
+![:scale 50%](images/diagnosis.png) &amp;nbsp; &amp;nbsp;
 ![:scale 45%](images/icd9.png)
 
 
@@ -222,7 +222,7 @@ DROP TABLE [IF EXISTS] tablename;
 
 - Primary key is a constraint that indicates a set of columns must be unique and not null
 
-- The DBMS often creates indices on primary keys, making lookups based on these keys more efficient
+- Database management systems  (DBMS) often create indices on primary keys, making lookups based on these keys more efficient
 
 ---
 
@@ -234,19 +234,20 @@ INSERT INTO tablename
 VALUES (val1, val2, ..., valp);
 ```
 
-- E.g.,
-```
-q &lt;- "INSERT INTO admissionsMini 
-  VALUES (9999, 11111, '11/06/22 00:01', 'SEPSIS');"
-dbExecute(db, q)
-```
+    E.g.,
+    ```
+    q &lt;- "INSERT INTO admissionsMini 
+      VALUES (9999, 11111, '11/06/22 00:01', 'SEPSIS');"
+    dbExecute(db, q)
+    ```
 
 
-Insert from a CSV:
-```
-dat &lt;- readr::read_csv('demoData/ADMISSIONSmini.csv')
-dbWriteTable(db, "admissionsMini", dat, append=TRUE)
-```
+- Insert from a CSV:
+    
+    ```r
+    dat &lt;- readr::read_csv('demoData/ADMISSIONSmini.csv')
+    dbWriteTable(db, "admissionsMini", dat, append=TRUE)
+    ```
 
 ---
 
@@ -254,7 +255,7 @@ dbWriteTable(db, "admissionsMini", dat, append=TRUE)
 
 - Strctured Query Language (SQL) is a query language, i.e., a language to specify what data operation do you want to perform on the database
 
-- SQL is understood by many database implementations, e.g., PostgreSQL and BigQuery
+- SQL is understood by most if not all database implementations, e.g., PostgreSQL and BigQuery
 
 - R's `library(dplyr)` is designed to be very similar to SQL, so you already know a lot up to difference in syntax
 
@@ -306,9 +307,7 @@ OFFSET n0;
 
 - `tab1 EXCEPT [ALL] tab2` refers to a table containing records in onlye `tab1` but not `tab2`
 
-&lt;!-- --- --&gt;
 
-&lt;!-- class: inverse --&gt;
 
 &lt;!-- ## Your turn --&gt;
 
