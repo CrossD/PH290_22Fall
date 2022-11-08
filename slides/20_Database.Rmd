@@ -295,6 +295,20 @@ OFFSET n0;
 
 - `tab1 EXCEPT [ALL] tab2` refers to a table containing records in onlye `tab1` but not `tab2`
 
+---
+
+## Aggregators and grouping
+
+- The following aggregators are available: `AVG()`, `COUNT()`, `MAX()`, `MIN()`, `SUM()`
+
+```{r,eval=FALSE}
+```
+
+- These aggregators can be used within `SELECT` and `HAVING` but not `WHERE`
+
+- 
+
+
 
 
 <!-- ## Your turn -->
