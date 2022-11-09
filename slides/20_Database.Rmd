@@ -484,6 +484,8 @@ dbGetQuery(db, "SELECT * FROM admissionsMini AS A
     - whether an admission has the same diagnosis as the last admission
     - ranks
 
+---
+
 - Syntax:
 ```{r, eval=FALSE}
 SELECT AVG(col1) OVER (
@@ -497,6 +499,8 @@ FROM ...;
 - Commonly used and supported window functions: most aggregator functions (`SUM`, `AVG`, etc), `FIRST_VALUE`, `NTH_VALUE`, `LEAD`, `LAG`
 
 - Window functions returns one result per row (like `dplyr::mutate()`), while aggregators return one result per group (like `dplyr::summarize()`)
+
+---
 
 - `OVER`: Specify the window for the window function
     - `PARTITION BY`: Like group by. Limit the window to be within each group

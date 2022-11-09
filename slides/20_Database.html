@@ -417,6 +417,41 @@ Anti join:
 
 ---
 
+A table used for demo:
+
+```r
+qs &lt;- c(
+"DROP TABLE IF EXISTS diagnosisMini;",
+" CREATE TABLE diagnosisMini 
+(
+  SUBJECT_ID INT,
+  HADM_ID INT,
+  SEQ_NUM INT,
+  ICD9_CODE VARCHAR(10)
+ );", 
+"INSERT INTO diagnosisMini
+VALUES
+(10006, 142345, 1, '99591'),
+(10006, 142345, 2, '99662'),
+(10007, 195315, 1, '99591'),
+(10007, 195315, 2, '40391'),
+(10042, 148562, 1, '99591')
+;")
+cat(qs)
+lapply(qs, dbExecute, conn=db)
+```
+
+---
+class: inverse
+
+## Your turn
+
+- Use `query1 EXCEPT query2` to find the following: Find the patient IDs for those who have been initially admitted because of sepsis who are not white
+
+- Find the ICD9 diagnosis code for those who are initially admitted because of sepsis. Retain the admission information even if the ICD9 code cannot be found
+
+---
+
 ## Complex queries: Nested queries
 
 - Subqueries can be used within a query to form a *nested query*
@@ -467,6 +502,8 @@ dbGetQuery(db, "SELECT * FROM admissionsMini AS A
     - whether an admission has the same diagnosis as the last admission
     - ranks
 
+---
+
 - Syntax:
 
 ```r
@@ -481,6 +518,8 @@ FROM ...;
 - Commonly used and supported window functions: most aggregator functions (`SUM`, `AVG`, etc), `FIRST_VALUE`, `NTH_VALUE`, `LEAD`, `LAG`
 
 - Window functions returns one result per row (like `dplyr::mutate()`), while aggregators return one result per group (like `dplyr::summarize()`)
+
+---
 
 - `OVER`: Specify the window for the window function
     - `PARTITION BY`: Like group by. Limit the window to be within each group
