@@ -200,7 +200,7 @@ dbExecute(db, q)
 
 - `dbListTables(db)` shows all available tables in database `db`
 
-- Drop table:
+- Delete table:
 
 ```
 DROP TABLE [IF EXISTS] tablename;
@@ -227,7 +227,9 @@ VALUES (val1, val2, ..., valp);
     E.g.,
     ```
     q <- "INSERT INTO admissionsMini 
-      VALUES (9999, 11111, '11/06/22 00:01', 'SEPSIS');"
+      VALUES 
+      (99999, 22222, '11/06/22 00:02', 'SEPSIS')
+      (9999, 11111, '11/06/22 00:01', 'SEPSIS');"
     dbExecute(db, q)
     ```
 
@@ -240,23 +242,48 @@ VALUES (val1, val2, ..., valp);
 
 ---
 
+## Summary of last time 
+
+```{r, eval=FALSE}
+library(RSQLite)
+db <- dbConnect(RSQLite::SQLite(), "mimicDemo.sqlite")
+q <- "
+CREATE TABLE admissionsMini
+(
+  SUBJECT_ID INT,
+  HADM_ID INT,
+  ETHNICITY VARCHAR(200),
+  INSURANCE VARCHAR(255),
+  DIAGNOSIS VARCHAR(255),
+  PRIMARY KEY (HADM_ID)
+);
+"
+  
+dbExecute(db, q)
+dat <- readr::read_csv('demoData/ADMISSIONSmini.csv')
+dbWriteTable(db, "admissionsMini", dat, append=TRUE)
+
+a <- dbGetQuery(db, "SELECT * FROM admissionsMini")
+```
+
+---
+
 ## SQL
 
 - Strctured Query Language (SQL) is a query language, i.e., a language to specify what data operation do you want to perform on the database
 
 - SQL is understood by most if not all database implementations, e.g., PostgreSQL and BigQuery
 
-- R's `library(dplyr)` is designed to be very similar to SQL, so you already know a lot up to difference in syntax
+- R's `library(dplyr)` is designed to be very similar to SQL, so you already know a lot about the framework up to difference in syntax
+
+    - There are ways to generate SQL code from R code (`library(dbplyr)`), but we will emphasize writing SQL code ourselves because this works on any systems
 
 ---
 
 ```{r, eval=FALSE}
 SELECT [DISTINCT] col1, col2, ..., coln
 FROM tab1, tab2, ..., tabm
-WHERE conditions
-ORDER BY col1, col2
-LIMIT n1
-OFFSET n0;
+WHERE conditions;
 ```
 
 - `SELECT` takes out columns (like `dplyr::select()`)
@@ -268,52 +295,286 @@ OFFSET n0;
 
 - `WHERE` specifies the selection condition. Only records fulfilling the condition will be returned (like `dplyr::filter()`)
 
-- `ORDER BY` specifies how the returned records should be ordered (like `dplyr::arrange()`)
-
-- `LIMIT n1` returns only the first `n1` records. `OFFSET n0` skips the first `n0` records before returning records
-
 ---
-
 
 - `SELECT *` means extract all columns
 
 - Rename a column/table using `AS`
 
-- `LIKE` for string comparisons: `string LIKE pattern` is true (1) if the former matches the pattern
-    - `%` means any sequence of length 0 or more, so `%abc%` matches any string containing `abc` 
-    - `_` means any single character
+- Within `WHERE`:
+    - Equality test is `=`
+    - Conditions can be combined using `AND` or `OR`
+    - `LIKE` for string comparisons: `string LIKE pattern` is true (1) if the former matches the pattern
+        - `%` means any sequence of length 0 or more, so `%abc%` matches any string containing `abc` 
+        - `_` means any single character
 
 ---
 
-## Set operations
+```{r, eval=FALSE}
+SELECT ...
+ORDER BY col1, col2
+LIMIT n1
+OFFSET n0;
+```
 
-- `tab1 UNION tab2` refers to a table that is the union of the two given. Duplicated records will be removed
+- `ORDER BY` specifies how the returned records should be ordered (like `dplyr::arrange()`)
+    - Caution: the order of the returned rows are *not guaranteed* to be same run-by-run, unless `ORDER BY` is specified. So use `ORDER BY` everytime you want to make sure the results are the exactly same
 
-- `tab1 UNION ALL tab2` gives the union but retaining duplicated records
+- `LIMIT n1` returns only the first `n1` records. `OFFSET n0` skips the first `n0` records before returning records
 
-- `tab1 INTERSECT [ALL] tab2` refers to a table containing records in both `tab1` and `tab2`
+---
+class: inverse
 
-- `tab1 EXCEPT [ALL] tab2` refers to a table containing records in onlye `tab1` but not `tab2`
+## Your turn
+
+- Make sure to load the data into a SQLite database following the code from last time 
+
+- Show the initial diagnosis of the 6th to the 10th admissions of hispanic patients. The order is according to the admission ID.
 
 ---
 
 ## Aggregators and grouping
 
-- The following aggregators are available: `AVG()`, `COUNT()`, `MAX()`, `MIN()`, `SUM()`
-
 ```{r,eval=FALSE}
+SELECT COUNT(col1), AVG(col2)
+FROM table1
+GROUP BY col3
+HAVING COUNT(col1) >= 2;
 ```
 
-- These aggregators can be used within `SELECT` and `HAVING` but not `WHERE`
+- The following aggregators are available: `AVG()`, `COUNT()`, `MAX()`, `MIN()`, `SUM()`. They are like `dplyr::summarize(mean(x))`
 
-- 
+- They are often used in conjunction with the `GROUP BY` clause
+
+- `HAVING` is for post-filtering the results and selecting rows according to the aggregated output
+
+- The biggest difference between `WHERE` and `HAVING` is that 
+    - `WHERE` constraints the *input* *rows* before aggregators are applied
+    - `HAVING` constraints the *output* *rows* after aggregators are applied
+
+- Aggregators can be used within `SELECT` and `HAVING` but not `WHERE`
+
+---
+
+## Combining tables: Set operations
+
+Operations below operates on tables "vertically", namely you get more or less rows but the same number of columns.
+
+- `query1 UNION query2` gives a table that is the union of the two given. Duplicated records will be removed. `UNION` is the same as `UNION DISTINCT`
+
+- `query1 UNION ALL query2` gives the union but retaining duplicated records
+
+- `query1 INTERSECT [ALL|DISTINCT] query2` gives a table containing records in both `query1` and `query2`
+
+- `query1 EXCEPT [ALL|DISTINCT] query2` gives a table containing records in only `query1` but not `query2`
+
+---
+
+## Combining tables: Joins
+
+The table joins expand tables both "horizontally". The number of columns will increase, and the number of rows may increase or decrease depending on the type of join.
+
+```{r,eval=FALSE}
+...
+FROM tab1 [NATURAL|LEFT|RIGHT|FULL] JOIN tab2
+ON tab1.key = tab2.key
+...
+```
+
+Cartesian product:
+- `FROM tab1 JOIN tab2` gives the Cartesian product, namely all combinations of rows from tab1 and tab2. Same as `FROM tab1, tab2`
+
+Inner joins:
+- `tab1 JOIN tab2 on tab1.key = tab2.key` joins the rows only if the key column matches. Only rows matching the `ON` condition will be retained. The `ON` condition can be complex (connected using `AND` or `OR`) and does not have to be an equality condition
+<!-- - `tab1 NATURAL JOIN tab2` assumes the join keys are given by the common columns in the two tables -->
+
+---
+
+Outer joins:
+- `tab1 LEFT JOIN tab2 ON tab1.key = tab2.key` is like an inner join except that it retains all rows in the *left table* even if they cannot be joined (in which case the right fields will be filled with NULLs.
+- `tab1 FULL JOIN tab2 ON tab1.key = tab2.key` is like a left join except that it retains all rows in *both tables* even if they cannot be joined
+
+- Alternative specification of join keys: `USING (col1, col2)` specifies the join should uses `col1` and `col2` as the join key
+
+Anti join:
+- `tab1 LEFT JOIN tab2 ON tab1.key = tab2.key WHERE tab2.key IS NULL` gives rows in the left table that cannot be joined with the right table
+
+---
+
+A table used for demo:
+```{r,eval=FALSE}
+qs <- c(
+"DROP TABLE IF EXISTS diagnosisMini;",
+" CREATE TABLE diagnosisMini 
+(
+  SUBJECT_ID INT,
+  HADM_ID INT,
+  SEQ_NUM INT,
+  ICD9_CODE VARCHAR(10)
+ );", 
+"INSERT INTO diagnosisMini
+VALUES
+(10006, 142345, 1, '99591'),
+(10006, 142345, 2, '99662'),
+(10007, 195315, 1, '99591'),
+(10007, 195315, 2, '40391'),
+(10042, 148562, 1, '99591')
+;")
+cat(qs)
+lapply(qs, dbExecute, conn=db)
+```
+
+---
+class: inverse
+
+## Your turn
+
+- Use `query1 EXCEPT query2` to find the following: Find the patient IDs for those who have been initially admitted because of sepsis who are not white
+
+- Find the ICD9 diagnosis code for those who are initially admitted because of sepsis. Retain the admission information even if the ICD9 code cannot be found
+
+---
+
+## Complex queries: Nested queries
+
+- Subqueries can be used within a query to form a *nested query*
+
+- Subqueries can be used anywhere where an expression is expected (within `SELECT`, `FROM`, `WHERE`, etc)
+
+- The subquery may depend on rows/variables from the outer query (like a nested for loop)
+
+- The `IN` AND `EXISTS` operations are often useful in combination with subqueries
+
+    - `WHERE col1 IN (aColumnFromSubquery)` is true if `col1` is a member of `aColumnFromSubquery`
+    - `WHERE EXISTS (aColumnFromSubquery)` is true if `aColumnFromSubquery` is not empty
+    - Negated versions are `NOT IN` and `NOT EXISTS`
+
+---
+
+## Creating intermediate tables
+
+These approaches all creates a table-like object for intermediate use (e.g., break down a large query):
+
+- `CREATE TABLE` writes a new table on the harddisk
+
+- `CREATE TEMPORARAY TABLE` is similar to `CREATE TABLE`, except that the temporary table will be removed after your SQL session ends. The temporary table exists on the harddisk
+
+- `CREATE VIEW` is similar to `CREATE TABLE` and persists after the session ends 
+    - However, results for the view will be recalculated every time it is used
+
+- `WITH tab AS (subquery) SELECT ... FROM tab` creates an auxilliary statement that works like a table that can be used in the subsequent query
+    - This approach does not require write access to the database, while the temp table and view approaches do
+
+---
+
+## Advanced: Window functions
+
+- Some queries are awkward when written using the techniques covered before, or even just show the top 2 rows for each ethnicity group in `admissionsMini`
+
+```{r, eval=FALSE}
+dbGetQuery(db, "SELECT * FROM admissionsMini AS A
+        WHERE HADM_ID IN (SELECT HADM_ID FROM admissionsMini
+                          WHERE ETHNICITY = A.ETHNICITY
+                          ORDER BY HADM_ID
+                          LIMIT 2)")
+```
+
+- A *window function* performs calculation over a range of rows related to the current one. It is great for computing something that depends on the order of data, e.g., 
+    - a moving average 
+    - whether an admission has the same diagnosis as the last admission
+    - ranks
+
+- Syntax:
+```{r, eval=FALSE}
+SELECT AVG(col1) OVER (
+    PARTITION BY col2
+    ORDER BY col3
+    [ROWS BETWEEN quantifier1 AND quantifier2 |
+     RANGE BETWEEN val1 AND val2]
+) 
+FROM ...;
+```
+- Commonly used and supported window functions: most aggregator functions (`SUM`, `AVG`, etc), `FIRST_VALUE`, `NTH_VALUE`, `LEAD`, `LAG`
+
+- Window functions returns one result per row (like `dplyr::mutate()`), while aggregators return one result per group (like `dplyr::summarize()`)
+
+- `OVER`: Specify the window for the window function
+    - `PARTITION BY`: Like group by. Limit the window to be within each group
+    - `ORDER BY`: Like order by, but here gives the order that should be used within each window
+    - `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: Use rows in the window that is up to the current row (inclusive)
+    - `ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING`: Constraint rows in the window that is up to the current row (inclusive)
+    - `RANGE BETWEEN 1000 PRECEDING AND 1000 FOLLOWING`: Constraint rows according to the value in the order by column
+
+- Can save window name using, e.g., 
+```{r, eval=FALSE}
+SELECT AVG(X1) OVER w1, SUM(X1) OVER w1
+FROM ...
+WINDOW w1 AS (PARTITION BY col2)
+```
+
+---
+
+<!-- --- -->
+
+<!-- class: big, middle -->
+
+<!-- ## Accessing a practical database -->
+
+<!-- --- -->
+
+<!-- ## MIMIC 3 -->
+
+<!-- - I made available the full MIMIC 3 database through Google BigQuery [here](https://console.cloud.google.com/bigquery?project=mimic-3-ph-290&ws=!1m4!1m3!3m2!1smimic-3-ph-290!2smimic3_mod) for you to practice (and for HW). These data are slightly perturbed off the original version -->
+
+<!-- - Your Berkeley accounts are given access to this project. Make sure to you are accessing the project using the correct account -->
+
+<!-- - You can find a quick overview about the database [here](https://mimic.mit.edu/docs/iii/). There are many tables, and you can also find the table descriptions in the link -->
+
+<!-- - You can run some quick query into the database in the browser: -->
+<!--     - Click open a table -->
+<!--     - Click query -->
+
+<!-- --- -->
+
+<!-- ## Linking R to BigQuery -->
+
+<!-- - Install the `bigrquery` R library -->
+
+<!-- ```{r, eval=FALSE} -->
+<!-- library(bigrquery) -->
+<!-- library(DBI) -->
+
+<!-- db <- dbConnect( -->
+<!--   bigrquery::bigquery(), -->
+<!--   project = "mimic-3-ph-290", # TODO -->
+<!--   dataset = "mimic3_mod", -->
+<!--   billing = "mimic-3-ph-290" -->
+<!--   ) -->
+<!-- dbListTables(db) -->
+<!-- ``` -->
+
+<!-- - You will need to authenticate in the browser the first time you query the database -->
+<!--     - Make sure to use your UC Berkeley account, and --> 
+<!--     - *select all permissions* before you click confirm -->
+
+<!-- - If you are successful, `dbGetQuery(db, "SELECT count(*) FROM chartevents;")` should give you 330,712,483 -->
+
+<!-- --- -->
 
 
 
+<!-- --- -->
 
-<!-- ## Your turn -->
+<!-- class: big, middle -->
 
-<!-- - Implement an algorithm the returns all of the elements in an array $A$ that is smaller than $v$ (exclusive). We assume the array $A$ is sorted. $v$ does not have to be an element of $A$ -->
+<!-- ## Performance consideration -->
 
-<!-- - Find the time complexity of the algorithm -->
+<!-- --- -->
+
+<!-- ## Storage model on harddisk -->
+
+<!-- --- -->
+
+<!-- ## Indices -->
+
 
