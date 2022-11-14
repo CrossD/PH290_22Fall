@@ -55,7 +55,7 @@ knitr::opts_chunk$set(
 
 ## Why are the existing solutions not enough
 
-- R cannot handle data with size larger than the memory (order of GBs). Data in the memory must be saved to the harddisk so it persists
+- R cannot handle data with size larger than the memory (order of GBs). Data in the memory must be saved to the hard disk so it persists
 
 - An ordinary file on the hard disk, like a csv file, does not support efficient searches (linear but not log-time lookup)
 
@@ -75,7 +75,7 @@ knitr::opts_chunk$set(
     - The system will always be in a consistent state even if failure occurs (consistency)
 
 - Security
-    - Data are saved on harddisk, so records persists even if the system crashes (durability)
+    - Data are saved on hard disk, so records persists even if the system crashes (durability)
     - Access management: Read/write and more granular accesses
 
 ---
@@ -94,7 +94,7 @@ knitr::opts_chunk$set(
 
 - A *relational database* mainly arrange data in tables with rows and columns.
     - Offers rich features for queries and table joins
-    - Data must fit on harddisks (Terabytes of data)
+    - Data must fit on hard disks (Terabytes of data)
     - E.g. of implementations: SQLite, PostgreSQL, and MySQL
     - We focus on relational database in this class
 
@@ -167,7 +167,7 @@ Most relational databases follow a client-server architecture:
 
 - `library(RSQLite)` offers a SQLite backend (which runs within the R process and is serverless)
 
-- Create a database on the harddisk:
+- Create a database on the hard disk:
 ```{r,eval=FALSE}
 library(RSQLite)
 db <- dbConnect(RSQLite::SQLite(), "mimicDemo.sqlite")
@@ -441,9 +441,29 @@ class: inverse
 
 - Subqueries can be used anywhere where an expression is expected (within `SELECT`, `FROM`, `WHERE`, etc)
 
+- E.g., show the admission information for those who have more than one diagnosis: 
+    ```{r,eval=FALSE}
+    dbGetQuery(db,
+    "SELECT * FROM admissionsMini
+    WHERE HADM_ID IN (SELECT HADM_ID FROM diagnosisMini 
+                      GROUP BY HADM_ID
+                      HAVING count(*) > 1);")
+    ```
+
+---
+
 - The subquery may depend on rows/variables from the outer query (like a nested for loop)
 
-- The `IN` AND `EXISTS` operations are often useful in combination with subqueries
+- E.g., use only the `admissionsMini` table, and find the admission info for subjects who share the same initial diagnosis with someone else
+    ```{r,eval=FALSE}
+    dbGetQuery(db,
+    "SELECT * FROM admissionsMini as A
+    WHERE EXISTS (SELECT DIAGNOSIS FROM admissionsMini 
+                  WHERE SUBJECT_ID != A.SUBJECT_ID AND 
+                        DIAGNOSIS = A.DIAGNOSIS)")
+    ```
+
+- Summary: The `IN` AND `EXISTS` operations are often useful in combination with subqueries
 
     - `WHERE col1 IN (aColumnFromSubquery)` is true if `col1` is a member of `aColumnFromSubquery`
     - `WHERE EXISTS (aColumnFromSubquery)` is true if `aColumnFromSubquery` is not empty
@@ -453,61 +473,137 @@ class: inverse
 
 ## Creating intermediate tables
 
-These approaches all creates a table-like object for intermediate use (e.g., break down a large query):
+There are a few approaches to create a table-like object for intermediate use (e.g., for breaking down a large query):
 
-- `CREATE TABLE` writes a new table on the harddisk
+- `CREATE TABLE` writes a new table on the hard disk
 
-- `CREATE TEMPORARAY TABLE` is similar to `CREATE TABLE`, except that the temporary table will be removed after your SQL session ends. The temporary table exists on the harddisk
+- `CREATE TEMPORARAY TABLE` is similar to `CREATE TABLE`, except that the temporary table will be removed after your SQL session ends. The temporary table exists on the hard disk
 
 - `CREATE VIEW` is similar to `CREATE TABLE` and persists after the session ends 
     - However, results for the view will be recalculated every time it is used
 
 - `WITH tab AS (subquery) SELECT ... FROM tab` creates an auxilliary statement that works like a table that can be used in the subsequent query
-    - This approach does not require write access to the database, while the temp table and view approaches do
+    - This approach *does not require write access* to the database, while the other approaches do
+
+---
+
+- E.g., join two tables created using `WITH`
+    ```{r,eval=FALSE}
+    q <- "WITH tab1 AS (SELECT * 
+      FROM ad AS A INNER JOIN diagnosisMini AS B 
+      ON A.HADM_ID = B.HADM_ID AND A.SUBJECT_ID = B.SUBJECT_ID), 
+      tab2 AS (SELECT * FROM diagnosisMini LIMIT 1)
+    SELECT * 
+    FROM tab1 JOIN tab2
+    USING (HADM_ID, SUBJECT_ID);"
+    dbGetQuery(db, q)
+    ```
+
 
 ---
 
 ## Advanced: Window functions
 
-- Some queries are awkward when written using the techniques covered before, or even just show the top 2 rows for each ethnicity group in `admissionsMini`
-
-```{r, eval=FALSE}
-dbGetQuery(db, "SELECT * FROM admissionsMini AS A
-        WHERE HADM_ID IN (SELECT HADM_ID FROM admissionsMini
-                          WHERE ETHNICITY = A.ETHNICITY
-                          ORDER BY HADM_ID
-                          LIMIT 2)")
-```
-
-- A *window function* performs calculation over a range of rows related to the current one. It is great for computing something that depends on the order of data, e.g., 
+- Some queries are awkward when written using just the techniques covered before. Think about how to show (arbitrary) 2 records for each ethnicity group in `admissionsMini` (`GROUP BY` and `LIMIT 2` won't work)
+    ```{r, eval=FALSE}
+    dbGetQuery(db, "SELECT * FROM admissionsMini AS A
+            WHERE HADM_ID IN (SELECT HADM_ID FROM admissionsMini
+                              WHERE ETHNICITY = A.ETHNICITY
+                              LIMIT 2)")
+    ```
+- A *window function* performs calculation over a range of rows related to the current one
+    - Window functions returns one result per row, like `dplyr::mutate()` but more general
+- It is great for computing something that depends on the order of data, e.g., 
     - a moving average 
-    - whether an admission has the same diagnosis as the last admission
+    - tell whether an admission has the same diagnosis as the last admission
     - ranks
 
 ---
 
-- Syntax:
-```{r, eval=FALSE}
-SELECT AVG(col1) OVER (
-    PARTITION BY col2
-    ORDER BY col3
-    [ROWS BETWEEN quantifier1 AND quantifier2 |
-     RANGE BETWEEN val1 AND val2]
-) 
-FROM ...;
-```
-- Commonly used and supported window functions: most aggregator functions (`SUM`, `AVG`, etc), `FIRST_VALUE`, `NTH_VALUE`, `LEAD`, `LAG`
+## E.g.
 
-- Window functions returns one result per row (like `dplyr::mutate()`), while aggregators return one result per group (like `dplyr::summarize()`)
+- Select any 2 records per ethnic group (focus on the subquery)
+    ```{r,eval=FALSE}
+    dbGetQuery(db, 
+      "SELECT * 
+      FROM (SELECT ROW_NUMBER() 
+            OVER (PARTITION BY ETHNICITY) as rn, *
+            FROM admTmp)
+      where rn <= 2;")
+    ```
+
+- Select top 2 records per ethnic group ordered by a column
+    ```{r,eval=FALSE}
+    dbGetQuery(db, 
+      "SELECT * 
+      FROM (SELECT RANK() 
+            OVER (PARTITION BY ETHNICITY ORDER BY HADM_ID) as rk, *
+            FROM admTmp)
+      where rk <= 2;")
+    ```
 
 ---
 
+- Cumulative sum
+    ```{r,eval=FALSE}
+    dbGetQuery(db, 
+    "SELECT SUM(X) OVER (
+        ORDER BY HADM_ID
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) as CUMSUM, *
+    FROM admTmp;")
+    ```
+
+---
+
+- Moving average (window is defined according to neighboring rows)
+    ```{r,eval=FALSE}
+    a <- dbGetQuery(db, 
+    "SELECT AVG(X) OVER (
+        ORDER BY HADM_ID
+        ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
+    ) as MA, *
+    FROM admTmp;")
+    ```
+
+- Average over close-by neighbors (window is defined according to neighboring values)
+    ```{r,eval=FALSE}
+    a <- dbGetQuery(db, 
+    "SELECT AVG(X) OVER (
+        ORDER BY HADM_ID
+        RANGE BETWEEN 1000 PRECEDING AND 1000 FOLLOWING
+    ) as MA, *
+    FROM admTmp;")
+    ```
+
+---
+class: inverse
+
+## Your turn
+
+- Find the cumulative sum of `SUBJECT_ID` column where the order is defined by `HADM_ID`. Find the cumulative sum for each ethinic group
+
+---
+
+- Summary of window function: 
+    ```{r, eval=FALSE}
+    SELECT WINDOW_FUNC(col1) OVER (
+        PARTITION BY col2
+        ORDER BY col3
+        [ROWS BETWEEN quantifier1 AND quantifier2 |
+         RANGE BETWEEN val1 AND val2]
+    )
+    FROM ...;
+    ```
+- Commonly used and supported window functions: most aggregator functions (`SUM`, `AVG`, etc), `FIRST_VALUE`, `NTH_VALUE`, `LEAD`, `LAG`
 - `OVER`: Specify the window for the window function
     - `PARTITION BY`: Like group by. Limit the window to be within each group
     - `ORDER BY`: Like order by, but here gives the order that should be used within each window
     - `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: Use rows in the window that is up to the current row (inclusive)
-    - `ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING`: Constraint rows in the window that is up to the current row (inclusive)
-    - `RANGE BETWEEN 1000 PRECEDING AND 1000 FOLLOWING`: Constraint rows according to the value in the order by column
+    - `ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING`: Constraint rows in the window that is up to the current row 
+    - `RANGE BETWEEN 1000 PRECEDING AND 1000 FOLLOWING`: Constraint rows according to the values of a column
+
+---
 
 - Can save window name using, e.g., 
 ```{r, eval=FALSE}
@@ -518,67 +614,161 @@ WINDOW w1 AS (PARTITION BY col2)
 
 ---
 
-<!-- --- -->
+class: big, middle
 
-<!-- class: big, middle -->
+## Accessing a practical database
 
-<!-- ## Accessing a practical database -->
+---
 
-<!-- --- -->
+## MIMIC 3
 
-<!-- ## MIMIC 3 -->
+- I made available the full MIMIC 3 database through Google BigQuery for you to practice (and for HW). These data are slightly perturbed off the original version
 
-<!-- - I made available the full MIMIC 3 database through Google BigQuery [here](https://console.cloud.google.com/bigquery?project=mimic-3-ph-290&ws=!1m4!1m3!3m2!1smimic-3-ph-290!2smimic3_mod) for you to practice (and for HW). These data are slightly perturbed off the original version -->
+- This is the size of the largest table:
+.center[
+![:scale 40%](images/mimic3size.png)
+]
 
-<!-- - Your Berkeley accounts are given access to this project. Make sure to you are accessing the project using the correct account -->
+---
 
-<!-- - You can find a quick overview about the database [here](https://mimic.mit.edu/docs/iii/). There are many tables, and you can also find the table descriptions in the link -->
+## Accessing data
 
-<!-- - You can run some quick query into the database in the browser: -->
-<!--     - Click open a table -->
-<!--     - Click query -->
+- Access data [here](https://console.cloud.google.com/bigquery?project=mimic-3-ph-290&ws=!1m4!1m3!3m2!1smimic-3-ph-290!2smimic3_mod)
 
-<!-- --- -->
+- Your *UC Berkeley accounts* are given access to this project. Make sure to you are accessing the project using the correct account
 
-<!-- ## Linking R to BigQuery -->
+- You can find a quick overview about the database [here](https://mimic.mit.edu/docs/iii/). There are many tables, and you can also find the table descriptions in the link
 
-<!-- - Install the `bigrquery` R library -->
+- You can run some quick query into the database in the browser:
+    - Click open a table within the Explorer column
+    - Click query
 
-<!-- ```{r, eval=FALSE} -->
-<!-- library(bigrquery) -->
-<!-- library(DBI) -->
+---
 
-<!-- db <- dbConnect( -->
-<!--   bigrquery::bigquery(), -->
-<!--   project = "mimic-3-ph-290", # TODO -->
-<!--   dataset = "mimic3_mod", -->
-<!--   billing = "mimic-3-ph-290" -->
-<!--   ) -->
-<!-- dbListTables(db) -->
-<!-- ``` -->
+## Linking R to BigQuery
 
-<!-- - You will need to authenticate in the browser the first time you query the database -->
-<!--     - Make sure to use your UC Berkeley account, and --> 
-<!--     - *select all permissions* before you click confirm -->
+- Install the `bigrquery` R library
+    ```{r, eval=FALSE}
+    library(bigrquery)
+    library(DBI)
 
-<!-- - If you are successful, `dbGetQuery(db, "SELECT count(*) FROM chartevents;")` should give you 330,712,483 -->
+    db <- dbConnect(
+      bigrquery::bigquery(),
+      project = "mimic-3-ph-290",
+      dataset = "mimic3_mod",
+      billing = "mimic-3-ph-290"
+      )
+    dbListTables(db)
+    ```
 
-<!-- --- -->
+- You will need to authenticate in the browser the first time you query the database
+    - Make sure to use your UC Berkeley account, and 
+    - *Select all permissions* before you click confirm
 
+- If you are successful, `dbGetQuery(db, "SELECT count(*) FROM chartevents;")` should give you 330,712,483
 
+---
 
-<!-- --- -->
+## Running a query
 
-<!-- class: big, middle -->
+- E.g., what are the most frequent chart data items recorded in the database?
+    ```{r, eval=FALSE}
+    topItems <- dbGetQuery(db, 
+      "SELECT DISTINCT ITEMID, COUNT(*) as COUNT 
+      FROM chartevents JOIN d_items
+      USING (ITEMID)
+      GROUP BY ITEMID
+      ORDER BY COUNT DESC
+      LIMIT 50;")
+    ```
 
-<!-- ## Performance consideration -->
+- Above shows a small query for which the results fits in the memory. Given a large query, you need to use `dbSendQuery()` and `dbFetch(n=)` to retrieve and process results in batches
 
-<!-- --- -->
+- More in HW6
 
-<!-- ## Storage model on harddisk -->
+---
+class: inverse
 
-<!-- --- -->
+## Your turn
 
-<!-- ## Indices -->
+- Run a query in the browser against any table
 
+- Connect R to BigQuery and run a query within R
+
+---
+
+class: big, middle
+
+## Indexing
+
+---
+
+## Row- and column-oriented databases
+
+- A *row-oriented* database stores each row (record) in consecutive storage blocks. This makes it faster to access all fields within a record, e.g., for making a prediction for a record based on all features. 
+    - "Traditional" databases (Postgres, MySQL, CloudSQL) are mostly row-oriented
+
+- A *column-oriented* database stores each column (variable) in consecutive storage blocks. This makes it faster to aggregate columns (e.g., calculating moving average) because it does not read in necessary columns
+    - Cloud databases (BigQuery, RedShift) tend to be column-oriented
+
+---
+
+## Indexing
+
+- We focus on indexing for *row-oriented* (traditional) databases
+
+- Building an index on a column makes it faster to search according to that column
+    - Like book contents and subject index
+
+- Considerations for building a good index
+    - Search time
+    - Insertion time
+    - Deletion time
+    - Space overhead
+
+- Two types of indices:
+    - Hash index
+    - B-tree index
+
+---
+
+## Hash index
+
+- Hash index is basically a hash table. Given a key, the value field given by a hash index is the location (on hard disk) of the record 
+
+.center[
+![:scale 100%](images/hash_index.png)</br>
+By Jorge Stolfi from wikipedia 
+]
+
+---
+
+- The properties of a hash index is the same as hash table. It supports $O(1)$ time search for a specific value (`col = val`), insertion, and deletion. It does not support range search well
+
+- Good for fields that does not have an ordering. E.g., diagnosis or ID
+
+---
+
+## B+ tree index
+
+- B+ tree index relies on a tree-data structure to support fast range queries
+
+- Search (`col = val` or `col < val` etc), insertion, and deletion are all $O(\log(n))$
+
+---
+
+.center[
+![:scale 100%](images/bplustree.png)</br>
+Fig 11.9 from Database System Concepts
+]
+
+---
+
+## Creating an index in SQL
+
+- E.g., in PostgreSQL, to create a B+ tree index for record date in `chartevents`: 
+```{r, eval=FALSE}
+CREATE INDEX i_date ON chartevents
+USING BTREE (CHARTTIME);
+```
 
