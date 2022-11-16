@@ -1,24 +1,33 @@
----
-title: "Parallel and Asynchronous Computing"
-subtitle: "PH 290"
-author: "Xiongtao Dai"
-output:
-  xaringan::moon_reader:
-    css: [myslides.css, myslides-fonts.css]
-    lib_dir: libs
-    chakra: libs/remark-latest.min.js
-    nature:
-      beforeInit: "macros.js"
-      highlightLines: false
-      countIncrementalSlides: false
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Parallel and Asynchronous Computing</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Parallel and Asynchronous Computing
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
 ---
 
-```{r xaringan-tile-view, echo=FALSE}
-xaringanExtra::use_tile_view()
-knitr::opts_chunk$set(
-  fig.width = 6, fig.height = 6
-)
-```
+
+
 
 ## Outline
 
@@ -44,7 +53,7 @@ knitr::opts_chunk$set(
     - This lecture focuses on parallelism on a single machine; the next is about HPC
 
 - Within each node, multiple *cores/CPUs* are available. They share the same memory
-    <!-- - Passing information between nodes require special code (message passing interface MPI) -->
+    &lt;!-- - Passing information between nodes require special code (message passing interface MPI) --&gt;
 
 ---
 
@@ -104,7 +113,8 @@ On multiple machines (more communication overhead):
 - `plan(...)` specifies a strategy for the (parallel) evaluation, providing a backend for subsequent parallel execution. Subsequent parallel computation will automatically use this backend. E.g., 
     - Launch 2 workers: `plan(multisession, worker=2)`
     - Sequentially evaluate the outer loop, and uses multicore to evaluate the inner loop:
-    ```{r, eval=FALSE}
+    
+    ```r
     plan(list(sequential,
               tweak(multicore, workers = availableCores())))
     ```
@@ -114,10 +124,11 @@ On multiple machines (more communication overhead):
 ---
 
 E.g. of different scheduling 
-```{r, eval=FALSE}
-n <- 1e2
-m <- 1e7
-l <- lapply(seq_len(n), function(i) rep(1, m))
+
+```r
+n &lt;- 1e2
+m &lt;- 1e7
+l &lt;- lapply(seq_len(n), function(i) rep(1, m))
 system.time(lapply(l, sum))                      # 1.562s, single core
 
 future::plan(sequential)
@@ -157,7 +168,7 @@ Total time = time for communication + time for the slowest worker to finish comp
     - Useful when the jobs have highly different run time
 
 - *Chunking* means grouping jobs into larger ones as if they form a single job. 
-    - In static scheduling, suppose there are $10$ jobs and $2$ workers in total. Then each worker gets a *chunk* of $5$ jobs only once
+    - In static scheduling, suppose there are `\(10\)` jobs and `\(2\)` workers in total. Then each worker gets a *chunk* of `\(5\)` jobs only once
     - In dynamic scheduling, each chunk consists of 1 job and there are 10 chunks in total
     - Strike a happy intermediate 
 
@@ -165,7 +176,8 @@ Total time = time for communication + time for the slowest worker to finish comp
 
 E.g., load balancing hurts when the jobs are similar in size and helps when the jobs are different in size:
 
-```{r, eval=FALSE}
+
+```r
 system.time(future_lapply(l, sum))# Static schedule    1.093s
 system.time(future_lapply(l, sum,                 #   Dynamic
                           future.chunk.size = 1))    # 1.849s
@@ -201,7 +213,8 @@ glm(default~student+balance+income,family="binomial",
 - The idea is to generate a sequence of random stream of seeds the same length as the jobs, and use one seed for each job
 
 - This is done using `future_lapply(..., future.seed=TRUE)`
-    ```{r, eval=FALSE}
+    
+    ```r
     set.seed(1)
     future_lapply(c(1, 1), rnorm, future.seed=TRUE)
     ```
@@ -241,17 +254,19 @@ class: big, middle
 ---
 
 - `future()` creates a future that is sent to be evaluated by a parallel worker. This is *non-blocking*, which means you will regain control of the R console immediately
-    ```{r, eval=FALSE}
+    
+    ```r
     library(future)
     plan(multisession, workers=2)
-    f1 <- future({
+    f1 &lt;- future({
         Sys.sleep(5)
         lm(extra ~ group, data=sleep)
     })
     ```
 
 - Get the value of the future. If the future is resolved, you get the result immediately (no blocking); if not, the main process will be blocked until the future resolves
-    ```{r, eval=FALSE}
+    
+    ```r
     value(f1)
     ```
 
@@ -264,26 +279,147 @@ class: big, middle
 ## Global variables
 
 - Global variables used in a future are usually automatically identified. This is done through `library(globals)` which performs static code analysis (without running the code)
-    ```{r, eval=FALSE}
-    x <- 1
+    
+    ```r
+    x &lt;- 1
     value(future({
-      y <- x
+      y &lt;- x
       print(y)
     })) # 1
     ```
 
 - Sometimes the automatic identification of global variables does not work, and you must specify it manually
-    ```{r, eval=FALSE}
-    x <- 1
+    
+    ```r
+    x &lt;- 1
     value(future({
-      y <- get("x")
+      y &lt;- get("x")
       print(y)
     })) # Error in get("x") : object 'x' not found
     value(future({
-      y <- get("x")
+      y &lt;- get("x")
       print(y)
     }, globals=list(x=x))) # 1
     ```
 
 
 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
