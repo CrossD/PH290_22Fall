@@ -13,23 +13,25 @@ Your submission should include both code and well-formatted explanation (not jus
 
 # SQL
 
-For the following questions, please use SQL queries to preprocess the data as much as possible (instead of R commands for data wrangling).
+For the following questions, please use SQL queries to preprocess the data as much as possible (instead of R commands for data wrangling). Refer to the [MIMIC 3 documentation](https://mimic.mit.edu/docs/iii/tables/) for what the tables contain.
 
-1. Produce a table of number of admissions by sex and diagnosis. Show only diagnosis-sex combination with at least 30 occurrences. Make sure the names for the diagnosis is informative (they cannot be just diagnosis codes). A patient may have multiple diagnoses after admission, but we will focus on only the primary diagnosis in this question. [Hint: You will need these tables: `d_icd_diagnoses`, `diagnoses_icd`, and `patients`]
+1. Visualize the initial diagnoses with the top 10 death rate (defined as \# of deaths / \# of admissions) [Hint: You will need the `admissions` table]
 
-1. join
+1. Produce a table of number of admissions by sex and diagnosis. Show only diagnosis-sex combinations with at least 30 occurrences. Make sure the names for the diagnosis is informative (they cannot be just diagnosis codes). A patient may have multiple diagnoses in an admission, but we will focus on only the primary diagnosis in this question. [Hint: You will need these tables: `d_icd_diagnoses`, `diagnoses_icd`, and `patients`]
 
-1. window func
+1. Visualize the heart rate trajectories of 5 arbitrary patients on the same plot. Each trajectory should show a 6-hour moving average (+/- 3 hours) of the heart rate. The x-axis shows the time in hours since admission.
 
 # Setting up Savio
 
-1. [Setting up a MyBRC User Portal account](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-account/#setting-up-a-mybrc-user-portal-account)
+These steps help you set up an account on Savio for parallel computing and later use of Spark.
 
-1. [Getting Access to a Project](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-account/#getting-access-to-a-project). On the MyBRC homepage, click Join -- search for project name `ic_ph290` -- Join. You will then send out an request to join, and the instructor will approve that within a few days
+1. [Set up a MyBRC User Portal account](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-account/#setting-up-a-mybrc-user-portal-account)
+
+1. [Get Access to a Project](https://docs-research-it.berkeley.edu/services/high-performance-computing/getting-account/#getting-access-to-a-project). On the MyBRC homepage, click Join -- search for project name `ic_ph290` -- Join. You will then send out an request to join, and the instructor will approve that within a few days
 
 1. A separate account for you to log into Savio will be automatically created for you after you are granted access. This process is done by the Research IT and it may take a few days. You don't need to do anything here
 
-1. [Setting up One-Time Passwords](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/setting-otp/)
+1. [Set up One-Time Passwords](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/setting-otp/)
 
 1. If the previous three steps are finished, you can then [log into savio](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/logging-brc-clusters/)
 
