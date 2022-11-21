@@ -369,7 +369,8 @@ questions.</em></p>
 <p>For the following questions, please use SQL queries to preprocess the
 data as much as possible (instead of R commands for data wrangling).
 Refer to the <a href="https://mimic.mit.edu/docs/iii/tables/">MIMIC 3
-documentation</a> for what the tables contain.</p>
+documentation</a> for what the tables contain. Refer to <a href="../slides/20_Database.html#42">the lecture slides</a> for how to
+access the database.</p>
 <ol style="list-style-type: decimal">
 <li><p>Visualize the initial diagnoses with the top 10 death rate
 (defined as # of deaths / # of admissions) [Hint: You will need the
@@ -384,7 +385,8 @@ You will need these tables: <code>d_icd_diagnoses</code>,
 <li><p>Visualize the heart rate trajectories of 5 arbitrary patients on
 the same plot. Each trajectory should show a 6-hour moving average (+/-
 3 hours) of the heart rate. The x-axis shows the time in hours since
-admission.</p></li>
+admission. [Hint: You will need these tables: <code>chart_events</code>
+and <code>d_items</code>]</p></li>
 </ol>
 </div>
 <div id="setting-up-savio" class="section level1">
