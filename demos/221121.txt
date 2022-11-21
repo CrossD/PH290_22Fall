@@ -1,0 +1,2534 @@
+Last login: Mon Nov 21 09:48:33 on ttys001 
+ 
+The default interactive shell is now zsh. 
+To update your account to use zsh, please run `chsh -s /bin/zsh`. 
+For more details, please visit https://support.apple.com/kb/HT208050. 
+Biostat-MBP14-04:~$ cat ~/Downloads/221121.txt 
+Biostat-MBP14-04:~$ ssh xdai@hpc.brc.berkeley.edu 
+xdai@hpc.brc.berkeley.edu: Permission denied (gssapi-keyex,gssapi-with-mic,keyboard-interactive). 
+Biostat-MBP14-04:~$ head ~/.ssh/config 
+Host savio 
+    User xdai 
+    HostName hpc.brc.berkeley.edu 
+    PreferredAuthentications keyboard-interactive 
+ 
+Host saviodtn 
+    User xdai 
+    HostName dtn.brc.berkeley.edu 
+    PreferredAuthentications keyboard-interactive 
+ 
+Biostat-MBP14-04:~$ ssh savio 
+(xdai@hpc.brc.berkeley.edu) Password:  
+Last login: Sun Oct 23 06:48:06 2022 from 107.3.144.219 
+ln003:~$ hostname 
+ln003.brc 
+ln003:~$ ls 
+1000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr  tmp.csv  tPACE 
+2000.RData      helper    nested.R      sparkErr       testout  tmp.R 
+allModules.txt  job.R     ondemand      sparkErr1      test.R   tmp.sh 
+batch           job.Rout  R             sparkErr2      tmp      tools 
+ln003:~$ logout 
+Connection to hpc.brc.berkeley.edu closed. 
+Biostat-MBP14-04:~$ ls 
+Applications         Library              Teaching             tmpWriting.txt 
+Box                  Movies               Untitled.R           tmpfile 
+Creative Cloud Files Music                bashDemo             tmpnotes.txt 
+DS202demo            PH290                bashRecord           tmux.conf.backup 
+Desktop              Pictures             dotfiles             tools 
+Documents            Public               materials 
+Downloads            Rprof.out            researchOffline 
+GoogleDrive          Sites                src 
+Biostat-MBP14-04:~$ touch demo 
+Biostat-MBP14-04:~$ scp demo savio:~/ 
+(xdai@hpc.brc.berkeley.edu) Password:  
+WARNING:  File transfers using "/usr/bin/scp" must use the file transfer node (dtn.brc.berkeley.edu) not the login/interactive nodes. 
+Biostat-MBP14-04:~$ scp demo saviodtn:~/ 
+The authenticity of host 'dtn.brc.berkeley.edu (169.229.176.18)' can't be established. 
+ED25519 key fingerprint is SHA256:py15Z04D14H81joskga4KVjJoTC2874Pi4n71Y3t8b8. 
+This key is not known by any other names 
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes 
+Warning: Permanently added 'dtn.brc.berkeley.edu' (ED25519) to the list of known hosts. 
+(xdai@dtn.brc.berkeley.edu) Password:  
+demo                                                       100%    0     0.0KB/s   00:00     
+Biostat-MBP14-04:~$ ssh savio 
+(xdai@hpc.brc.berkeley.edu) Password:  
+Last login: Mon Nov 21 08:18:42 2022 from 24.7.47.24 
+ln003:~$ ls 
+1000.RData      demo      job.Rout      R              sparkErr2  tmp      tools 
+2000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr    tmp.csv  tPACE 
+allModules.txt  helper    nested.R      sparkErr       testout    tmp.R 
+batch           job.R     ondemand      sparkErr1      test.R     tmp.sh 
+ln003:~$  
+   
+▽ 
+/global/home/users/xdai/.tmux.conf:94: usage: bind-key [-cnr] [-t key-table] key command[0/0] 
+ 
+ln003:~$  
+ln003:/$ ls 
+ln003:~$  
+ tabs   1 batch+                                                                           X  
+  1 #!/bin/bash 
+  2  
+  3 #SBATCH --account=ic_ph290 
+  4 #SBATCH --time=1:0:0 
+  5 #SBATCH --partition='savio3_htc' 
+  6 #SBATCH --nodes=1 
+  7 #SBATCH --ntasks=1 
+  8 #SBATCH --cpus-per-task=8 
+  9 #SBATCH --mem-per-cpu=4000M 
+ 10  
+ 11 #SBATCH --job-name=test 
+ 12 #SBATCH --output=testout 
+ 13 #SBATCH --error=testerr 
+ 14  
+# None-SBATCH commands need to go after the SBATCH commands 
+ 16 export MKL_NUM_THREADS=1 
+ 17  
+ 18 module load r 
+ 19 module load r-packages 
+ 20  
+# Run R: 
+ 22 Rscript -e 'source("~/test.R")' 
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+~                                                                                             
+ NORMAL  batch[+]                                          sh  utf-8[unix]  45% ㏑:10/22☰℅:1  
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                  
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni, 99.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+KiB Mem : 39481891+total, 37768732+free,  9706280 used,  7425308 buff/cache 
+KiB Swap:  8388604 total,  5107476 free,  3281128 used. 38396953+avail Mem  
+Tasks: 700 total,   1 running, 698 sleeping,   1 stopped,   0 zombie 
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni, 99.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                  
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni, 99.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+KiB Mem : 39481891+total, 37768732+free,  9706280 used,  7425308 buff/cache 
+KiB Swap:  8388604 total,  5107476 free,  3281128 used. 38396953+avail Mem  
+ 
+     2 root      20   0       0      0      0 S   0.0  0.0   0:04.88 kthreadd                 
+ 13031 xdai      20   0  162640   2948   1604 S   1.0  0.0   0:30.67 top                      
+ 13032 xdai      20   0  162656   2968   1616 R   1.0  0.0   0:30.50 top                      
+     9 root      20   0       0      0      0 S   0.3  0.0 112:37.05 rcu_sched                
+  8563 root      20   0    4364    376    280 S   0.3  0.0 261:28.62 wulfd                    
+233478 root      20   0       0      0      0 S   0.3  0.0   0:37.68 kworker/u528:0           
+     1 root      20   0  191312   3252   1812 S   0.0  0.0   0:19.30 systemd                  
+     2 root      20   0       0      0      0 S   0.0  0.0   0:04.88 kthreadd                 
+     4 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H             
+     6 root      20   0       0      0      0 S   0.0  0.0   0:21.26 ksoftirqd/0              
+     7 root      rt   0       0      0      0 S   0.0  0.0   1:42.29 migration/0              
+     8 root      20   0       0      0      0 S   0.0  0.0   0:00.00 rcu_bh                   
+    10 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 lru-add-drain            
+    11 root      rt   0       0      0      0 S   0.0  0.0   0:17.75 watchdog/0               
+    12 root      rt   0       0      0      0 S   0.0  0.0   0:16.33 watchdog/1               
+    13 root      rt   0       0      0      0 S   0.0  0.0   0:52.03 migration/1              
+    14 root      20   0       0      0      0 S   0.0  0.0   0:09.42 ksoftirqd/1              
+    16 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/1:0H             
+    18 root      rt   0       0      0      0 S   0.0  0.0   0:15.73 watchdog/2               
+    19 root      rt   0       0      0      0 S   0.0  0.0   1:07.82 migration/2              
+    20 root      20   0       0      0      0 S   0.0  0.0   0:18.42 ksoftirqd/2              
+    22 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/2:0H             
+    24 root      rt   0       0      0      0 S   0.0  0.0   0:14.18 watchdog/3               
+    25 root      rt   0       0      0      0 S   0.0  0.0   0:23.89 migration/3              
+    26 root      20   0       0      0      0 S   0.0  0.0   0:05.63 ksoftirqd/3              
+    28 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/3:0H             
+    30 root      rt   0       0      0      0 S   0.0  0.0   0:18.10 watchdog/4               
+    31 root      rt   0       0      0      0 S   0.0  0.0   0:55.66 migration/4              
+    32 root      20   0       0      0      0 S   0.0  0.0   0:16.21 ksoftirqd/4              
+    34 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/4:0H             
+    36 root      rt   0       0      0      0 S   0.0  0.0   0:15.70 watchdog/5               
+    37 root      rt   0       0      0      0 S   0.0  0.0   0:41.11 migration/5              
+    38 root      20   0       0      0      0 S   0.0  0.0   0:09.17 ksoftirqd/5              
+    40 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/5:0H             
+    41 root      rt   0       0      0      0 S   0.0  0.0   0:17.92 watchdog/6               
+    42 root      rt   0       0      0      0 S   0.0  0.0   1:04.91 migration/6              
+    43 root      20   0       0      0      0 S   0.0  0.0   0:24.71 ksoftirqd/6              
+    45 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/6:0H             
+    46 root      rt   0       0      0      0 S   0.0  0.0   0:14.19 watchdog/7               
+srun: error: n0166.savio3: task 0: Killed   0 S   0.0  0.0   0:28.50 migration/7              
+srun: launch/slurm: _step_signal: Terminating StepId=13655258.0 
+ln002:~$  
+    ln002exit1  bash*                                                    Mon Nov 21 08:29     
+ln002:~$ logout 
+ tabs   1 batch+                                                                           X  
+ln003:~$ ls 
+1000.RData      demo      job.Rout      R              sparkErr2  tmp      tools 
+2000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr    tmp.csv  tPACE 
+allModules.txt  helper    nested.R      sparkErr       testout    tmp.R 
+batch           job.R     ondemand      sparkErr1      test.R     tmp.sh 
+ln003:~$ vi batch 
+ln003:~$ squeue 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+           9802051     savio OOD_RStu shelleyx PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+ 
+           9737724     savio OOD_batc      tin PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+ 
+           9587746     savio OOD_batc      tin PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+           9442890     savio OOD_batc      tin PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+ 
+ 
+           9738800     savio  test_KL kyleleat PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+ 
+          13656597     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656596     savio bistro_r     jlaz PD       0:00      1 (Resources) 
+          13656606     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656605     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656604     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656598     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656599     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656600     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656601     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656602     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656603     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656610     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656609     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656608     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656607     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656632     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656631     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656630     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656629     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656628     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656627     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656626     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656625     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656624     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656623     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656622     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656621     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656620     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656619     savio bistro_r     jlaz PD       0:00      1 (Priority)ov 21 08:44     
+          13656618     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656617     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656616     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656615     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656614     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656613     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656612     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656611     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13656654     savio bistro_r     jlaz PD       0:00      1 (Priority) 
+          13611783     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611781     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611780     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611777     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611774     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611772     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611771     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611770     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611766     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611759     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611757     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611756     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611748     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611743     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611740     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611739     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611738     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611737     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611736     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611734     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611728     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611727     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611725     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611705     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611704     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611702     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611700     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611699     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611698     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611694     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611693     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611690     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611689     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611687     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611686     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611685     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611683     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611681     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611680     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611679     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611678     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611677     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611676     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611675     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611674     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611672     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611662     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611659     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611658     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611656     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611655     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611654     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611653     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611652     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611651     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611645     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611631     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611629     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611626     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611623     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611620     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611617     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611601     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611600     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611599     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611598     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611597     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611596     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611589     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611588     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611587     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611586     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611585     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611584     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611583     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611581     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611580     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611579     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611577     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611576     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611575     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611574     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611573     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611562     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611557     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611556     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611554     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611552     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611551     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611550     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611548     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611605     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611603     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611621     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611619     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611618     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611613     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13612072     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611834     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611684     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611632     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611628     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13611624     savio Splicing  aniketh PD       0:00      1 (Priority) 
+          13656061     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656060     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656059     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656058     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656057     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656056     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656055     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656054     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656053     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656052     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656051     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656050     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656049     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656048     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656047     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656046     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656045     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656044     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656043     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656042     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656041     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656040     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13651005     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13651003     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13650982     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649534     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649533     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649532     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649531     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649530     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649529     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649528     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649527     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649526     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649525     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649524     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649523     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649522     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649521     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649520     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649519     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649518     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649517     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649513     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649512     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649511     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649508     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649507     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649506     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649505     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649504     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649503     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13649502     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645798     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645797     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645796     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645794     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645793     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645057     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645056     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645055     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645054     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645053     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645052     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645051     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645050     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645049     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645048     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645047     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645046     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645045     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645044     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645043     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645042     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13645041     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13643908     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13643623     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13643622     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13643621     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641919     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641918     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641916     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641915     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641914     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641913     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641912     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641911     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641909     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641908     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641907     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641906     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641905     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641904     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641435     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641434     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641433     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641379     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641374     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641373     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641372     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641371     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641370     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641369     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641368     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641366     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641365     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641364     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641363     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641362     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641361     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656666     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656665     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656664     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656663     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656662     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656661     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656660     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656677     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656676     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656675     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656674     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656673     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656672     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656670     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656669     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656668     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656689     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656688     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656687     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656686     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656685     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656684     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656683     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656682     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656681     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656680     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656679     savio savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656693     savio savio_jo sivonxay PD       0:00      1 (Resources) 
+          13656692     savio savio_jo sivonxay PD       0:00      1 (Resources) 
+          13656691     savio savio_jo sivonxay PD       0:00      1 (Resources) 
+          13611786     savio Splicing  aniketh PD       0:00      1 (launch failed requeued held) 
+          13653950     savio braker_t kdarragh  R 1-15:25:34      1 n0105.savio1 
+          13655471     savio HS_SVM_t hyeyoung  R   15:33:30      1 n0118.savio1 
+          13655459     savio HS_SVM_t hyeyoung  R   15:52:02      1 n0088.savio1 
+          13655457     savio HS_SVM_t hyeyoung  R   15:53:03      1 n0084.savio1 
+          13655709     savio OOD_Jupy moraogan  R   11:57:37      1 n0092.savio1 
+          13654251     savio HS_SVM_t hyeyoung  R 1-08:05:16      1 n0091.savio1 
+          13646977    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646976    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646975    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646974    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646973    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646972    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646971    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646969    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646968    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646967    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646966    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646965    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646964    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646963    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646962    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646961    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646960    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646958    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646957    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646956    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646955    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646954    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646953    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646950    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646949    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646948    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646947    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646946    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646945    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13646934    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13644287    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13644278    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13644200    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13644172    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641303    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641302    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641301    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641299    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641298    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641297    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641296    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641295    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641294    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641293    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641292    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641291    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641290    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641289    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641288    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641287    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641285    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641284    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13641283    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13656436    savio2 savio_jo sivonxay PD       0:00      1 (Priority) 
+          13642201    savio2     bash weikevin  R 5-21:51:00      1 n0045.savio2 
+          13651737    savio2     bash weikevin  R 2-18:35:09      1 n0199.savio2 
+          13635866    savio2  ASTLGS3 astrosav  R 7-21:45:16      1 n0081.savio2 
+          13635859    savio2  ASTLGS3 astrosav  R 7-21:47:49      1 n0073.savio2 
+          13655713    savio2 ngc3741_ yumichoi  R   11:44:46      1 n0130.savio2 
+          13655975    savio2  photM92 astrosav  R   10:38:43      1 n0128.savio2 
+          13654778    savio2  intrun2 seokjinm  R   23:41:54      1 n0052.savio2 
+          13654777    savio2  intrun1 seokjinm  R   23:44:12      1 n0237.savio2 
+          13653130    savio2 Trapdoor xinyiqia  R 1-16:16:53      8 n0088.savio2,n0135.savio2,n0136.savio2,n0137.savio2,n0190.savio2,n0198.savio2,n0201.savio2,n0233.savio2 
+          13656213    savio2 3-Assemb danielki  R    8:19:55      4 n0041.savio2,n0058.savio2,n0091.savio2,n0204.savio2 
+          13654200    savio2 Trap_Wid xinyiqia  R 1-09:22:23      8 n0049.savio2,n0051.savio2,n0065.savio2,n0082.savio2,n0138.savio2,n0197.savio2,n0210.savio2,n0231.savio2 
+          13641282    savio2 savio_jo sivonxay  R    7:33:25      1 n0235.savio2 
+          13641274    savio2 savio_jo sivonxay  R    7:43:13      1 n0143.savio2 
+          13641275    savio2 savio_jo sivonxay  R    7:43:13      1 n0062.savio2 
+          13641276    savio2 savio_jo sivonxay  R    7:43:13      1 n0063.savio2 
+          13641277    savio2 savio_jo sivonxay  R    7:43:13      1 n0112.savio2 
+          13641278    savio2 savio_jo sivonxay  R    7:43:13      1 n0126.savio2 
+          13641279    savio2 savio_jo sivonxay  R    7:43:13      1 n0127.savio2 
+          13641280    savio2 savio_jo sivonxay  R    7:43:13      1 n0194.savio2 
+          13641272    savio2 savio_jo sivonxay  R    7:50:40      1 n0048.savio2 
+          13641271    savio2 savio_jo sivonxay  R    7:51:47      1 n0040.savio2 
+          13641265    savio2 savio_jo sivonxay  R    7:52:10      1 n0097.savio2 
+          13641266    savio2 savio_jo sivonxay  R    7:52:10      1 n0292.savio2 
+          13641267    savio2 savio_jo sivonxay  R    7:52:10      1 n0195.savio2 
+          13641268    savio2 savio_jo sivonxay  R    7:52:10      1 n0200.savio2 
+          13641269    savio2 savio_jo sivonxay  R    7:52:10      1 n0236.savio2 
+          13641270    savio2 savio_jo sivonxay  R    7:52:10      1 n0238.savio2 
+          13641257    savio2 savio_jo sivonxay  R    7:57:25      1 n0038.savio2 
+          13641258    savio2 savio_jo sivonxay  R    7:57:25      1 n0129.savio2 
+          13641259    savio2 savio_jo sivonxay  R    7:57:25      1 n0141.savio2 
+          13641260    savio2 savio_jo sivonxay  R    7:57:25      1 n0067.savio2 
+          13641261    savio2 savio_jo sivonxay  R    7:57:25      1 n0072.savio2 
+          13641262    savio2 savio_jo sivonxay  R    7:57:25      1 n0077.savio2 
+          13640983    savio2 savio_jo sivonxay  R    8:18:25      1 n0071.savio2 
+          13638822    savio2 savio_jo sivonxay  R    8:26:40      1 n0140.savio2 
+          13638823    savio2 savio_jo sivonxay  R    8:26:40      1 n0145.savio2 
+          13638833    savio2 savio_jo sivonxay  R    8:26:40      1 n0147.savio2 
+          13640964    savio2 savio_jo sivonxay  R    8:26:40      1 n0148.savio2 
+          13640968    savio2 savio_jo sivonxay  R    8:26:40      1 n0150.savio2 
+          13640971    savio2 savio_jo sivonxay  R    8:26:40      1 n0189.savio2 
+          13640974    savio2 savio_jo sivonxay  R    8:26:40      1 n0192.savio2 
+          13640977    savio2 savio_jo sivonxay  R    8:26:40      1 n0208.savio2 
+          13640980    savio2 savio_jo sivonxay  R    8:26:40      1 n0209.savio2 
+          13638689    savio2 savio_jo sivonxay  R    8:26:57      1 n0036.savio2 
+          13638690    savio2 savio_jo sivonxay  R    8:26:57      1 n0047.savio2 
+          13638691    savio2 savio_jo sivonxay  R    8:26:57      1 n0054.savio2 
+          13638692    savio2 savio_jo sivonxay  R    8:26:57      1 n0115.savio2 
+          13638695    savio2 savio_jo sivonxay  R    8:26:57      1 n0119.savio2 
+          13638696    savio2 savio_jo sivonxay  R    8:26:57      1 n0120.savio2 
+          13638738    savio2 savio_jo sivonxay  R    8:26:57      1 n0060.savio2 
+          13638745    savio2 savio_jo sivonxay  R    8:26:57      1 n0061.savio2 
+          13638796    savio2 savio_jo sivonxay  R    8:26:57      1 n0069.savio2 
+          13638797    savio2 savio_jo sivonxay  R    8:26:57      1 n0070.savio2 
+          13638798    savio2 savio_jo sivonxay  R    8:26:57      1 n0083.savio2 
+          13638799    savio2 savio_jo sivonxay  R    8:26:57      1 n0085.savio2 
+          13638810    savio2 savio_jo sivonxay  R    8:26:57      1 n0090.savio2 
+          13638811    savio2 savio_jo sivonxay  R    8:26:57      1 n0100.savio2 
+          13638812    savio2 savio_jo sivonxay  R    8:26:57      1 n0139.savio2 
+          13638688    savio2 savio_jo sivonxay  R    8:28:58      1 n0188.savio2 
+          13638539    savio2 savio_jo sivonxay  R    8:30:28      1 n0076.savio2 
+          13638540    savio2 savio_jo sivonxay  R    8:30:28      1 n0290.savio2 
+          13638541    savio2 savio_jo sivonxay  R    8:30:28      1 n0046.savio2 
+          13638542    savio2 savio_jo sivonxay  R    8:30:28      1 n0056.savio2 
+          13638558    savio2 savio_jo sivonxay  R    8:30:28      1 n0087.savio2 
+          13638563    savio2 savio_jo sivonxay  R    8:30:28      1 n0099.savio2 
+          13638585    savio2 savio_jo sivonxay  R    8:30:28      1 n0134.savio2 
+          13638586    savio2 savio_jo sivonxay  R    8:30:28      1 n0146.savio2 
+          13638610    savio2 savio_jo sivonxay  R    8:30:28      1 n0149.savio2 
+          13638684    savio2 savio_jo sivonxay  R    8:30:28      1 n0205.savio2 
+          13638685    savio2 savio_jo sivonxay  R    8:30:28      1 n0187.savio2 
+          13638687    savio2 savio_jo sivonxay  R    8:30:28      1 n0202.savio2 
+          13601967 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601966 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601965 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601964 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601962 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601961 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601958 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601956 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601954 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601948 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601947 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601944 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601943 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601942 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601941 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601936 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601935 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601933 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601932 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601931 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601930 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601929 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601928 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601927 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601888 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601883 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601882 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601823 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601821 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601777 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601776 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601775 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601772 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601770 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601765 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601598 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601591 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601589 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601588 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601587 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601586 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601584 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601583 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601582 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601581 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601580 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601579 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13601578 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13594319 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13594191 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13594143 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13594121 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13594087 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13593917 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13593854 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13593824 savio2_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13642239 savio2_bi     bash weikevin  R 5-21:21:05      1 n0164.savio2 
+          13642200 savio2_bi     bash weikevin  R 5-21:51:28      1 n0185.savio2 
+          13648405 savio2_bi     bash weikevin  R 3-22:51:07      1 n0155.savio2 
+          13631607 savio2_bi   AST185 astrosav  R 9-20:15:53      1 n0287.savio2 
+          13631592 savio2_bi   AST185 astrosav  R 9-20:30:41      1 n0286.savio2 
+          13635872 savio2_bi   ASTGSS astrosav  R 7-21:40:42      1 n0174.savio2 
+          13635879 savio2_bi   ASTGSS astrosav  R 7-21:38:15      1 n0169.savio2 
+          13601918 savio2_bi Splicing  aniketh  R    1:05:58      1 n0178.savio2 
+          13601917 savio2_bi Splicing  aniketh  R    1:06:28      1 n0162.savio2 
+          13602028 savio2_bi Splicing  aniketh  R    1:07:59      1 n0180.savio2 
+          13602027 savio2_bi Splicing  aniketh  R    1:45:40      1 n0160.savio2 
+          13602030 savio2_bi Splicing  aniketh  R    2:53:32      1 n0285.savio2 
+          13602026 savio2_bi Splicing  aniketh  R    2:53:36      1 n0154.savio2 
+          13602200 savio2_bi Splicing  aniketh  R    3:41:18      1 n0159.savio2 
+          13602022 savio2_bi Splicing  aniketh  R    3:42:49      1 n0165.savio2 
+          13602015 savio2_bi Splicing  aniketh  R    3:44:49      1 n0158.savio2 
+          13602009 savio2_bi Splicing  aniketh  R    3:45:50      1 n0289.savio2 
+          13602007 savio2_bi Splicing  aniketh  R   20:50:59      1 n0177.savio2 
+          13602005 savio2_bi Splicing  aniketh  R   23:35:22      1 n0176.savio2 
+          13601946 savio2_bi Splicing  aniketh  R   23:50:03      1 n0171.savio2 
+          13601938 savio2_bi Splicing  aniketh  R 1-09:03:44      1 n0175.savio2 
+          13601934 savio2_bi Splicing  aniketh  R 1-10:12:20      1 n0157.savio2 
+          13601978 savio2_bi Splicing  aniketh  R 1-11:38:17      1 n0181.savio2 
+          13602003 savio2_bi Splicing  aniketh  R 1-18:47:17      1 n0167.savio2 
+          13601999 savio2_bi Splicing  aniketh  R 1-21:02:50      1 n0168.savio2 
+          13602208 savio2_bi Splicing  aniketh  R 2-11:28:55      1 n0283.savio2 
+          13602207 savio2_bi Splicing  aniketh  R 2-12:31:41      1 n0156.savio2 
+          13602206 savio2_bi Splicing  aniketh  R 2-12:46:41      1 n0282.savio2 
+          13602077 savio2_bi Splicing  aniketh  R 2-13:02:30      1 n0183.savio2 
+          13601963 savio2_bi Splicing  aniketh  R 2-13:24:39      1 n0172.savio2 
+          13601951 savio2_bi Splicing  aniketh  R 2-13:31:41      1 n0182.savio2 
+          13601983 savio2_bi Splicing  aniketh  R 2-14:30:58      1 n0179.savio2 
+          13601981 savio2_bi Splicing  aniketh  R 2-14:50:45      1 n0153.savio2 
+          13601980 savio2_bi Splicing  aniketh  R 2-16:02:42      1 n0284.savio2 
+          13601977 savio2_bi Splicing  aniketh  R 2-16:13:47      1 n0161.savio2 
+          13601979 savio2_bi Splicing  aniketh  R 2-16:13:47      1 n0184.savio2 
+          13601975 savio2_bi Splicing  aniketh  R 2-20:12:15      1 n0152.savio2 
+          13601976 savio2_bi Splicing  aniketh  R 2-20:19:17      1 n0170.savio2 
+          13601973 savio2_bi Splicing  aniketh  R 2-21:07:04      1 n0163.savio2 
+          13601945 savio2_bi Splicing  aniketh  R 1-03:37:20      1 n0288.savio2 
+          13601940 savio2_bi Splicing  aniketh  R 1-05:05:52      1 n0173.savio2 
+          13601939 savio2_bi Splicing  aniketh  R 1-06:48:45      1 n0186.savio2 
+          11692684 savio2_gp OOD_Jupy ataberks PD       0:00     16 (PartitionConfig) 
+           6673582 savio2_ht  end188a kvegesna PD       0:00      2 (QOSGrpCpuLimit) 
+          11698994 savio2_ht    Sa4.5   liuzzo PD       0:00      1 (QOSMaxCpuPerJobLimit) 
+          13655067 savio2_ht 6_bcftoo peter_st  R   17:07:02      1 n0217.savio2 
+          13655442 savio2_ht PvWT_CRm jessedun  R   16:03:34      1 n0216.savio2 
+          13656161 savio2_ht     bash ztzyz615  R    8:44:48      1 n0222.savio2 
+          13656160 savio2_ht     bash ztzyz615  R    8:44:53      1 n0221.savio2 
+          13656159 savio2_ht     bash ztzyz615  R    8:45:01      1 n0220.savio2 
+          13656158 savio2_ht     bash ztzyz615  R    8:45:06      1 n0219.savio2 
+          13656157 savio2_ht     bash ztzyz615  R    8:45:14      1 n0214.savio2 
+          13656156 savio2_ht     bash ztzyz615  R    8:45:20      1 n0213.savio2 
+          13656155 savio2_ht     bash ztzyz615  R    8:45:27      1 n0212.savio2 
+          13656151 savio2_ht     bash ztzyz615  R    8:45:33      1 n0222.savio2 
+          13656150 savio2_ht     bash ztzyz615  R    8:45:39      1 n0221.savio2 
+          13656149 savio2_ht     bash ztzyz615  R    8:48:26      1 n0220.savio2 
+          13656148 savio2_ht     bash ztzyz615  R    8:48:31      1 n0219.savio2 
+          13656147 savio2_ht     bash ztzyz615  R    8:48:38      1 n0214.savio2 
+          13656146 savio2_ht     bash ztzyz615  R    8:48:43      1 n0213.savio2 
+          13656145 savio2_ht     bash ztzyz615  R    8:48:49      1 n0212.savio2 
+          13656144 savio2_ht     bash ztzyz615  R    8:48:59      1 n0222.savio2 
+          13656143 savio2_ht     bash ztzyz615  R    8:49:07      1 n0221.savio2 
+          13656142 savio2_ht     bash ztzyz615  R    8:49:14      1 n0220.savio2 
+          13656141 savio2_ht     bash ztzyz615  R    8:49:20      1 n0219.savio2 
+          13656140 savio2_ht     bash ztzyz615  R    8:49:25      1 n0214.savio2 
+          13656139 savio2_ht     bash ztzyz615  R    8:50:09      1 n0213.savio2 
+          13656138 savio2_ht     bash ztzyz615  R    8:50:15      1 n0212.savio2 
+          13656137 savio2_ht     bash ztzyz615  R    8:50:22      1 n0222.savio2 
+          13653445    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653443    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653442    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653440    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653438    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653434    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653433    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653426    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653423    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653421    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653419    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653418    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653417    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653416    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653414    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653413    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653408    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653399    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653398    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653397    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653396    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653395    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653391    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653389    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653383    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653378    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653377    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653375    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653321    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653290    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653284    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653251    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653247    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653246    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653245    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653244    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653243    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653242    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653241    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653233    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653228    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653227    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653224    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653222    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653221    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653220    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653219    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653217    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653215    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653214    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653213    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653212    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653208    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653203    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653198    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653197    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653195    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653194    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653193    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653191    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653180    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653167    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653166    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653165    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653163    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653147    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653139    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605099    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605089    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605087    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605086    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605085    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13605074    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604960    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604936    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604927    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604920    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604917    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604900    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604898    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604897    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604886    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604856    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604854    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604853    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604708    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604495    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604488    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604484    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604483    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653723    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653724    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653234    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653717    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653718    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653720    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653721    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653722    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653725    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653726    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653728    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653727    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653731    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653740    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653796    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653141    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13604449    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653164    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653204    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653181    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653211    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653317    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653323    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653324    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653325    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653327    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653326    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653330    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653329    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653331    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653334    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653345    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653349    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653341    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13653347    savio3 Splicing  aniketh PD       0:00      1 (Priority) 
+          13654960    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654947    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654946    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654945    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654944    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654943    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654942    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654926    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654925    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654924    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654923    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654922    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654921    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654920    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654919    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654918    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654917    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654916    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654903    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654901    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654900    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654899    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654898    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654896    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654776    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654772    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654770    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654767    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654763    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654761    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654759    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654757    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654754    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654752    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654751    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654750    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654748    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654746    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654744    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654739    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654737    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654736    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13654735    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13656395    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13656500    savio3 savio3_j sivonxay PD       0:00      1 (Priority) 
+          13617043    savio3 TK_1_ar_   rdguha  R 11-13:38:51      1 n0139.savio3 
+          13656510    savio3 C_E_B_A_   svijay  R    1:15:31      1 n0208.savio3 
+          13656690    savio3 C_A_D_D_   svijay  R       1:05      1 n0247.savio3 
+          13656678    savio3 B_A_E_B_   svijay  R       2:08      1 n0130.savio3 
+          13656537    savio3 D_E_C_A_   svijay  R      19:13      1 n0155.savio3 
+          13656536    savio3 C_A_B_D_   svijay  R      20:35      1 n0269.savio3 
+          13656535    savio3 D_D_C_A_   svijay  R      21:44      1 n0171.savio3 
+          13656526    savio3 D_C_D_A_   svijay  R      37:05      1 n0199.savio3 
+          13656525    savio3 D_A_C_E_   svijay  R      38:19      1 n0205.savio3 
+          13656519    savio3 A_C_E_D_   svijay  R      50:48      1 n0131.savio3 
+          13656516    savio3 A_B_C_E_   svijay  R    1:02:36      1 n0246.savio3 
+          13656511    savio3 A_C_E_B_   svijay  R    1:11:00      1 n0231.savio3 
+          13656503    savio3 D_A_E_B_   svijay  R    1:36:07      1 n0133.savio3 
+          13656499    savio3 B_E_D_A_   svijay  R    1:49:11      1 n0200.savio3 
+          13656498    savio3 A_A_E_D_   svijay  R    1:53:13      1 n0151.savio3 
+          13656487    savio3 B_E_B_E_   svijay  R    2:34:26      1 n0272.savio3 
+          13656484    savio3 E_C_E_A_   svijay  R    2:41:47      1 n0193.savio3 
+          13656483    savio3 A_A_B_A_   svijay  R    2:50:36      1 n0250.savio3 
+          13656474    savio3 D_A_D_A_   svijay  R    3:14:10      1 n0228.savio3 
+          13656470    savio3 A_B_D_E_   svijay  R    3:28:06      1 n0157.savio3 
+          13655964    savio3 OOD_batc xiaomeng  R   11:03:27      1 n0074.savio3 
+          13642408    savio3  map_c12 yoonjae_  R 5-18:44:40      1 n0049.savio3 
+          13650328    savio3  run1_no seokjinm  R 3-17:35:59      1 n0115.savio3 
+          13653041    savio3  intrun0 seokjinm  R 1-19:04:32      1 n0073.savio3 
+          13654062    savio3 le_c6_fr yoonjae_  R 1-14:37:55      1 n0227.savio3 
+          13656671    savio3     bash davidtia  R       3:00      1 n0065.savio3 
+          13655499    savio3 ATR152Bn tatianas  R   15:08:04     20 n0126.savio3,n0127.savio3,n0129.savio3,n0132.savio3,n0140.savio3,n0153.savio3,n0154.savio3,n0201.savio3,n0203.savio3,n0222.savio3,n0237.savio3,n0239.savio3,n0240.savio3,n0241.savio3,n0243.savio3,n0245.savio3,n0255.savio3,n0256.savio3,n0266.savio3,n0271.savio3 
+          13654698    savio3 savio3_j sivonxay  R    6:39:51      1 n0197.savio3 
+          13654696    savio3 savio3_j sivonxay  R    6:46:54      1 n0248.savio3 
+          13654694    savio3 savio3_j sivonxay  R    6:52:10      1 n0195.savio3 
+          13654689    savio3 savio3_j sivonxay  R    6:52:26      1 n0224.savio3 
+          13654691    savio3 savio3_j sivonxay  R    6:52:26      1 n0225.savio3 
+          13654688    savio3 savio3_j sivonxay  R    7:01:29      1 n0152.savio3 
+          13654686    savio3 savio3_j sivonxay  R    7:05:01      1 n0207.savio3 
+          13654682    savio3 savio3_j sivonxay  R    7:11:03      1 n0173.savio3 
+          13654681    savio3 savio3_j sivonxay  R    7:14:04      1 n0194.savio3 
+          13654676    savio3 savio3_j sivonxay  R    7:20:06      1 n0172.savio3 
+          13654677    savio3 savio3_j sivonxay  R    7:20:06      1 n0233.savio3 
+          13654673    savio3 savio3_j sivonxay  R    7:25:08      1 n0230.savio3 
+          13654670    savio3 savio3_j sivonxay  R    7:26:08      1 n0128.savio3 
+          13654669    savio3 savio3_j sivonxay  R    7:28:55      1 n0150.savio3 
+          13654667    savio3 savio3_j sivonxay  R    7:31:40      1 n0232.savio3 
+          13654664    savio3 savio3_j sivonxay  R    7:32:40      1 n0229.savio3 
+          13654661    savio3 savio3_j sivonxay  R    7:34:11      1 n0242.savio3 
+          13654658    savio3 savio3_j sivonxay  R    7:39:12      1 n0234.savio3 
+          13654654    savio3 savio3_j sivonxay  R    7:54:25      1 n0253.savio3 
+          13654653    savio3 savio3_j sivonxay  R    8:00:49      1 n0105.savio3 
+          13654650    savio3 savio3_j sivonxay  R    8:03:50      1 n0204.savio3 
+          13654646    savio3 savio3_j sivonxay  R    8:12:25      1 n0270.savio3 
+          13654644    savio3 savio3_j sivonxay  R    8:13:23      1 n0268.savio3 
+          13654642    savio3 savio3_j sivonxay  R    8:14:53      1 n0238.savio3 
+          13654640    savio3 savio3_j sivonxay  R    8:33:29      1 n0196.savio3 
+          13654638    savio3 savio3_j sivonxay  R    8:33:59      1 n0198.savio3 
+          13654636    savio3 savio3_j sivonxay  R    8:36:30      1 n0252.savio3 
+          13654634    savio3 savio3_j sivonxay  R    8:43:33      1 n0257.savio3 
+          13654632    savio3 savio3_j sivonxay  R    8:45:25      1 n0226.savio3 
+          13654590    savio3 savio3_j sivonxay  R    8:53:39      1 n0015.savio3 
+          13654593    savio3 savio3_j sivonxay  R    8:53:39      1 n0017.savio3 
+          13654595    savio3 savio3_j sivonxay  R    8:53:39      1 n0023.savio3 
+          13654597    savio3 savio3_j sivonxay  R    8:53:39      1 n0024.savio3 
+          13654600    savio3 savio3_j sivonxay  R    8:53:39      1 n0025.savio3 
+          13654602    savio3 savio3_j sivonxay  R    8:53:39      1 n0141.savio3 
+          13654606    savio3 savio3_j sivonxay  R    8:53:39      1 n0142.savio3 
+          13654575    savio3 savio3_j sivonxay  R    8:53:40      1 n0052.savio3 
+          13654577    savio3 savio3_j sivonxay  R    8:53:40      1 n0054.savio3 
+          13654579    savio3 savio3_j sivonxay  R    8:53:40      1 n0064.savio3 
+          13654583    savio3 savio3_j sivonxay  R    8:53:40      1 n0072.savio3 
+          13654584    savio3 savio3_j sivonxay  R    8:53:40      1 n0077.savio3 
+          13654586    savio3 savio3_j sivonxay  R    8:53:40      1 n0010.savio3 
+          13654589    savio3 savio3_j sivonxay  R    8:53:40      1 n0014.savio3 
+          13654574    savio3 savio3_j sivonxay  R    8:54:06      1 n0170.savio3 
+          13654570    savio3 savio3_j sivonxay  R    9:00:08      1 n0236.savio3 
+          13654569    savio3 savio3_j sivonxay  R    9:03:39      1 n0251.savio3 
+          13654286    savio3 savio3_j sivonxay  R    9:10:45      1 n0012.savio3 
+          13654293    savio3 savio3_j sivonxay  R    9:10:45      1 n0020.savio3 
+          13654294    savio3 savio3_j sivonxay  R    9:10:45      1 n0026.savio3 
+          13654295    savio3 savio3_j sivonxay  R    9:10:45      1 n0027.savio3 
+          13654297    savio3 savio3_j sivonxay  R    9:10:45      1 n0043.savio3 
+          13654299    savio3 savio3_j sivonxay  R    9:10:45      1 n0044.savio3 
+          13654302    savio3 savio3_j sivonxay  R    9:10:45      1 n0046.savio3 
+          13603227 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603226 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603225 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603224 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603223 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603222 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603221 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603220 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603219 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603218 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603217 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603216 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603215 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603214 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603213 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603212 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603211 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603210 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603209 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603208 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603207 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603206 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603205 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603204 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603203 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603202 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603201 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603200 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603199 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603198 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603197 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603196 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603195 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603194 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603193 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603192 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603191 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603190 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603189 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603188 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603187 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603186 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603185 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603184 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603183 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603182 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603181 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603180 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603179 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603178 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603177 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603176 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603175 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603174 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603173 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603172 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603171 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603170 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603169 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603168 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603167 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603166 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603165 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603164 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603163 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603149 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603148 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603147 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603146 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603145 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603144 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603143 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603142 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603141 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603140 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603139 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603138 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603137 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603136 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603135 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603134 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603133 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603132 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603131 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603130 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603129 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603128 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603127 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603126 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603125 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603124 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603123 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603122 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603121 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603120 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603119 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603118 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603117 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603116 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603115 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603114 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603113 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603112 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603111 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603110 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603109 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603108 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603107 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603106 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603105 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603104 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603103 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603102 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603101 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603100 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603099 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603098 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603097 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603096 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603095 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603090 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603089 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603088 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603087 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13603086 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602902 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602901 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602900 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602899 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602898 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602897 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602896 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602895 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602894 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602893 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602892 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602891 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602890 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602889 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602888 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602887 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602886 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602885 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602884 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602883 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602882 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602881 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602880 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602879 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602878 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602877 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602876 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602875 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602874 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602872 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602871 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602870 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602869 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602868 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602867 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602866 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602865 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602864 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602863 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602862 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602861 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602860 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602859 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602858 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602857 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602856 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602855 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602854 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602853 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602852 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602851 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602850 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602849 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602848 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602847 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602846 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602845 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602844 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602843 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602842 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602841 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602840 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602839 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602838 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602837 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602836 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602835 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602834 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602832 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602831 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602830 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602829 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602828 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602827 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602826 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602825 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602824 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602823 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602822 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602821 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602820 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602819 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602818 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602817 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602816 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602815 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602814 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602813 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602812 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602811 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602810 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602809 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602808 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602807 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602806 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602805 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602804 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602803 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602802 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602801 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602800 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602799 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602798 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602797 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602796 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602795 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602794 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602793 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602792 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602791 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602790 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602789 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602788 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602787 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602786 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602785 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602784 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602783 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602782 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602781 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602780 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602779 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602778 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602777 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602776 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602527 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602526 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602525 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602524 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602523 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602521 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602520 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602519 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602518 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602517 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602511 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602509 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602508 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602507 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602506 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602503 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602502 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602501 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602500 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602499 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602498 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602497 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602496 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602495 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602494 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602492 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602491 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602490 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602489 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602488 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602487 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602485 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602466 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602464 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602461 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602426 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602423 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602421 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602420 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602418 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602416 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602415 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602414 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602412 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13602549 savio3_bi Splicing  aniketh PD       0:00      1 (Priority) 
+          13243470 savio3_bi     bash mvazquez  R 59-22:42:06      1 n0163.savio3 
+          13656492 savio3_bi analysis  alanaw1  R    2:09:18      1 n0039.savio3 
+          13602703 savio3_bi Splicing  aniketh  R 1-14:06:43      1 n0009.savio3 
+          13602739 savio3_bi Splicing  aniketh  R    1:17:36      1 n0008.savio3 
+          13602557 savio3_bi Splicing  aniketh  R   11:40:15      1 n0165.savio3 
+          13602719 savio3_bi Splicing  aniketh  R   12:54:37      1 n0036.savio3 
+          13602717 savio3_bi Splicing  aniketh  R   13:26:47      1 n0035.savio3 
+          13602713 savio3_bi Splicing  aniketh  R   13:42:30      1 n0038.savio3 
+          13602712 savio3_bi Splicing  aniketh  R   15:32:57      1 n0006.savio3 
+          13602710 savio3_bi Splicing  aniketh  R   21:13:06      1 n0030.savio3 
+          13602709 savio3_bi Splicing  aniketh  R   23:15:45      1 n0034.savio3 
+          13602686 savio3_bi Splicing  aniketh  R 2-16:44:59      1 n0032.savio3 
+          13602685 savio3_bi Splicing  aniketh  R 2-16:53:02      1 n0041.savio3 
+          13602738 savio3_bi Splicing  aniketh  R    6:57:25      1 n0007.savio3 
+          13602737 savio3_bi Splicing  aniketh  R    7:37:55      1 n0033.savio3 
+          13602736 savio3_bi Splicing  aniketh  R   10:06:32      1 n0164.savio3 
+          13602735 savio3_bi Splicing  aniketh  R   10:48:27      1 n0031.savio3 
+          13602711 savio3_bi Splicing  aniketh  R   20:27:17      1 n0162.savio3 
+          13602694 savio3_bi Splicing  aniketh  R 1-19:36:35      1 n0037.savio3 
+          13533942 savio3_gp     test sergioma PD       0:00      1 (QOSMinCpuNotSatisfied) 
+          13195745 savio3_gp     test sergioma PD       0:00      1 (QOSMinCpuNotSatisfied) 
+          11763418 savio3_gp     test   rdhuff PD       0:00      2 (QOSMinGRES) 
+          13625703 savio3_gp   Python  pranavm PD       0:00      1 (QOSMinGRES) 
+          12984811 savio3_gp   kmcsim brianang PD       0:00      1 (QOSMaxWallDurationPerJobLimit) 
+          11763720 savio3_gp   OneGPU   rdhuff PD       0:00      1 (QOSMinGRES) 
+          13622118 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622117 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622116 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622115 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622114 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622103 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13622102 savio3_gp 4xaq_LBD shifasab PD       0:00      1 (Dependency) 
+          13614486 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13614485 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13614480 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13614479 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13614474 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13614473 savio3_gp IFNLR1_J naomilat PD       0:00      1 (Dependency) 
+          13656323 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656322 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656321 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656320 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656319 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656318 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656316 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656317 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656315 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656314 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656313 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656312 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656311 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656310 savio3_gp     wrap patrickh PD       0:00      1 (Priority) 
+          13656309 savio3_gp     wrap patrickh PD       0:00      1 (Resources) 
+          12647578 savio3_gp 3u60_ope kentgord  R 97-17:47:57      1 n0210.savio3 
+          12647546 savio3_gp 3u60_ope kentgord  R 97-18:05:52      1 n0210.savio3 
+          13650338 savio3_gp 2f4j_ful kentgord  R 3-17:29:59      1 n0216.savio3 
+          13650337 savio3_gp 1opj_ful kentgord  R 3-17:30:17      1 n0216.savio3 
+          13650333 savio3_gp 2f4j_ful kentgord  R 3-17:34:18      1 n0211.savio3 
+          13650330 savio3_gp 1opj_ful kentgord  R 3-17:35:39      1 n0214.savio3 
+          12626015 savio3_gp 3u60_dis kentgord  R 103-23:43:34      1 n0209.savio3 
+          12626014 savio3_gp 3u60_dis kentgord  R 103-23:43:49      1 n0209.savio3 
+          13533722 savio3_gp 2f4j_ope kentgord  R 28-18:02:33      1 n0215.savio3 
+          13560066 savio3_gp clamp_op kentgord  R 24-22:53:21      1 n0263.savio3 
+          13560064 savio3_gp clamp_op kentgord  R 24-23:04:50      1 n0212.savio3 
+          13652175 savio3_gp oLMO700k bowenden  R 2-13:37:59      1 n0264.savio3 
+          13656465 savio3_gp joint_se chetbhat  R    3:32:07      1 n0174.savio3 
+          13656466 savio3_gp joint_se chetbhat  R    3:32:07      1 n0174.savio3 
+          13656467 savio3_gp joint_se chetbhat  R    3:32:07      1 n0174.savio3 
+          13656468 savio3_gp joint_se chetbhat  R    3:32:07      1 n0174.savio3 
+          13656461 savio3_gp joint_jo chetbhat  R    3:32:15      1 n0145.savio3 
+          13656462 savio3_gp joint_jo chetbhat  R    3:32:15      1 n0145.savio3 
+          13656463 savio3_gp joint_jo chetbhat  R    3:32:15      1 n0145.savio3 
+          13656464 savio3_gp joint_jo chetbhat  R    3:32:15      1 n0145.savio3 
+          13656456 savio3_gp separate chetbhat  R    3:32:24      1 n0143.savio3 
+          13656457 savio3_gp separate chetbhat  R    3:32:24      1 n0143.savio3 
+          13656458 savio3_gp separate chetbhat  R    3:32:24      1 n0145.savio3 
+          13656459 savio3_gp separate chetbhat  R    3:32:24      1 n0145.savio3 
+          13656452 savio3_gp separate chetbhat  R    3:32:30      1 n0144.savio3 
+          13656453 savio3_gp separate chetbhat  R    3:32:30      1 n0144.savio3 
+          13656454 savio3_gp separate chetbhat  R    3:32:30      1 n0143.savio3 
+          13656175 savio3_ht     bash ztzyz615  R    8:38:23      1 n0180.savio3 
+          13656174 savio3_ht     bash ztzyz615  R    8:38:31      1 n0179.savio3 
+          13656173 savio3_ht     bash ztzyz615  R    8:38:42      1 n0178.savio3 
+          13656172 savio3_ht     bash ztzyz615  R    8:38:50      1 n0177.savio3 
+          13656171 savio3_ht     bash ztzyz615  R    8:38:57      1 n0169.savio3 
+          13656170 savio3_ht     bash ztzyz615  R    8:39:18      1 n0166.savio3 
+          13656208 savio3_ht     bash ztzyz615  R    8:31:59      1 n0192.savio3 
+          13656207 savio3_ht     bash ztzyz615  R    8:32:04      1 n0191.savio3 
+          13656206 savio3_ht     bash ztzyz615  R    8:32:11      1 n0190.savio3 
+          13656205 savio3_ht     bash ztzyz615  R    8:32:17      1 n0189.savio3 
+          13656204 savio3_ht     bash ztzyz615  R    8:32:22      1 n0188.savio3 
+          13656203 savio3_ht     bash ztzyz615  R    8:32:32      1 n0185.savio3 
+          13656202 savio3_ht     bash ztzyz615  R    8:32:37      1 n0184.savio3 
+          13656201 savio3_ht     bash ztzyz615  R    8:32:44      1 n0183.savio3 
+          13656199 savio3_ht     bash ztzyz615  R    8:32:51      1 n0182.savio3 
+          13656198 savio3_ht     bash ztzyz615  R    8:32:56      1 n0181.savio3 
+          13656197 savio3_ht     bash ztzyz615  R    8:33:06      1 n0180.savio3 
+          13656196 savio3_ht     bash ztzyz615  R    8:33:12      1 n0179.savio3 
+          13656195 savio3_ht     bash ztzyz615  R    8:33:20      1 n0178.savio3 
+          13656194 savio3_ht     bash ztzyz615  R    8:33:26      1 n0177.savio3 
+          13656193 savio3_ht     bash ztzyz615  R    8:33:32      1 n0169.savio3 
+          13656191 savio3_ht     bash ztzyz615  R    8:34:33      1 n0166.savio3 
+          13656190 savio3_ht     bash ztzyz615  R    8:34:40      1 n0221.savio3 
+          13656189 savio3_ht     bash ztzyz615  R    8:34:47      1 n0220.savio3 
+          13656188 savio3_ht     bash ztzyz615  R    8:34:52      1 n0219.savio3 
+          13656187 savio3_ht     bash ztzyz615  R    8:35:00      1 n0218.savio3 
+          13656186 savio3_ht     bash ztzyz615  R    8:35:13      1 n0192.savio3 
+          13656185 savio3_ht     bash ztzyz615  R    8:35:18      1 n0191.savio3 
+          13656184 savio3_ht     bash ztzyz615  R    8:35:25      1 n0190.savio3 
+          13656183 savio3_ht     bash ztzyz615  R    8:35:30      1 n0189.savio3 
+          13631768 savio3_xl     bash mvazquez PD       0:00      1 (QOSGrpNodeLimit) 
+          13649828 savio3_xl JUM_A_ju  yeonlee PD       0:00      1 (Resources) 
+          13628923 savio3_xl     bash rohitkol  R 9-19:26:31      1 n0001.savio3 
+          13607060 savio3_xl    rh_75 christos  R 1-09:20:53      2 n0000.savio3,n0003.savio3 
+          13652304 savio4_ht SIESTA-6   meshal PD       0:00      1 (QOSGrpCpuLimit) 
+          13652303 savio4_ht SIESTA-5   meshal PD       0:00      1 (QOSGrpCpuLimit) 
+          13652302 savio4_ht SIESTA-5   meshal PD       0:00      1 (QOSGrpCpuLimit) 
+          13652301 savio4_ht SIESTA-5   meshal PD       0:00      1 (QOSGrpCpuLimit) 
+          13652300 savio4_ht SIESTA-5   meshal  R    1:43:10      1 n0047.savio4 
+          13652299 savio4_ht SIESTA-5   meshal  R    6:45:54      1 n0031.savio4 
+          13652298 savio4_ht SIESTA-5   meshal  R    7:45:25      1 n0041.savio4 
+          13652297 savio4_ht SIESTA-5   meshal  R   14:50:45      1 n0055.savio4 
+          13652296 savio4_ht SIESTA-5   meshal  R   17:47:20      1 n0053.savio4 
+          13652295 savio4_ht SIESTA-5   meshal  R   19:42:59      1 n0051.savio4 
+          13652294 savio4_ht SIESTA-5   meshal  R   22:26:48      1 n0049.savio4 
+          13652293 savio4_ht SIESTA-4   meshal  R   22:32:03      1 n0045.savio4 
+          13652197 savio4_ht       BA haoyesun  R 2-12:51:25      1 n0029.savio4 
+          13655988 savio4_ht      min haoyesun  R    9:33:14      4 n0003.savio4,n0009.savio4,n0011.savio4,n0013.savio4 
+          13655995 savio4_ht       n1 haoyesun  R    9:25:57      1 n0015.savio4 
+          13656528 savio_big array_ex simonkca  R      32:24      1 n0096.savio1 
+          13651565 savio_big     bash joana_ro  R 2-21:50:08      1 n0097.savio1 
+          13570457    vector fullset_ monicado  R 23-20:06:36      1 n0004.vector0 
+          13652822    vector raxml_no alexandr  R 1-20:44:36      1 n0006.vector0 
+          13652809    vector raxml_no alexandr  R 1-20:46:28      1 n0005.vector0 
+          13652803    vector fastidio alexandr  R 1-20:49:51      1 n0004.vector0 
+ln003:~$  
+    ln003squeue | less savio3_ht                                         Mon Nov 21 08:45     
+savio3_ht: No such file or directory 
+ln003:~$ squeue | grep savio3_ht 
+          13651948 savio3_ht     bash mvazquez  R 2-15:35:54      1 n0168.savio3 
+          13243522 savio3_ht     bash mvazquez  R 59-22:32:25      1 n0187.savio3 
+          13575418 savio3_ht     bash joana_ro  R 21-00:15:48      1 n0167.savio3 
+          13656182 savio3_ht     bash ztzyz615  R    8:36:01      1 n0188.savio3 
+          13656181 savio3_ht     bash ztzyz615  R    8:36:13      1 n0185.savio3 
+          13656180 savio3_ht     bash ztzyz615  R    8:36:19      1 n0184.savio3 
+          13656178 savio3_ht     bash ztzyz615  R    8:36:26      1 n0183.savio3 
+          13656177 savio3_ht     bash ztzyz615  R    8:36:32      1 n0182.savio3 
+          13656176 savio3_ht     bash ztzyz615  R    8:36:38      1 n0181.savio3 
+          13656175 savio3_ht     bash ztzyz615  R    8:38:47      1 n0180.savio3 
+          13656174 savio3_ht     bash ztzyz615  R    8:38:55      1 n0179.savio3 
+          13656173 savio3_ht     bash ztzyz615  R    8:39:06      1 n0178.savio3 
+          13656172 savio3_ht     bash ztzyz615  R    8:39:14      1 n0177.savio3 
+          13656171 savio3_ht     bash ztzyz615  R    8:39:21      1 n0169.savio3 
+          13656170 savio3_ht     bash ztzyz615  R    8:39:42      1 n0166.savio3 
+          13656208 savio3_ht     bash ztzyz615  R    8:32:23      1 n0192.savio3 
+          13656207 savio3_ht     bash ztzyz615  R    8:32:28      1 n0191.savio3 
+          13656206 savio3_ht     bash ztzyz615  R    8:32:35      1 n0190.savio3 
+          13656205 savio3_ht     bash ztzyz615  R    8:32:41      1 n0189.savio3 
+          13656204 savio3_ht     bash ztzyz615  R    8:32:46      1 n0188.savio3 
+          13656203 savio3_ht     bash ztzyz615  R    8:32:56      1 n0185.savio3 
+          13656202 savio3_ht     bash ztzyz615  R    8:33:01      1 n0184.savio3 
+          13656201 savio3_ht     bash ztzyz615  R    8:33:08      1 n0183.savio3 
+          13656199 savio3_ht     bash ztzyz615  R    8:33:15      1 n0182.savio3 
+          13656198 savio3_ht     bash ztzyz615  R    8:33:20      1 n0181.savio3 
+          13656197 savio3_ht     bash ztzyz615  R    8:33:30      1 n0180.savio3 
+          13656196 savio3_ht     bash ztzyz615  R    8:33:36      1 n0179.savio3 
+          13656195 savio3_ht     bash ztzyz615  R    8:33:44      1 n0178.savio3 
+          13656194 savio3_ht     bash ztzyz615  R    8:33:50      1 n0177.savio3 
+          13656193 savio3_ht     bash ztzyz615  R    8:33:56      1 n0169.savio3 
+          13656191 savio3_ht     bash ztzyz615  R    8:34:57      1 n0166.savio3 
+          13656190 savio3_ht     bash ztzyz615  R    8:35:04      1 n0221.savio3 
+          13656189 savio3_ht     bash ztzyz615  R    8:35:11      1 n0220.savio3 
+          13656188 savio3_ht     bash ztzyz615  R    8:35:16      1 n0219.savio3 
+          13656187 savio3_ht     bash ztzyz615  R    8:35:24      1 n0218.savio3 
+          13656186 savio3_ht     bash ztzyz615  R    8:35:37      1 n0192.savio3 
+          13656185 savio3_ht     bash ztzyz615  R    8:35:42      1 n0191.savio3 
+          13656184 savio3_ht     bash ztzyz615  R    8:35:49      1 n0190.savio3 
+          13656183 savio3_ht     bash ztzyz615  R    8:35:54      1 n0189.savio3 
+ln003:~$ squeue -u xdai 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+ 
+ln003:~$     1  bash*   2  bash-                                                              
+    ln003sinfo 
+PARTITION     AVAIL  TIMELIMIT  NODES  STATE NODELIST 
+savio            up   infinite      4  maint n0008.savio1,n0009.savio1,n0010.savio1,n0011.savio1 
+savio            up   infinite     76 drain* n0004.savio1,n0005.savio1,n0006.savio1,n0007.savio1,n0012.savio1,n0013.savio1,n0014.savio1,n0015.savio1,n0016.savio1,n0017.savio1,n0018.savio1,n0019.savio1,n0020.savio1,n0021.savio1,n0022.savio1,n0023.savio1,n0024.savio1,n0025.savio1,n0026.savio1,n0027.savio1,n0028.savio1,n0029.savio1,n0030.savio1,n0031.savio1,n0032.savio1,n0033.savio1,n0034.savio1,n0035.savio1,n0036.savio1,n0037.savio1,n0038.savio1,n0039.savio1,n0048.savio1,n0049.savio1,n0050.savio1,n0051.savio1,n0052.savio1,n0053.savio1,n0054.savio1,n0055.savio1,n0056.savio1,n0057.savio1,n0058.savio1,n0059.savio1,n0060.savio1,n0061.savio1,n0062.savio1,n0063.savio1,n0064.savio1,n0065.savio1,n0066.savio1,n0067.savio1,n0076.savio1,n0101.savio1,n0124.savio1,n0126.savio1,n0144.savio1,n0145.savio1,n0146.savio1,n0147.savio1,n0148.savio1,n0149.savio1,n0150.savio1,n0151.savio1,n0152.savio1,n0153.savio1,n0154.savio1,n0155.savio1,n0156.savio1,n0157.savio1,n0158.savio1,n0159.savio1,n0160.savio1,n0161.savio1,n0162.savio1,n0163.savio1 
+savio            up   infinite     14  drain n0040.savio1,n0041.savio1,n0042.savio1,n0043.savio1,n0044.savio1,n0045.savio1,n0046.savio1,n0047.savio1,n0114.savio1,n0141.savio1,n0164.savio1,n0165.savio1,n0166.savio1,n0167.savio1 
+savio            up   infinite     64  alloc n0068.savio1,n0069.savio1,n0070.savio1,n0071.savio1,n0072.savio1,n0073.savio1,n0074.savio1,n0075.savio1,n0077.savio1,n0078.savio1,n0079.savio1,n0080.savio1,n0081.savio1,n0082.savio1,n0083.savio1,n0084.savio1,n0085.savio1,n0086.savio1,n0087.savio1,n0088.savio1,n0089.savio1,n0090.savio1,n0091.savio1,n0092.savio1,n0093.savio1,n0094.sasavio3,n0063.savio3,n0064.savio3,n0065.savio3,n0066.savio3,n0067.savio3,n0068.savio3,n0069.savio3,n0070.savio3,n0072.savio3,n0073.savio3,n0074.savio3,n0075.savio3,n0076.savio3,n0077.savio3,n0078.savio3,n0079.savio3,n0080.savio3,n0081.savio3,n0082.savio3,n0083.savio3,n0084.savio3,n0085.savio3,n0086.savio3,n0087.savio3,n0088.savio3,n0089.savio3,n0090.savio3,n0091.savio3,n0092.savio3,n0093.savio3,n0094.savio3,n0095.savio3,n0096.savio3,n0097.savio3,n0098.savio3,n0099.savio3,n0100.savio3,n0101.savio3,n0102.savio3,n0103.savio3,n0104.savio3,n0105.savio3,n0107.savio3,n0108.savio3,n0109.savio3,n0110.savio3,n0111.savio3,n0112.savio3,n0113.savio3,n0114.savio3,n0115.savio3,n0116.savio3,n0117.savio3,n0118.savio3,n0119.savio3,n0120.savio3,n0121.savio3,n0122.savio3,n0123.savio3,n0124.savio3,n0125.savio3,n0126.savio3,n0127.savio3,n0128.savio3,n0129.savio3,n0130.savio3,n0131.savio3,n0132.savio3,n0133.savio3,n0139.savio3,n0140.savio3,n0141.savio3,n0142.savio3,n0150.savio3,n0151.savio3,n0152.savio3,n0153.savio3,n0154.savio3,n0155.savio3,n0156.savio3,n0157.savio3,n0170.savio3,n0171.savio3,n0172.savio3,n0173.savio3,n0193.savio3,n0194.savio3,n0195.savio3,n0196.savio3,n0197.savio3,n0198.savio3,n0199.savio3,n0200.savio3,n0201.savio3,n0202.savio3,n0203.savio3,n0204.savio3,n0205.savio3,n0206.savio3,n0207.savio3,n0208.savio3,n0222.savio3,n0223.savio3,n0224.savio3,n0225.savio3,n0226.savio3,n0227.savio3,n0228.savio3,n0229.savio3,n0230.savio3,n0231.savio3,n0232.savio3,n0233.savio3,n0234.savio3,n0235.savio3,n0236.savio3,n0237.savio3,n0238.savio3,n0239.savio3,n0240.savio3,n0241.savio3,n0242.savio3,n0243.savio3,n0244.savio3,n0245.savio3,n0246.savio3,n0247.savio3,n0248.savio3,n0249.savio3,n0250.savio3,n0251.savio3,n0252.savio3,n0253.savio3,n0254.savio3,n0255.savio3,n0256.savio3,n0257.savio3,n0265.savio3,n0266.savio3,n0267.savio3,n0268.savio3,n0269.savio3,n0270.savio3,n0271.savio3,n0272.savio3 
+savio3_htc       up   infinite      1  drain n0186.savio3 
+savio3_htc       up   infinite     20    mix n0166.savio3,n0169.savio3,n0177.savio3,n0178.savio3,n0179.savio3,n0180.savio3,n0181.savio3,n0182.savio3,n0183.savio3,n0184.savio3,n0185.savio3,n
+ln003:~$ sinfo | grep idle 
+savio_bigmem     up   infinite      2   idle n0098.savio1,n0099.savio1 
+savio2_htc       up   infinite      1   idle n0215.savio2 
+savio2_gpu       up   infinite      9   idle n0012.savio2,n0013.savio2,n0014.savio2,n0018.savio2,n0019.savio2,n0223.savio2,n0224.savio2,n0225.savio2,n0226.savio2 
+savio2_1080ti    up   infinite      1   idle n0302.savio2 
+savio2_knl       up   infinite      3   idle n0255.savio2,n0273.savio2,n0275.savio2 
+ 
+savio3_gpu       up   infinite      9   idle n0004.savio3,n0134.savio3,n0135.savio3,n0136.savio3,n0138.savio3,n0175.savio3,n0176.savio3,n0258.savio3,n0260.savio3 
+ 
+savio4_htc       up   infinite      7   idle n0017.savio4,n0019.savio4,n0021.savio4,n0023.savio4,n0025.savio4,n0033.savio4,n0035.savio4 
+vector           up   infinite      6   idle n0001.vector0,n0002.vector0,n0003.vector0,n0007.vector0,n0008.vector0,n0011.vector0 
+testbed          up   infinite      3   idle n0000.testbed0,n0001.testbed0,n0003.testbed0 
+ 
+ 
+ln003:~$ sinfo -o "%.12N %.11T %.14C %.5O %.7e" --Node 
+    NODELIST       STATE  CPUS(A/I/O/T) CPU_L FREE_ME 
+n0000.savio2    drained*      0/0/12/12   N/A     N/A 
+n0000.savio3   allocated      32/0/0/32 25.16  768791 
+n0000.savio4    drained*      0/0/56/56  0.01  505837 
+n0000.testbe        idle        0/4/0/4  0.10   37844 
+n0000.vector    drained*      0/0/12/12   N/A     N/A 
+n0001.savio2    drained*      0/0/12/12  0.01  122009 
+n0001.savio3   allocated      32/0/0/32  0.03 1525892 
+n0001.savio4    drained*      0/0/56/56  0.03  505830 
+n0001.testbe        idle        0/4/0/4  0.02   57802 
+n0001.vector        idle      0/12/0/12  0.01   23316 
+n0002.savio2    drained*      0/0/12/12  0.01  122031 
+n0002.savio3    drained*      0/0/52/52  0.01 1526571 
+n0002.savio4    drained*      0/0/56/56  0.01  505825 
+n0002.testbe       down*        0/0/4/4  0.01    4041 
+n0002.vector        idle      0/12/0/12  0.01   27618 
+n0003.savio2    drained*      0/0/12/12   N/A     N/A 
+n0003.savio3   allocated      52/0/0/52 34.03  831382 
+n0003.savio4   allocated      56/0/0/56 56.04  473086 
+n0003.testbe        idle        0/4/0/4  0.01   23736 
+n0003.vector        idle      0/12/0/12  0.01   30143 
+n0004.savio1    drained*      0/0/20/20   N/A     N/A 
+n0004.savio2    drained*      0/0/12/12  0.03  122011 
+n0004.savio3        idle      0/16/0/16  0.03  182551 
+n0004.savio4       down$      0/0/56/56   N/A     N/A 
+n0004.vector       mixed     16/32/0/48  9.01    3633 
+n0005.savio1    drained*      0/0/20/20   N/A     N/A 
+n0005.savio2    drained*      0/0/12/12  0.01  122033 
+n0005.savio3       mixed        4/4/0/8  0.02   56112 
+n0005.savio4       down$      0/0/56/56   N/A     N/A 
+n0005.vector       mixed       8/8/0/16  1.03   10064 
+n0006.savio1    drained*      0/0/20/20   N/A     N/A                    Mon Nov 21 08:48     
+n0006.savio2    drained*      0/0/12/12  0.01  122005 
+n0006.savio3   allocated      32/0/0/32 32.09  156032 
+n0006.savio4       down$      0/0/56/56   N/A     N/A 
+n0006.vector       mixed       8/8/0/16  1.01   13514 
+n0007.savio1    drained*      0/0/20/20   N/A     N/A 
+n0007.savio2    drained*      0/0/12/12  0.01  122019 
+n0007.savio3   allocated      32/0/0/32 32.05  151800 
+n0007.savio4       down$      0/0/56/56   N/A     N/A 
+n0007.vector        idle      0/16/0/16  0.01   40994 
+n0008.savio1       maint      0/20/0/20  0.03   59232 
+n0008.savio2    drained*      0/0/12/12  0.02  122019 
+n0008.savio3   allocated      32/0/0/32 31.95  101570 
+n0008.savio4    drained*      0/0/56/56  0.03  505830 
+n0008.vector        idle      0/16/0/16  0.01  115310 
+n0009.savio1       maint      0/20/0/20  0.03   59234 
+n0009.savio2    drained*      0/0/12/12  0.02  122017 
+n0009.savio3   allocated      32/0/0/32 32.08   22302 
+n0009.savio4   allocated      56/0/0/56 56.06  478255 
+n0009.vector    drained*      0/0/12/12   N/A     N/A 
+n0010.savio1       maint      0/20/0/20  0.03   59227 
+n0010.savio2    drained*      0/0/12/12   N/A     N/A 
+n0010.savio3   allocated      32/0/0/32  4.54   71271 
+n0010.savio4    drained*      0/0/56/56  0.03  505834 
+n0010.vector    drained*      0/0/12/12   N/A     N/A 
+n0011.savio1       maint      0/20/0/20  0.01   59249 
+n0011.savio2    drained*      0/0/12/12  0.01  122000 
+n0129.savio2   allocated      24/0/0/24  4.72   50654 
+n0129.savio3   allocated      40/0/0/40 31.09   54905 
+n0130.savio1   allocated      20/0/0/20 20.09   14084 
+n0130.savio2   allocated      24/0/0/24  2.78   37854 
+n0130.savio3   allocated      40/0/0/40 13.35   77487 
+n0131.savio1   allocated      20/0/0/20  4.78   28605 
+n0131.savio2       down*      0/0/24/24   N/A     N/A 
+n0131.savio3   allocated      40/0/0/40 12.11   80760 
+n0132.savio1   allocated      20/0/0/20  4.65   35624 
+n0132.savio2    drained*      0/0/24/24   N/A     N/A 
+n0132.savio3   allocated      40/0/0/40 32.59   76386 
+n0133.savio1   allocated      20/0/0/20  4.83   42162 
+n0133.savio2   allocated      24/0/0/24  2.53   28392 
+n0133.savio3   allocated      40/0/0/40  6.60   81027 
+n0134.savio1   allocated      20/0/0/20  4.47   22802 
+n0134.savio2   allocated      24/0/0/24  3.99   18573 
+n0134.savio3        idle        0/8/0/8  0.02   86031 
+n0135.savio1   allocated      20/0/0/20  4.77   36642 
+n0135.savio2   allocated      24/0/0/24 24.03   35955 
+n0135.savio3        idle        0/8/0/8  0.01   85861 
+n0136.savio1        down      0/0/20/20  0.01   59239 
+n0136.savio2   allocated      24/0/0/24 24.61   26431 
+n0136.savio3        idle        0/8/0/8  0.03   86298 
+n0137.savio1   allocated      20/0/0/20  4.77   35528 
+n0137.savio2   allocated      24/0/0/24 24.03   32973 
+n0137.savio3   allocated        8/0/0/8  3.75   41775 
+n0138.savio1   allocated      20/0/0/20  4.89   18966 
+n0138.savio2   allocated      24/0/0/24 24.01   42395 
+n0138.savio3        idle        0/8/0/8  0.03   86769 
+n0139.savio1        down      0/0/20/20  0.03   59193 
+n0139.savio2   allocated      24/0/0/24  4.82   44806 
+n0139.savio3   allocated      40/0/0/40 24.93   66588 
+n0140.savio1   allocated      20/0/0/20  4.76   34347 
+n0140.savio2   allocated      24/0/0/24  4.72   47783 
+n0140.savio3   allocated      40/0/0/40 37.23   68275 
+n0141.savio1     drained      0/0/20/20  0.05   59159 
+n0141.savio2   allocated      24/0/0/24  4.72   33394 
+n0141.savio3   allocated      40/0/0/40  4.69   74109 
+n0142.savio1   allocated      20/0/0/20 20.09   33910 
+n0142.savio2   allocated      24/0/0/24 24.41   23067 
+n0142.savio3   allocated      40/0/0/40  4.81   69994 
+n0143.savio1   allocated      20/0/0/20  4.76   51561 
+n0143.savio2   allocated      24/0/0/24  4.69    9194 
+n0143.savio3   allocated      32/0/0/32 21.26  287888 
+n0144.savio1    drained*      0/0/20/20   N/A     N/A 
+n0144.savio2    drained*      0/0/24/24   N/A     N/A 
+n0144.savio3   allocated      32/0/0/32 28.19  304033 
+n0145.savio1    drained*      0/0/20/20   N/A     N/A 
+n0145.savio2   allocated      24/0/0/24  4.95   38820 
+n0145.savio3   allocated      32/0/0/32 16.50  279432 
+n0146.savio1    drained*      0/0/20/20   N/A     N/A 
+n0146.savio2   allocated      24/0/0/24  4.66   32595 
+n0146.savio3    drained*      0/0/32/32  0.01   58522 
+n0147.savio1    drained*      0/0/20/20   N/A     N/A 
+n0147.savio2   allocated      24/0/0/24  4.70   44451 
+n0147.savio3       down*      0/0/32/32 15.05     316 
+n0148.savio1    drained*      0/0/20/20   N/A     N/A 
+n0148.savio2   allocated      24/0/0/24  4.89   23927 
+n0148.savio3       down*      0/0/32/32 14.58    8577 
+n0149.savio1    drained*      0/0/20/20   N/A     N/A 
+n0149.savio2   allocated      24/0/0/24  4.63   26549 
+n0149.savio3       down*      0/0/32/32 14.73     323 
+n0150.savio1    drained*      0/0/20/20   N/A     N/A 
+n0150.savio2   allocated      24/0/0/24  4.91   47697 
+n0150.savio3   allocated      40/0/0/40  4.77   75511 
+n0151.savio1    drained*      0/0/20/20   N/A     N/A 
+n0151.savio2     drained      0/0/24/24  0.03  121662 
+n0151.savio3   allocated      40/0/0/40  6.64   73484 
+n0152.savio1    drained*      0/0/20/20   N/A     N/A 
+n0152.savio2   allocated      24/0/0/24 24.13    8954 
+n0152.savio3   allocated      40/0/0/40  4.78   65936 
+n0153.savio1    drained*      0/0/20/20   N/A     N/A 
+n0153.savio2   allocated      24/0/0/24 24.21    1986 
+n0153.savio3   allocated      40/0/0/40 32.69   66475 
+n0154.savio1    drained*      0/0/20/20   N/A     N/A 
+n0154.savio2   allocated      24/0/0/24 24.33    8207 
+n0154.savio3   allocated      40/0/0/40 32.06   64435 
+n0155.savio1    drained*      0/0/20/20   N/A     N/A 
+n0155.savio2   allocated      24/0/0/24  0.04   55895 
+n0155.savio3   allocated      40/0/0/40  9.82   49653 
+n0156.savio1    drained*      0/0/20/20   N/A     N/A 
+n0156.savio2   allocated      24/0/0/24 24.07     500 
+n0156.savio3   allocated      40/0/0/40  4.89   63944 
+n0157.savio1    drained*      0/0/20/20   N/A     N/A 
+n0157.savio2   allocated      24/0/0/24 24.03     410 
+n0157.savio3   allocated      40/0/0/40  5.93   78013 
+n0158.savio1    drained*      0/0/20/20   N/A     N/A 
+n0158.savio2   allocated      24/0/0/24 24.32     379 
+n0158.savio3   allocated        8/0/0/8  0.03   83777 
+n0159.savio1    drained*      0/0/20/20   N/A     N/A 
+n0159.savio2   allocated      24/0/0/24 24.01   21660 
+n0159.savio3     drained        0/0/8/8  1.01   81376 
+n0160.savio1    drained*      0/0/20/20   N/A     N/A 
+n0160.savio2   allocated      24/0/0/24 24.13    9726 
+n0160.savio3       mixed        4/4/0/8  2.01   82921 
+n0161.savio1    drained*      0/0/20/20   N/A     N/A 
+n0161.savio2   allocated      24/0/0/24 24.03     549 
+n0161.savio3       mixed        4/4/0/8  2.03   82439 
+n0162.savio1    drained*      0/0/20/20   N/A     N/A 
+n0162.savio2   allocated      24/0/0/24 23.49   32247 
+n0162.savio3   allocated      40/0/0/40 40.09   35148 
+n0163.savio1    drained*      0/0/20/20   N/A     N/A 
+n0163.savio2   allocated      24/0/0/24 24.08    7640 
+n0163.savio3   allocated      40/0/0/40 32.09  365665 
+n0164.savio1     drained      0/0/20/20  0.03   59154 
+n0164.savio2   allocated      24/0/0/24  4.03   47996 
+n0164.savio3   allocated      40/0/0/40 40.08  189641 
+n0165.savio1     drained      0/0/20/20  0.03   59171 
+n0165.savio2   allocated      24/0/0/24 24.01    3432 
+n0165.savio3   allocated      40/0/0/40 40.19    8523 
+n0166.savio1     drained      0/0/20/20  0.01   58676 
+n0166.savio2     drained      0/0/24/24  0.01  120973 
+n0166.savio3       mixed      2/38/0/40  2.01  369020 
+n0167.savio1     drained      0/0/20/20  0.03   59184 
+n0167.savio2   allocated      24/0/0/24 24.02     430 
+n0167.savio3   allocated      40/0/0/40 41.98   86370 
+n0168.savio2   allocated      24/0/0/24 24.04    2075 
+n0168.savio3   allocated      40/0/0/40  0.01  347157 
+n0169.savio2   allocated      24/0/0/24  4.01     398 
+n0169.savio3       mixed      2/38/0/40  2.31  361435 
+n0170.savio2   allocated      24/0/0/24 24.06     372 
+n0170.savio3   allocated      40/0/0/40  4.73   74513 
+n0171.savio2   allocated      24/0/0/24 24.04     406 
+n0171.savio3   allocated      40/0/0/40 14.65   54502 
+n0172.savio2   allocated      24/0/0/24 24.04    1725 
+n0265.savio2   allocated      64/0/0/64 64.40  117761 
+n0265.savio3   allocated      40/0/0/40  4.88   54605 
+n0266.savio2   allocated      64/0/0/64 64.50  132501 
+ln003:~$  salloc -A ic_ph290 -p savio2_htc -t 1:0:0 -N 1 -n 2 
+salloc: Pending job allocation 13656699 
+salloc: job 13656699 queued and waiting for resources 
+salloc: job 13656699 has been allocated resources 
+salloc: Granted job allocation 13656699 
+salloc: Waiting for resource configuration 
+salloc: Nodes n0215.savio2 are ready for job 
+ln003:~$ squeue -u xdai 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R       0:17      1 n0215.savio2 
+ln003:~$ srun --jobid=13656699 ls 
+1000.RData 
+2000.RData 
+allModules.txt 
+batch 
+demo 
+dotfiles 
+helper 
+n0215:~$ R 
+bash: R: command not found 
+n0215:~$ matlab 
+bash: matlab: command not found 
+n0215:~$ module 
+cmdModule.c(166):ERROR:11: Usage is 'module command  [arguments ...] ' 
+ 
+  Modules Release 3.2.10 2012-12-21 (Copyright GNU GPL v2 1991): 
+ 
+  Usage: module [ switches ] [ subcommand ] [subcommand-args ] 
+ 
+Switches: 
+        -H|--help               this usage info 
+        -V|--version            modules version & configuration options 
+        -f|--force              force active dependency resolution 
+        -t|--terse              terse    format avail and list format 
+        -l|--long               long     format avail and list format 
+        -h|--human              readable format avail and list format 
+        -v|--verbose            enable  verbose messages 
+        -s|--silent             disable verbose messages 
+        -c|--create             create caches for avail and apropos 
+        -i|--icase              case insensitive 
+        -u|--userlvl <lvl>      set user level to (nov[ice],exp[ert],adv[anced]) 
+  Available SubCommands and Args: 
+        + add|load              modulefile [modulefile ...] 
+        + rm|unload             modulefile [modulefile ...] 
+        + switch|swap           [modulefile1] modulefile2 
+        + display|show          modulefile [modulefile ...] 
+n0215:~$ module avail 
+ 
+------------------------ /global/software/sl-7.x86_64/modfiles/langs ------------------------ 
+clang/3.9.1                    java/17.0.2(default) 
+cuda/10.0                      java/1.8.0_121 
+cuda/10.1                      julia/0.5.0 
+cuda/10.2                      julia/1.0.3 
+cuda/11.2(default)             julia/1.7.3 
+cuda/7.5                       julia/1.8.2(default) 
+cuda/8.0                       perl/5.20.0 
+cuda/9.0                       perl/5.36.0(default) 
+cuda/9.1                       python/2.7 
+gcc/11.3.0                     python/3.5 
+gcc/12.1.0(default)            python/3.6 
+gcc/4.8.5                      python/3.7 
+gcc/5.4.0                      python/3.8.8 
+gcc/6.3.0                      python/3.9.12(default) 
+gcc/7.4.0                      r/3.2.5 
+intel/2016.4.072               r/3.4.2 
+intel/2018.1.163               r/4.0.3 
+intel/2019.4.0.par             r/4.2.1(default) 
+intel/2020.1.024.par           ruby/2.4.0 
+intel/oneapi-2022.2.0(default) 
+ 
+------------------------ /global/software/sl-7.x86_64/modfiles/tools ------------------------ 
+allinea/6.0                 libxaw3d/1.6.2              octave/4.2.0 
+arpack-ng/3.4.0             llvm/3.9.1                  opencv/3.2.0 
+bazel/0.4.4                 lmdb/0.9.19                 paraview/5.1.2 
+cmake/3.7.2                 mathematica/11.0            protobuf/3.2.0 
+eigen/3.3.3                 mathematica/11.1            qt/5.4.2 
+emacs/25.1                  mathematica/13.0.1(default) rclone/1.58.1 
+ffmpeg/4.4                  matlab/r2016b               snappy/1.1.4 
+gflags/2.2.0                matlab/r2017b               sq/0.1.0 
+git/2.11.1                  matlab/r2019a               suitesparse/4.5.4 
+git/2.36.1                  matlab/r2019b               swig/3.0.12 
+globus/6.0.1478289945       matlab/r2020a               szip/2.1.1 
+glog/0.3.4                  matlab/r2020b               texlive/2016 
+gnu-parallel/2019.03.22     matlab/r2021a               vim/7.4 
+gnuplot/5.0.5               matlab/r2022a(default)      visit/2.12.0 
+gv/3.7.4                    mercurial/4.1               xkbcommon/0.7.1 
+imagemagick/7.0.4-7         nano/2.7.4                  xpdf/3.04 
+leveldb/1.19                nvhpc/22.7 
+ 
+------------------------ /global/software/sl-7.x86_64/modfiles/apps ------------------------- 
+bio/blast/2.13.0              ml/mxnet/0.9.3-r-3.2.5        ml/torch/torch7 
+bio/blast/2.6.0               ml/tensorflow/1.0.0-py27      ms/cp2k/4.1-cuda 
+bio/bowtie2/2.3.0             ml/tensorflow/1.0.0-py35      ms/cp2k/4.1-mpi 
+bio/picard/2.9.0              ml/tensorflow/1.0.0-py36      ms/cp2k/7.1 
+bio/samtools/1.4              ml/tensorflow/1.12.0-cpu-py36 ms/gromacs/5.1.4-cuda 
+bio/vcftools/0.1.15           ml/tensorflow/1.12.0-py36     ms/gromacs/5.1.4-mpi 
+env/bce/current               ml/tensorflow/1.7.0-py27      ms/lammps/17Nov16-mpi 
+ml/caffe/rc5                  ml/tensorflow/1.7.0-py35      ms/namd/2.12-cuda 
+ml/cntk/2.0.beta15-py27       ml/tensorflow/1.7.0-py36      ms/namd/2.12-mpi 
+ml/cntk/2.0.beta15-py35       ml/tensorflow/2.0-py36        ms/nwchem/6.6-mpi 
+ml/mxnet/0.9.3-py27           ml/tensorflow/2.1.0-py37      ms/qe/6.1-mpi 
+ml/mxnet/0.9.3-py35           ml/tensorflow/2.3.0-py37 
+ml/mxnet/0.9.3-py36           ml/tensorflow/2.5.0-py37 
+ 
+-------------------- /global/home/groups/consultsw/sl-7.x86_64/modfiles --------------------- 
+4.0.0                                      libgd/2.2.4 
+bazel/0.8.1                                mariadb/10.3.15 
+bazel/0.9.0                                mcl/14.137 
+bazel/4.2.1                                meme/4.12.0 
+bcftools/1.6                               meson/0.51.2 
+bedtools/2.28.0                            ml/h2o/current-r-3.4.2 
+blacs/1.0                                  ml/superlearner/current-r-3.4.2 
+blas/3.8.0                                 mosek/8 
+blast/2.2.31+                              mothur/1.40.5 
+blast/2.7.1+                               mpfr/4.0.2 
+boost/1.62.0                               ms/lammps/16Mar18 
+boost/1.66.0                               msmc2/2.1.2 
+boost/1.72.0-mpi                           msmc-tools/2.1.2 
+bowtie2/2.3.4.1                            mummer/4.0.0 
+braker2/2.10                               ncl/6.4.0-intel 
+busco/2018-02-12-py36                      netcat/0.7.1 
+bwa/0.7.17                                 openblas/0.2.20 
+bwa-mem2/2.2.1                             OpenSees-singularity/3.2.0 
+bwa-mem2-ert/2.2.1                         orthomcl/2.0.9 
+C/bdwgc/7.2-gcc.6.3.0                      pear/0.9.11 
+C/guile/2.2.2-gcc.6.3.0                    perl-dbi/1.640 
+C/libmatheval/1.1.11-gcc.6.3.0-no.guile    plink/1.07 
+C/libunistring/0.9.7-gcc.6.3.0             pplacer/1.1.alpha17 
+caffe-gpu-singularity/0.3                  prodigal/2.6.3 
+cairo/1.14.10                              proj/4.9.3 
+cap3/02-10-15                              proj/5.2.0 
+carla/0.8.2                                proj/9.1.0 
+cdo/1.9.10-hdf5-netcdf-proj                pygame/1.9.6 
+cellranger/6.1.2                           pyscf/1.4.6-py36 
+checkm/1.0.13                              python/3.5-consultsw 
+cmake/3.15.1                               pytorch/0.3.1-py3.5-cuda9.0 
+cmake/3.22.0                               pytorch/0.4.0-py36-cuda9.0 
+Comparative-Annotation-Toolkit/2020-09-04  pytorch/1.0.0-py36-cuda9.0 
+ctags/p5.9.20210124.0                      qiime2/2018.6 
+cudnn/7.0.5                                qiime2/2018.6-old 
+cudnn/7.0.5-cuda9.0                        qiime2/2019.4 
+cuDNN/7.1                                  qiime2/2020.11 
+cufflinks/2.2.1                            qiime2/2021.8 
+cutadapt/2.4                               quantumespresso/6.2.1 
+ddd/3.3.12                                 quantumespresso/6.3 
+deseq2/r-3.4                               quantumespresso/6.4.1-qmcpack 
+epoxy/1.4.3                                r/3.5.1 
+fastqc/0.11.7                              r/3.6.3 
+fftw/3.3.7                                 raxml/8.2.11 
+firefox/67.0                               rclone/1.42(default) 
+fish/3.1.2                                 rclone/2019-12-16-beta 
+fox-toolkit/1.6.57                         revbayes/1.0.11 
+freetype/2.8.1                             revbayes/1.0.13 
+gcc/11.2.0                                 r-extra/2022-01-13-r40 
+gcc/4.9.4                                  rgdal/1.2-16 
+gcc/6.4.0                                  ripgrep/12.1.1 
+gcc/8.3.0                                  r-packages/default 
+gdal/2.2.3                                 r-spatial/2018-07-25-r34 
+gdal/2.2.3-netcdf                          r-spatial/2018-12-05-r35 
+gdal/3.5.2                                 r-spatial/2020-11-30-r36 
+genemark-es-et/4.33                        r-spatial/2020-11-30-r40 
+genomethreader/1.7.0                       r-spatial/2021-02-05-r40 
+geos/3.6.2                                 r-spatial/2022-10-14-r4.2 
+ghostscript/9.54.0                         r-spatial/4.0 
+git-lfs/2.3.4                              r-spatial/4.2(default) 
+glfw/3.2.1                                 rstudio-server/1.3.1093 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+----------------- /global/software/sl-7.x86_64/modfiles/langs ------------------ 
+clang/3.9.1                    java/17.0.2(default) 
+cuda/10.0                      java/1.8.0_121 
+cuda/10.1                      julia/0.5.0 
+cuda/10.2                      julia/1.0.3 
+cuda/11.2(default)             julia/1.7.3 
+cuda/7.5                       julia/1.8.2(default) 
+cuda/8.0                       perl/5.20.0 
+cuda/9.0                       perl/5.36.0(default) 
+cuda/9.1                       python/2.7 
+gcc/11.3.0                     python/3.5 
+gcc/12.1.0(default)            python/3.6 
+gcc/4.8.5                      python/3.7 
+gcc/5.4.0                      python/3.8.8 
+gcc/6.3.0                      python/3.9.12(default) 
+gcc/7.4.0                      r/3.2.5 
+intel/2016.4.072               r/3.4.2 
+intel/2018.1.163               r/4.0.3 
+intel/2019.4.0.par             r/4.2.1(default) 
+intel/2020.1.024.par           ruby/2.4.0 
+intel/oneapi-2022.2.0(default) 
+ 
+----------------- /global/software/sl-7.x86_64/modfiles/tools ------------------ 
+allinea/6.0                 matlab/r2019a 
+arpack-ng/3.4.0             matlab/r2019b 
+bazel/0.4.4                 matlab/r2020a 
+cmake/3.7.2                 matlab/r2020b 
+eigen/3.3.3                 matlab/r2021a 
+emacs/25.1                  matlab/r2022a(default) 
+ffmpeg/4.4                  mercurial/4.1 
+gflags/2.2.0                nano/2.7.4 
+git/2.11.1                  nvhpc/22.7 
+git/2.36.1                  octave/4.2.0 
+globus/6.0.1478289945       opencv/3.2.0 
+glog/0.3.4                  paraview/5.1.2 
+gnu-parallel/2019.03.22     protobuf/3.2.0 
+gnuplot/5.0.5               qt/5.4.2 
+gv/3.7.4                    rclone/1.58.1 
+imagemagick/7.0.4-7         snappy/1.1.4 
+leveldb/1.19                sq/0.1.0 
+libxaw3d/1.6.2              suitesparse/4.5.4 
+llvm/3.9.1                  swig/3.0.12 
+lmdb/0.9.19                 szip/2.1.1 
+mathematica/11.0            texlive/2016 
+mathematica/11.1            vim/7.4 
+mathematica/13.0.1(default) visit/2.12.0 
+matlab/r2016b               xkbcommon/0.7.1 
+matlab/r2017b               xpdf/3.04 
+ 
+------------------ /global/software/sl-7.x86_64/modfiles/apps ------------------ 
+bio/blast/2.13.0              ml/tensorflow/1.7.0-py27 
+bio/blast/2.6.0               ml/tensorflow/1.7.0-py35 
+bio/bowtie2/2.3.0             ml/tensorflow/1.7.0-py36 
+bio/picard/2.9.0              ml/tensorflow/2.0-py36 
+bio/samtools/1.4              ml/tensorflow/2.1.0-py37 
+bio/vcftools/0.1.15           ml/tensorflow/2.3.0-py37 
+env/bce/current               ml/tensorflow/2.5.0-py37 
+ml/caffe/rc5                  ml/torch/torch7 
+ml/cntk/2.0.beta15-py27       ms/cp2k/4.1-cuda 
+ml/cntk/2.0.beta15-py35       ms/cp2k/4.1-mpi 
+ml/mxnet/0.9.3-py27           ms/cp2k/7.1 
+ml/mxnet/0.9.3-py35           ms/gromacs/5.1.4-cuda 
+ml/mxnet/0.9.3-py36           ms/gromacs/5.1.4-mpi 
+ml/mxnet/0.9.3-r-3.2.5        ms/lammps/17Nov16-mpi 
+ml/tensorflow/1.0.0-py27      ms/namd/2.12-cuda 
+ml/tensorflow/1.0.0-py35      ms/namd/2.12-mpi 
+ml/tensorflow/1.0.0-py36      ms/nwchem/6.6-mpi 
+ml/tensorflow/1.12.0-cpu-py36 ms/qe/6.1-mpi 
+ml/tensorflow/1.12.0-py36 
+ 
+-------------- /global/home/groups/consultsw/sl-7.x86_64/modfiles -------------- 
+4.0.0 
+alsa-lib/1.1.9 
+app_code_server/3.8.0 
+atk/2.26.1 
+at-spi2-atk/2.26.1 
+cuda/10.1                      julia/0.5.0 
+cuda/10.2                      julia/1.0.3 
+cuda/11.2(default)             julia/1.7.3 
+cuda/7.5                       julia/1.8.2(default) 
+cuda/8.0                       perl/5.20.0 
+cuda/9.0                       perl/5.36.0(default) 
+cuda/9.1                       python/2.7 
+gcc/11.3.0                     python/3.5 
+gcc/12.1.0(default)            python/3.6 
+gcc/4.8.5                      python/3.7 
+gcc/5.4.0                      python/3.8.8 
+gcc/6.3.0                      python/3.9.12(default) 
+gcc/7.4.0                      r/3.2.5 
+intel/2016.4.072               r/3.4.2 
+intel/2018.1.163               r/4.0.3 
+intel/2019.4.0.par             r/4.2.1(default) 
+intel/2020.1.024.par           ruby/2.4.0 
+intel/oneapi-2022.2.0(default) 
+ 
+----------------- /global/software/sl-7.x86_64/modfiles/tools ------------------ 
+allinea/6.0                 matlab/r2019a 
+arpack-ng/3.4.0             matlab/r2019b 
+bazel/0.4.4                 matlab/r2020a 
+cmake/3.7.2                 matlab/r2020b 
+eigen/3.3.3                 matlab/r2021a 
+emacs/25.1                  matlab/r2022a(default) 
+ffmpeg/4.4                  mercurial/4.1 
+gflags/2.2.0                nano/2.7.4 
+git/2.11.1                  nvhpc/22.7 
+git/2.36.1                  octave/4.2.0 
+globus/6.0.1478289945       opencv/3.2.0 
+glog/0.3.4                  paraview/5.1.2 
+gnu-parallel/2019.03.22     protobuf/3.2.0 
+gnuplot/5.0.5               qt/5.4.2 
+gv/3.7.4                    rclone/1.58.1 
+imagemagick/7.0.4-7         snappy/1.1.4 
+leveldb/1.19                sq/0.1.0 
+libxaw3d/1.6.2              suitesparse/4.5.4 
+llvm/3.9.1                  swig/3.0.12 
+lmdb/0.9.19                 szip/2.1.1 
+mathematica/11.0            texlive/2016 
+mathematica/11.1            vim/7.4 
+...skipping... 
+ln003:/$ ls 
+n0215:~$ module load r 
+ln003:/$ R 
+n0215:~$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: x86_64-pc-linux-gnu (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> a <- matrix(rnorm(1e8), 1e4, 1e4) 
+    
+for (>  
+> for (i in 1:10000) crossprod(a) 
+ 
+^Z 
+[1]+  Stopped                 R 
+n0215:~$ bg 1 
+[1]+ R & 
+n0215:~$  
+         fg 
+R 
+ 
+^C 
+ 
+^C 
+^C 
+^Z 
+[1]+  Stopped                 R 
+n0215:~$ ps -u xdai 
+  PID TTY          TIME CMD 
+26885 pts/0    00:00:00 bash 
+27069 pts/0    00:05:37 R 
+27077 ?        00:00:00 sshd 
+27078 pts/1    00:00:00 bash 
+27174 pts/1    00:00:00 top 
+27200 pts/0    00:00:00 ps 
+n0215:~$ kill -KILL 27069 
+n0215:~$ ps -u xdai 
+  PID TTY          TIME CMD 
+26885 pts/0    00:00:00 bash 
+27077 ?        00:00:00 sshd 
+27078 pts/1    00:00:00 bash 
+27174 pts/1    00:00:00 top 
+27201 pts/0    00:00:00 ps 
+[1]+  Killed                  R 
+n0215:~$  
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:06     
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:07     
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:08     
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:09     
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:10     
+    ln003    1  srun*   2  ssh-                                                               
+    ln003    1  srun*   2  ssh-                                          Mon Nov 21 09:11     
+    ln003    1  srun*   2  ssh-                                                               
+[1]+  Killed                  R 
+n0215:~$ ls 
+1000.RData      demo      job.Rout      R              sparkErr2  tmp      tools 
+2000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr    tmp.csv  tPACE 
+allModules.txt  helper    nested.R      sparkErr       testout    tmp.R 
+batch           job.R     ondemand      sparkErr1      test.R     tmp.sh 
+n0215:~$ cat batch 
+#!/bin/bash 
+ 
+#SBATCH --account=ic_ph290 
+#SBATCH --time=1:0:0 
+#SBATCH --partition='savio3_htc' 
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1 
+#SBATCH --cpus-per-task=8 
+#SBATCH --mem-per-cpu=4000M 
+#SBATCH --job-name=test 
+#SBATCH --output=testout 
+#SBATCH --error=testerr 
+ 
+# None-SBATCH commands need to go after the SBATCH commands 
+export MKL_NUM_THREADS=1 
+ 
+module load r 
+module load r-packages 
+ 
+# Run R: 
+Rscript -e 'source("~/test.R")' 
+n0215:~$ sbatch batch 
+Submitted batch job 13656889 
+n0215:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      22:14      1 n0215.savio2 
+          13656889 savio3_ht     test     xdai  R       0:01      1 n0218.savio3 
+n0215:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      22:23      1 n0215.savio2 
+          13656889 savio3_ht     test     xdai  R       0:10      1 n0218.savio3 
+n0215:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      23:25      1 n0215.savio2 
+n0215:~$ ls 
+1000.RData      demo      job.Rout      R              sparkErr2  tmp      tools 
+2000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr    tmp.csv  tPACE 
+allModules.txt  helper    nested.R      sparkErr       testout    tmp.R 
+batch           job.R     ondemand      sparkErr1      test.R     tmp.sh 
+n0215:~$ ls -t | head 
+testerr 
+testout 
+tmp 
+demo 
+ tabs   1 myslurm.tmpl                                                                     X  
+  1 #!/bin/bash 
+Tasks: 274 total,   1 running, 273 sleeping,   0 stopped,   0 zombie 
+%Cpu(s):  0.0 us,  0.4 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+KiB Mem : 13191974+total, 12225008+free,  2744964 used,  6924700 buff/cache 
+KiB Swap:  8388604 total,  8061436 free,   327168 used. 12371377+avail Mem  
+ 
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                  
+27174 xdai      20   0  162252   2476   1604 R   4.5  0.0   0:03.71 top                      
+    1 root      20   0  191236   4204   2592 S   0.0  0.0   0:04.75 systemd                  
+    2 root      20   0       0      0      0 S   0.0  0.0   0:00.14 kthreadd                 
+    4 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H             
+    6 root      20   0       0      0      0 S   0.0  0.0   0:01.73 ksoftirqd/0              
+    7 root      rt   0       0      0      0 S   0.0  0.0   0:06.04 migration/0              
+    8 root      20   0       0      0      0 S   0.0  0.0   0:00.00 rcu_bh                   
+    9 root      20   0       0      0      0 S   0.0  0.0  26:21.09 rcu_sched                
+   10 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 lru-add-drain            
+ tabs   1 nested.R                                                                         X  
+   10 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 lru-add-drain             
+   11 root      rt   0       0      0      0 S   0.0  0.0   0:02.65 watchdog/0                
+   12 root      rt   0       0      0      0 S   0.0  0.0   0:02.87 watchdog/1                
+   13 root      rt   0       0      0      0 S   0.0  0.0   0:04.15 migration/1               
+   14 root      20   0       0      0      0 S   0.0  0.0   0:01.36 ksoftirqd/1               
+   16 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/1:0H              
+   18 root      rt   0       0      0      0 S   0.0  0.0   0:03.24 watchdog/2                
+   19 root      rt   0       0      0      0 S   0.0  0.0   0:04.02 migration/2               
+   20 root      20   0       0      0      0 S   0.0  0.0   0:15.17 ksoftirqd/2               
+   22 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/2:0H              
+   23 root      rt   0       0      0      0 S   0.0  0.0   0:03.37 watchdog/3                
+   24 root      rt   0       0      0      0 S   0.0  0.0   0:06.55 migration/3               
+   25 root      20   0       0      0      0 S   0.0  0.0   0:01.44 ksoftirqd/3               
+   27 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/3:0H              
+   28 root      rt   0       0      0      0 S   0.0  0.0   0:02.39 watchdog/4                
+   29 root      rt   0       0      0      0 S   0.0  0.0   0:05.46 migration/4               
+   30 root      20   0       0      0      0 S   0.0  0.0   0:01.99 ksoftirqd/4               
+   32 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/4:0H              
+   33 root      rt   0       0      0      0 S   0.0  0.0   0:03.09 watchdog/5                
+   34 root      rt   0       0      0      0 S   0.0  0.0   0:05.11 migration/5               
+   35 root      20   0       0      0      0 S   0.0  0.0   0:01.71 ksoftirqd/5               
+   36 root      20   0       0      0      0 S   0.0  0.0   0:07.06 kworker/5:0               
+   37 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/5:0H              
+   38 root      rt   0       0      0      0 S   0.0  0.0   0:02.74 watchdog/6                
+   39 root      rt   0       0      0      0 S   0.0  0.0   0:07.84 migration/6               
+   40 root      20   0       0      0      0 S   0.0  0.0   0:01.16 ksoftirqd/6               
+   42 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/6:0H              
+   44 root      rt   0       0      0      0 S   0.0  0.0   0:03.43 watchdog/7                
+   45 root      rt   0       0      0      0 S   0.0  0.0   0:22.55 migration/7               
+   46 root      20   0       0      0      0 S   0.0  0.0   0:02.68 ksoftirqd/7               
+   48 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/7:0H              
+   49 root      rt   0       0      0      0 S   0.0  0.0   0:02.92 watchdog/8                
+   50 root      rt   0       0      0      0 S   0.0  0.0   0:17.96 migration/8               
+n0215:~$ logout 
+Connection to n0215.savio2 closed. 
+ln003:/$ cd  
+ 
+n0215:~$ logout 
+ln003:/$ sq 
+n0215:~$ logout 
+ln003:/$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      37:57      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       0:25      1 n0218.savio3 
+ln003:/$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      38:12      1 n0215.savio2 
+          13656901 savio3_ht   nested     xdai  R       0:11      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       0:40      1 n0218.savio3 
+ln003:/$ sq 
+ tabs   1 nested.R                                                                         X  
+ tabs   1 nested.R                                                                         X  
+ln003:/$ cd  
+ln003:/$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      38:28      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       0:56      1 n0218.savio3 
+ln003:/$ cd  
+ln003:~$ ls 
+allModules.txt  helper        nestederr  R              sparkErr2  tmp      tools 
+batch           job.R         nestedout  sparkBatch.sh  testerr    tmp.csv  tPACE 
+demo            job.Rout      nested.R   sparkErr       testout    tmp.R 
+dotfiles        myslurm.tmpl  ondemand   sparkErr1      test.R     tmp.sh 
+ln003:~$ ls 
+allModules.txt  helper        nestederr  R              sparkErr2  tmp      tools 
+batch           job.R         nestedout  sparkBatch.sh  testerr    tmp.csv  tPACE 
+demo            job.Rout      nested.R   sparkErr       testout    tmp.R 
+dotfiles        myslurm.tmpl  ondemand   sparkErr1      test.R     tmp.sh 
+ln003:~$ cat nestedout 
+### [bt]: This is batchtools v0.9.15 
+### [bt]: Starting calculation of 1 jobs 
+### [bt]: Setting working directory to '/global/home/users/xdai' 
+### [bt]: Memory measurement disabled 
+### [bt]: Starting job [batchtools job.id=1] 
+### [bt]: Setting seed to 31266 ... 
+### [bt]: This is batchtools v0.9.15 
+### [bt]: Starting calculation of 1 jobs 
+### [bt]: Setting working directory to '/global/home/users/xdai' 
+### [bt]: Memory measurement disabled 
+### [bt]: Starting job [batchtools job.id=1] 
+### [bt]: Memory measurement disabled 
+### [bt]: Starting job [batchtools job.id=1] 
+### [bt]: Setting seed to 27381 ... 
+ 
+### [bt]: Job terminated successfully [batchtools job.id=1] 
+ 
+### [bt]: Job terminated successfully [batchtools job.id=1] 
+### [bt]: Calculation finished! 
+ln003:~$ cat nestederr 
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+Error in saveRDS(object, file = file, version = 2L, compress = compress) :  
+  error writing to connection 
+Calls: <Anonymous> ... doJobCollection.JobCollection -> writeRDS -> saveRDS 
+Execution halted 
+slurmstepd: error: Detected 8 oom-kill event(s) in StepId=13656900.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=13656901.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      41:48      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:13      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       4:16      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      41:50      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:15      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       4:18      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      41:50      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:15      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       4:18      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      41:51      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:16      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       4:19      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+ tabs   1 nested.R                                                                         X  
+ tabs   1 nested.R                                                                         X  
+          13656699 savio2_ht interact     xdai  R      41:51      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:16      1 n0220.savio3 
+          13656899 savio3_ht     bash     xdai  R       4:19      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      41:55      1 n0215.savio2 
+          13656908 savio3_ht   nested     xdai  R       0:20      1 n0220.savio3 
+ tabs   1 nested.R                                                                         X  
+ln003:~$ ls 
+1000.RData      demo      job.Rout      R              sparkErr2  tmp      tools 
+2000.RData      dotfiles  myslurm.tmpl  sparkBatch.sh  testerr    tmp.csv  tPACE 
+allModules.txt  helper    nested.R      sparkErr       testout    tmp.R 
+allModules.txt  helper        nestederr  R              sparkErr2  tmp      tools 
+batch           job.R         nestedout  sparkBatch.sh  testerr    tmp.csv  tPACE 
+demo            job.Rout      nested.R   sparkErr       testout    tmp.R 
+dotfiles        myslurm.tmpl  ondemand   sparkErr1      test.R     tmp.sh 
+batch           job.R     ondemand      sparkErr1      test.R     tmp.sh 
+ln003:~$ rm *.RData  
+ln003:~$ ls 
+allModules.txt  dotfiles  job.Rout      ondemand       sparkErr   testerr  tmp      tmp.sh 
+srun: job 13656899 queued and waiting for resources 
+srun: job 13656899 has been allocated resources 
+n0218:~$ module load r 
+n0218:~$ module load r-packages 
+n0218:~$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: x86_64-pc-linux-gnu (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> source(' 
+allModules.txt  job.R           R/              testerr         tmp.R 
+batch           job.Rout        sparkBatch.sh   testout         tmp.sh 
+demo            myslurm.tmpl    sparkErr        test.R          tools/ 
+dotfiles/       nested.R        sparkErr1       tmp             tPACE/ 
+helper/         ondemand/       sparkErr2       tmp.csv          
+> source('nested.R') 
+Loading required package: future 
+Error: Log file '/global/home/users/xdai/.future/20221121_092947-MwITcn/future_lapply-1_1598577821/logs/job426cf0aaa5d73bf10664314ebb1c6449.log' for job with id 1 not available 
+> source('nested.R') 
+^C 
+>  
+>  
+Save workspace image? [y/n/c]: n 
+^Z 
+[1]+  Stopped                 R 
+ln003:~$ cat nes 
+nestederr  nestedout  nested.R    
+ln003:~$ cat nestederr  
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+slurmstepd: error: Detected 2 oom-kill event(s) in StepId=13656907.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=13656908.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+ln003:~$ lt 
+total 356 
+-rw-r--r-- 1 xdai ucb    506 Nov 21 09:33 nestederr 
+-rw-r--r-- 1 xdai ucb    448 Nov 21 09:33 nestedout 
+-rw-r--r-- 1 xdai ucb    758 Nov 21 09:33 nested.R 
+-rw-r--r-- 1 xdai ucb    559 Nov 21 09:14 testerr 
+-rw-r--r-- 1 xdai ucb     32 Nov 21 09:14 testout 
+-rw-r--r-- 1 xdai ucb   6967 Nov 21 08:59 tmp 
+-rw-r--r-- 1 xdai ucb      0 Nov 21 08:21 demo 
+-rw-r--r-- 1 xdai ucb    935 Nov 20 16:42 myslurm.tmpl 
+-rw-r--r-- 1 xdai ucb    424 Nov 20 16:26 batch 
+ln003:~$ cat nes 
+nestederr  nestedout  nested.R    
+ln003:~$ cat nestederr  
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+slurmstepd: error: Detected 2 oom-kill event(s) in StepId=13656907.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+Warning in mccollect(jobs = jobs, wait = TRUE) : 
+  1 parallel job did not deliver a result 
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=13656908.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler. 
+ln003:~$ ls 
+allModules.txt  helper        nestederr  R              sparkErr2  tmp      tools 
+batch           job.R         nestedout  sparkBatch.sh  testerr    tmp.csv  tPACE 
+demo            job.Rout      nested.R   sparkErr       testout    tmp.R 
+dotfiles        myslurm.tmpl  ondemand   sparkErr1      test.R     tmp.sh 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      42:27      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       4:55      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656699 savio2_ht interact     xdai  R      42:39      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:07      1 n0218.savio3 
+ln003:~$  
+    ln003    1  srun    2  srun-   3  bash*                              Mon Nov 21 09:35     
+ 
+    ln003    1  srun    2  srun*   3  bash-                                                   
+    ln003sq  1  srun    2  srun*   3  bash-                              Mon Nov 21 09:35     
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656910 savio2_ht   nested     xdai  R       0:00      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:11      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:39      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656910 savio2_ht   nested     xdai  R       0:01      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:12      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:40      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai PD       0:00      1 (None) 
+          13656910 savio2_ht   nested     xdai  R       0:02      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:13      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:41      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai PD       0:00      1 (None) 
+          13656910 savio2_ht   nested     xdai  R       0:03      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:14      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:42      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:00      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:03      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:14      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:42      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:01      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:04      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:15      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:43      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:02      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:05      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:16      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:44      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:02      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:05      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:16      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:44      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:03      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:06      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:17      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:45      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:03      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:06      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:17      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:45      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:04      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:07      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:18      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:46      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:04      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:07      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:18      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:46      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:05      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:08      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:19      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:47      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:06      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:09      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:20      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:48      1 n0218.savio3 
+Save workspace image? [y/n/c]: n 
+Save workspace image? [y/n/c]: n 
+ tabs   1 nested.R                                                                         X  
+Save workspace image? [y/n/c]: n 
+Save workspace image? [y/n/c]: n 
+ tabs   1 nested.R                                                                         X  
+Save workspace image? [y/n/c]: n 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:06      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:09      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:20      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:48      1 n0218.savio3 
+ln003:~$ sq 
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) 
+          13656911 savio2_ht   nested     xdai  R       0:07      1 n0215.savio2 
+          13656910 savio2_ht   nested     xdai  R       0:10      1 n0215.savio2 
+          13656699 savio2_ht interact     xdai  R      43:21      1 n0215.savio2 
+          13656899 savio3_ht     bash     xdai  R       5:49      1 n0218.savio3 
+ln003:~$ sq 
+ tabs   1 nested.R                                                                         X  
+Save workspace image? [y/n/c]: n 
+^Z 
+[1]+  Stopped                 R 
+n0218:~$ ps -u xdai 
+   PID TTY          TIME CMD 
+243583 pts/1    00:00:00 bash 
+243626 pts/1    00:00:11 R 
+245808 pts/1    00:00:00 ps 
+n0218:~$ kill -KILL 243626 
+n0218:~$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: x86_64-pc-linux-gnu (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> source(' 
+allModules.txt  job.Rout        R/              testout         tools/ 
+batch           myslurm.tmpl    sparkBatch.sh   test.R          tPACE/ 
+demo            nestederr       sparkErr        tmp              
+dotfiles/       nestedout       sparkErr1       tmp.csv          
+helper/         nested.R        sparkErr2       tmp.R            
+job.R           ondemand/       testerr         tmp.sh           
+> source('ne 
+nestederr  nestedout  nested.R    
+> source('nested') 
+In file(filename, "r", encoding = encoding) : 
+  cannot open file 'nested': No such file or directory 
+> source('nested.R') 
+Loading required package: future 
+^C 
+>  
+Save workspace image? [y/n/c]: n 
+^Z[1]   Killed                  R 
+ 
+[2]+  Stopped                 R 
+n0218:~$ ps  
+   PID TTY          TIME CMD 
+243583 pts/1    00:00:00 bash 
+245809 pts/1    00:00:04 R 
+246202 pts/1    00:00:00 ps 
+n0218:~$ kill -KILL 245809 
+n0218:~$ ls 
+allModules.txt  helper        nestederr  R              sparkErr2  tmp      tools 
+batch           job.R         nestedout  sparkBatch.sh  testerr    tmp.csv  tPACE 
+demo            job.Rout      nested.R   sparkErr       testout    tmp.R 
+dotfiles        myslurm.tmpl  ondemand   sparkErr1      test.R     tmp.sh 
+[2]+  Killed                  R 
+n0218:~$ ps 
+   PID TTY          TIME CMD 
+243583 pts/1    00:00:00 bash 
+246204 pts/1    00:00:00 ps 
+n0218:~$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: x86_64-pc-linux-gnu (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> source('nes 
+nestederr  nestedout  nested.R    
+>  
+Save workspace image? [y/n/c]: n 
+n0218:~$  
+    ln003    1  srun-   2  srun*   3  bash                                                    
+    ln003    1  srun-   2  srun*   3  bash                               Mon Nov 21 09:37     
+    ln003    1  srun-   2  srun*   3  bash                                                    
+    ln003    1  srun-   2  srun*   3  bash                               Mon Nov 21 09:38     
+Biostat-MBP14-04:~$ ;2R0;95;0c62;4c62;4c62;4c 
+-bash: syntax error near unexpected token `;' 
+Biostat-MBP14-04:~$  
+Biostat-MBP14-04:~$  
+Biostat-MBP14-04:~$  
