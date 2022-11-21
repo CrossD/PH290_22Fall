@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Parallel Computing on Savio</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Parallel Computing on Savio
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Bash tools for working with remote servers
+
+- Savio architecture
+
+- Slurm
+
+- Launching lots of jobs
+
+---
+
+## Resources
+
+- [High Performance Computing documentation at UC Berkeley](https://docs-research-it.berkeley.edu/services/high-performance-computing/overview/)
+
+- [Savio training 10/22/2022](https://www.youtube.com/watch?v=g28Q8oCnA2U)
+
+---
+
+class: big, middle
+
+## Bash tools for working remotely
+
+---
+
+## Working on a remote machine
+
+- Most remote machines uses `bash` as the default shell, so you will issue bash commands
+
+- In your local bash, `ssh destination` will remote login a machine. The destination specification often looks like (this one is for Savio) `username@hpc.brc.berkeley.edu`
+
+- Authentication is needed before you can connect. So if you want to connect to a remote machine, look at its help webpage and see how to set up an account
+    - More about setup in HW6
+
+- `scp source:path/on/source destination:path/on/destination` copies a file from a source machine to a destination machine. This lets you copy from any local/remote machine to any other machine. If you prefer a GUI, try WinSCP on Windows or Cyberduck on mac. 
+    - [Globus Connect](https://www.globus.org/globus-connect-personal) works great for transferring large files on Savio
+
+---
+
+- When you are working on a remote machine, *your jobs will usually be killed after you log out*
+
+- `tmux` is a window emulator to let you run multiple windows within the same bash session. Your jobs within it will keep running even when you log out or get disconnected
+    - It is usually installed on remote machines by default
+
+- `tmux` creates a new session
+- Within a session
+    - `&lt;C-B&gt;c` creates a new window
+    - `&lt;C-B&gt;n` goes to the next window
+    - `&lt;C-B&gt;p` goes to the previous window
+    - `&lt;C-B&gt;d` detaches the tmux session. You can safely log out bash
+- Next time you log in, `tmux attach` reattach to the last session 
+
+---
+
+class: big, middle
+
+## Savio
+
+---
+
+## Savio architecture
+
+![:scale 100%](https://docs-research-it.berkeley.edu/img/SAVIO%20Overview.jpeg)
+From [Research IT](https://docs-research-it.berkeley.edu/services/high-performance-computing/overview/system-overview/)
+
+---
+
+- *Login nodes*  are servers available to you for basic jobs like file editing and job submission to compute nodes
+
+- *Compute nodes* are where the heavy computation are carried out. Different nodes may have different hardware
+
+- *Data transfer node* is for transferring large files (say, &gt;1Gb in size)
+
+---
+
+## Slurm workload manager
+
+- `Slurm` is the workload manager used on Savio
+
+- You can specify the number of cores and nodes you would like to request for computing jobs
+
+- Request will contain either specific node numbers or partitions (the latter is more convenient)
+
+- *Partitions* are job queues. Each partition consists of a number of nodes. These nodes are configured differently
+    - If a job is sent to a partition, it will be sent to any node(s) within the partition
+    - Partition configurations on Savio can be found [here](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/hardware-config/)
+    - Most often we will use `savio2_htc`, `savio2`, `savio3_htc`, or `savio3`
+
+---
+
+## Resource management: Time
+
+- Computation time is accessed via spending *service units (SUs)* 
+    - Roughly, 1 core hour = 1 SU. Faster cores are more [expensive](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/service-units-savio/)
+
+- If you went through the setup process in [HW6](../hwlabs/hw6.html), you would have access to the SU account for this course, which is `ic_ph290`
+
+- The HTC cores (`savio2_htc` and `savio3_htc`) are allocated *by core*. So you are charged SUs by core
+
+- Most other cores (e.g., `savio2` and `savio3`) are allocated *by node*. So even if you request 1 core in 1 node, you will be charged for all the cores on the same node
+
+---
+
+## Resource management: Storage
+
+- Your `$HOME` directory has a 10GB quota. It is backed up and is permanent
+
+- Large files (data, intermediate results, etc) can be stored in the `$SCRATCH` directory, where the quota is unlimited. Old files in this directory are purged
+
+- If you need a large permanent storage, your PI needs to purchase it
+
+---
+
+## Getting help for Savio
+
+- Please post any questions about Savio on Ed Discussion or email me, *before* you reach out to Research IT admins
+
+---
+
+class: big, middle
+
+## Slurm
+
+---
+
+## Slurm commands
+
+- `squeue`, view the job queue in Slurm (jobs from everyone). To show your own job, `squeue -u $(whoami)`
+
+- `sinfo` shows information about the partitions
+    - `sinfo | idle` filters only the idle ones 
+    - `sinfo -o "%.12N %.11T %.14C %.5O %.7e" --Node` shows useful information by node
+
+---
+
+- `salloc` creates a job and allocates resources (for later use). No computation is being run at this moment. Useful flags include
+    - `-A account` (required)
+    - `-p partition` (required)
+    - `-t 1-2:30:00` specifies the job will be killed after 1 day 2 hours and 30 minutes (required)
+    - `-N numberOfNodes` (optional)
+    - `-n numberOfTasks`. By default, 1 core will be requested per task (optional)
+    - `--mem-per-cpu 4G` requests 4G of memory per cpu (optional)
+
+- See `man salloc` for all the flags
+
+- E.g., 
+    - `salloc -A ic_ph290 -p savio2_htc -t 1:0:0 -N 1 -n 2` requests 2 cores in 1 node from `savio_htc` partition for at most 1 hour of time. Credit comes from `ic_ph290`
+
+---
+
+- `srun` runs tasks in the Slurm workers
+    - `srun --jobid=xxx commandToRun` runs the command once for each task. `--jobid` utilize an existing allocation
+
+- You can run an interactive task using `srun --jobid=xxx --pty bash`
+
+- `scancel jobIDHere` cancels a job
+
+---
+
+## Modules
+
+- `module` command is used to manage software loaded to your session
+
+    - `module load r` loads R (default version is 4.2.1)
+    - `module load r-packages` loads common R packages (e.g. `tidyverse`)
+
+- `module list` shows loaded modules
+
+- `module avail` shows all of the available modules
+
+- `module whatis moduleName` and `module show moduleName` display information about the module
+
+---
+
+## Monitoring jobs
+
+- If you are on the login node, `wwall -j jobIDHere` shows some compact info about a job
+
+- To interactively inspect a job, log into an allocated compute node using `ssh nodeNameHere` and then issue `top`
+
+---
+
+class: big, middle
+
+## Running lots of jobs
+
+---
+
+## Batch jobs
+
+You can submit a job using a Slurm batch script. E.g., file `batch`:
+
+
+```r
+#!/bin/bash
+
+#SBATCH --account=ic_ph290
+#SBATCH --time=1:0:0
+#SBATCH --partition='savio3_htc'
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem-per-cpu=4000M
+#SBATCH --job-name=test
+#SBATCH --output=testout
+#SBATCH --error=testerr
+
+# None-SBATCH commands need to go after the SBATCH commands
+
+export MKL_NUM_THREADS=1 # Use single thread linear algebra
+
+module load r
+module load r-packages
+
+Rscript -e 'source("test.R")' # Run R:
+```
+
+---
+
+`test.R`:
+
+
+```r
+library(future.apply)
+plan(multicore, workers=availableCores)
+
+a &lt;- matrix(rnorm(9e6), 3e3, 3e3)
+
+print(availableCores())
+
+res &lt;- future_lapply(1:1000, function(i) {
+  crossprod(a)
+})
+```
+
+---
+
+## Running multiple jobs at once
+
+We will introduce a more flexible approach using future shortly, but here are the basic approaches using just Slurm:
+
+- If you want to launch multiple jobs with varying settings (e.g., scenario 0, 1, 2, and 3), you can use [a helper script](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/hthelper-script/)
+
+- Slurm is able to run a job array, where you can run the array task depending on the task number. *But one node will be allocated to each array*
+
+- [Reference](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/submitting-jobs/#Job-submission-with-specific-resource-requirements)
+
+---
+
+## Launching jobs from within R
+
+- We will be using R libraries `future` with `future.batchtools` to request resources and launch jobs from within R
+
+- R will use a batch script template to request resources and will then send parallel jobs to the workers 
+    - Here are some [exemplary template files](https://github.com/mllg/batchtools/tree/master/inst/templates)
+
+---
+
+`nested.R`: 
+
+```r
+library(future.apply)
+library(future.batchtools)
+
+plan(list(
+  tweak(batchtools_slurm,
+        workers = 2,
+        template = "myslurm.tmpl",
+        resources = list(
+          account = "ic_ph290",
+          walltime = "1:00:00",
+          partition="savio3_htc",
+          job.name = "nested", log.file = "nested",
+          nodes = 1, ntasks = 1, ncpus = 4, mempercpu = 4000,
+          blas.threads=1)),
+  tweak(multicore, workers=function() 
+      future::availableCores(constraints='Slurm'))))
+
+
+allRes &lt;- future_lapply(c(1e3, 2e3), function(d) {
+  a &lt;- matrix(rnorm(d^2), d, d)
+  res &lt;- future_lapply(1:1000, function(i) {
+    crossprod(a)
+  })
+  save(res, file=sprintf("%d.RData", d))
+}, future.seed=TRUE)
+```
+
+---
+
+`myslurm.tmpl`:
+
+```r
+#!/bin/bash
+
+&lt;%
+log.file = fs::path_expand(resources$log.file)
+-%&gt;
+
+#SBATCH --account=&lt;%= resources$account %&gt;
+#SBATCH --partition=&lt;%= resources$partition %&gt;
+#SBATCH --time=&lt;%= resources$walltime %&gt;
+#SBATCH --job-name=&lt;%= resources$job.name %&gt;
+#SBATCH --output=&lt;%= paste0(log.file, "out") %&gt;
+#SBATCH --error=&lt;%= paste0(log.file, "err") %&gt;
+&lt;%= if (!is.null(resources$nodes)) sprintf("#SBATCH --nodes=%d", resources$nodes) %&gt;
+&lt;%= if (!is.null(resources$ntasks)) sprintf("#SBATCH --ntasks=%d", resources$ntasks) %&gt;
+&lt;%= if (!is.null(resources$ncpus)) sprintf("#SBATCH --cpus-per-task=%d", resources$ncpus) %&gt;
+&lt;%= if (!is.null(resources$mempercpu)) sprintf("#SBATCH --mem-per-cpu=%dM",                  resources$mempercpu) %&gt;
+
+## Initialize work environment
+&lt;%= if (!is.null(resources$blas.threads)) sprintf("export MKL_NUM_THREADS=%i",               resources$blas.threads) %&gt;
+
+# module load r-packages
+
+## Run R:
+Rscript -e 'batchtools::doJobCollection("&lt;%= uri %&gt;")'
+```
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

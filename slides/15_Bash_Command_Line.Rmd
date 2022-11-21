@@ -286,27 +286,3 @@ To work with multiple processes
 
 - `fg jobID` brings a background job to the foreground
 
----
-
-## Working on a remote machine
-
-- `ssh destination` will remote login a machine. The destination specification often looks like `username@hpc.brc.berkeley.edu`
-
-- Authentication is needed before you can connect. So if you want to connect to a remote machine, look at its help webpage and see how to set up an account
-
-- `scp source:path/on/source destination:path/on/destination` copies a file from a source machine to a destination machine. This lets you copy from any local/remote machine to any other machine. If you prefer a GUI, try WinSCP on Windows or Cyberduck on mac
-
----
-
-- When you are working on a remote machine (like savio later), your jobs will usually be killed after you log out
-
-- `tmux` is a program to let you run multiple windows within the same bash session. It also prevents your jobs in there from being kill when you log out or get disconnected
-    - It is usually installed on remote machines by default. But on a local machine you need to install yourself
-    - `tmux` creates a new session
-    - Within a session
-        - `<C-B>c` creates a new window
-        - `<C-B>n` goes to the next window
-        - `<C-B>p` goes to the previous window
-        - `<C-B>d` detaches the tmux session. You can safely log out bash
-    - Next time you log in, `tmux attach` reattach to the last session 
-
