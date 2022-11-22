@@ -15,7 +15,7 @@ Your submission should include both code and well-formatted explanation (not jus
 
 For the following questions, please use SQL queries to preprocess the data as much as possible (instead of R commands for data wrangling). Refer to the [MIMIC 3 documentation](https://mimic.mit.edu/docs/iii/tables/) for what the tables contain. Refer to [the lecture slides](../slides/20_Database.html#42) for how to access the database.
 
-1. Visualize the initial diagnoses with the top 10 death rate (defined as \# of deaths / \# of admissions) [Hint: You will need the `admissions` table]
+1. Visualize the initial diagnoses with the top 10 death rate (defined as \# of deaths / \# of admissions). Focus on only diagnoses with at least 10 admissions. [Hint: You will need the `admissions` table]
 
 1. Produce a table of number of admissions by sex and diagnosis. Show only diagnosis-sex combinations with at least 30 occurrences. Make sure the names for the diagnosis is informative (they cannot be just diagnosis codes). A patient may have multiple diagnoses in an admission, but we will focus on only the primary diagnosis in this question. [Hint: You will need these tables: `d_icd_diagnoses`, `diagnoses_icd`, and `patients`]
 
