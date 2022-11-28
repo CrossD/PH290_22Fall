@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Spark for Large-scale Analysis</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xiongtao Dai" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link rel="stylesheet" href="myslides.css" type="text/css" />
+    <link rel="stylesheet" href="myslides-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Spark for Large-scale Analysis
+]
+.subtitle[
+## PH 290
+]
+.author[
+### Xiongtao Dai
+]
+
+---
+
+
+
+
+## Outline
+
+- Overview
+
+- Spark for exploratory analysis
+
+- Spark for machine learning
+
+- Spark on a large scale
+
+---
+
+## References
+
+- [Mastering Spark with R](https://therinspark.com/) by Luraschi, Kuo, and Ruiz. (MSR)
+
+- [Spark: The Definitive Guide](https://www.oreilly.com/library/view/spark-the-definitive/9781491912201/) by Chambers and Zaharia
+---
+
+## Spark
+
+- Spark is a hugely popular engine for large-scale data processing
+    - The original author Matei Zaharia cofounded a company Databricks which has more than 1 billion in revenue in 2022
+
+- Motivation: Deal with *big data* and *big compute* efficiently
+    - Big data: Data that cannot fit on a single machine
+    - Big compute: Computation that cannot finish quickly on a single machine
+
+- Tasks Spark is good at tackling, for example:
+    - Wrangling with and exploring big data
+    - Training statistical/machine learning models on big data
+
+---
+
+## Some history
+
+- 2003: Google published a paper on the *Google File System* for storing all information about the webpages 
+
+    - 2004: An approach known as *MapReduce* is used to perform operations across the Google File System
+.center[
+![:scale 70%](images/mapreduce.jpg)&lt;/br&gt;From MSR
+]
+
+---
+
+- 2006: Yahoo open sourced the *Hadoop* project which implements the Google File System as the *Hadoop Distributed File System (HDFS)*
+    - Operations are primarily based on hard disks
+
+- 2008: Facebook released the *Hive* project which broughts SQL support to Hadoop
+
+- 2009: *Spark* began as a research project at UC Berkeley's AMPLab. It uses a divide-and-conquer approach like Hadoop but loads data into the memory, making operations much faster than on Hadoop
+    - 2010 -- 2013: Open sourced and donated to the Apache Software Foundation
+
+---
+
+## Spark architecture
+
+.center[
+![:scale 70%](images/sparkStandalone.jpg)&lt;/br&gt;From MSR
+]
+
+**Hardware**:
+- The *driver node* delegates tasks to the *worker nodes* and also collect/aggregate results
+
+---
+
+**Software**:
+- The driver process is *R*. More specifically, we will use [sparklyr](https://spark.rstudio.com/) developed by RStudio
+
+- The driver process launches a *spark context* representing the connection to a Spark cluster. Programmers specifies functionalities to perform via this connection (scheduling tasks, managing storages, monitoring and logging, configuring, etc)
+
+- *Spark executors* are the processes responsible for running individual tasks and sending results to the driver
+
+- To make it possible for the executors to work in parallel, Spark breaks data into chunks called *partitions*. A partition is a collection of rows sitting on a machine in the cluster
+
+- There are different cluster managers: Spark Standalone, YARN, and Mesos
+
+---
+
+## Installation &amp; connection
+
+We will use Spark on our local machine this time to start with
+
+- Install [Java 8](https://www.java.com/en/download/) if you don't have it. Issue `java -version` to see the installed version
+
+- Install `sparklyr`: In R, `install.packages("sparklyr")`
+
+- Install Spark: `sparklyr::spark_install("2.3")`
+
+- Connect to a local Spark session:
+    
+    ```r
+    library(sparklyr)
+    sc &lt;- spark_connect(master = "local", version = "2.3")
+    ```
+
+- When you are done with analysis, issue `spark_disconnect(sc)` to shut down the Spark session
+
+---
+
+class: big, middle
+
+## Exploratory data analysis
+
+---
+
+## Wrangling with data
+
+- Data need to be *imported to the Spark engine* from R or directly from the hard disk
+    
+    ```r
+    cars &lt;- copy_to(sc, mtcars)
+    # Or use spark_read_xxx() to read directly from the hard disk
+    ```
+
+- The imported data on Spark is a `Dataframe` object. Spark has implemented various methods for this class of objects
+
+- You can specify in R how Spark should deal with the data using either the dplyr syntax, or the SQL syntax, which are equivalent
+
+---
+
+ dplyr:
+
+```r
+cars %&gt;%
+  group_by(cyl) %&gt;% 
+  summarize(mean(mpg))
+```
+
+SQL:
+
+```r
+sdf_sql(sc, "SELECT cyl, AVG(mpg) 
+             FROM mtcars 
+             GROUP BY cyl")
+```
+
+- Under the hood, these commands are both translated into Spark SQL statements. We will take the first approach here
+
+- Spark supports a list of Hive functions which can be found [here](https://therinspark.com/appendix.html#hive-functions)
+    
+    ```r
+    cars %&gt;%
+      group_by(cyl) %&gt;% 
+      summarize(percentile(mpg, 0.9))
+    ```
+
+---
+
+class: inverse
+
+## Your turn
+
+- Try to follow the instruction and set up Spark locally
+
+- Run the `mtcars` example
+
+---
+
+## Lazy evaluation
+
+- Spark will hold off evaluation until the very last moment when the result is absolutely needed
+
+- In general, you should pass objects from Spark to R as infrequent as possible. Intermediate results might not fit into the memory and has communication overhead
+
+- `x &lt;- cars %&gt;% group_by(cyl) %&gt;% summarize(mean(mpg))` would only make a plan for the evaluation on Spark, *without* evaluating it. In Spark's language, these steps are *transformations*
+
+- `print(x)` in R will require Spark to evaluate the result
+
+---
+
+- To explicitly ask Spark to evaluate, pipe a statement into...
+    - `%&gt;% compute()` creates a temporary table *on Spark* to store the result. Creates a `tbl_spark` in R. Good for inspecting intermediate steps.
+    - `%&gt;% collect()` pulls the results to R. Creates a `tbl_df` in R. Only collect smallish results.
+    - In Spark's language, these steps are *actions*
+
+---
+
+- Without `compute()`, no actual computation is done:
+    
+    ```r
+    &gt; bench::mark(
+        cars %&gt;%
+          group_by(cyl) %&gt;% 
+          summarize(mean(mpg)), 
+        cars %&gt;%
+          group_by(cyl) %&gt;% 
+          summarize(mean(mpg)) %&gt;%
+          compute()
+          )
+    # A tibble: 2 × 13
+      expression                min   median
+        &lt;bch:expr&gt;           &lt;bch:tm&gt; &lt;bch:tm&gt;
+        1 ...                 7.78ms   8.15ms
+        2 ... %&gt;% compute() 150.13ms 151.72ms
+    ```
+
+- For debugging purposes, pipe a command into `spark_dataframe() %&gt;% invoke("queryExecution")` to see the evaluation plans make by Spark
+
+---
+
+## Making plots remotely
+
+- `library(dbplot)` allows the creation of plots *remotely* with data from Spark or a database, passing around a minimal amount of data
+
+- The returned plot will be a ggplot in R, so you can decorate it as you wish
+    
+    ```r
+    cars %&gt;%
+      dbplot_histogram(mpg, binwidth = 3) %&gt;%
+      ggtitle("mpg")
+    
+    cars %&gt;%
+      dbplot_raster(cars, mpg, wt, resolution = 5) # 2D hist
+    ```
+
+---
+
+## High-level functions
+
+- `sdf_describe()` computes numerical summaries
+
+- `sdf_crosstab()` computes a cross-tabulation of two columns
+
+- `sdf_rnorm()` etc creates a Spark Dataframe containing a single column of random numbers. Useful together with `sdf_bind_cols()`
+
+---
+
+## Machine learning functions
+
+- `ml_linear_regression()` fits a linear regression regularized by the elastic net penalty
+
+- `sdf_random_split()` partitions data into train and test sets
+
+- `ml_evaluate()` computes performance metrics
+
+E.g., 
+
+```r
+m &lt;- split$train %&gt;%
+  ml_linear_regression(mpg ~ ., 
+                       elastic_net_param = 1, # lasso
+                       reg_param = 0.5)
+
+ev &lt;- ml_evaluate(m, split$test)
+names(ev)
+ev$predictions %&gt;%
+  print(width=Inf)
+```
+
+---
+
+## Monitoring spark
+
+- `spark_web(sc)` opens a browser for monitoring Spark status. Same as visiting `http://localhost:4040` in your browser
+
+- `spark_log(sc)` shows the logs
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": false,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
