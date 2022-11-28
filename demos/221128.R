@@ -26,12 +26,15 @@ x <- cars %>%
   group_by(cyl) %>% 
   summarize(percentile(mpg, 0.9)) %>%
   compute()
+x
+
 class(x)
 
 y <- cars %>%
   group_by(cyl) %>% 
   summarize(percentile(mpg, 0.9)) %>%
   collect()
+
 str(y)
 
 cars %>%
