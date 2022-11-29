@@ -17,7 +17,7 @@ For the following questions, please use SQL queries to preprocess the data as mu
 
 1. Visualize the initial diagnoses with the top 10 death rate (defined as \# of deaths / \# of admissions). Focus on only diagnoses with at least 10 admissions. [Hint: You will need the `admissions` table]
 
-1. Produce a table of number of admissions by sex and diagnosis. Show only diagnosis-sex combinations with at least 30 occurrences. Make sure the names for the diagnosis is informative (they cannot be just diagnosis codes). A patient may have multiple diagnoses in an admission, but we will focus on only the primary diagnosis in this question. [Hint: You will need these tables: `d_icd_diagnoses`, `diagnoses_icd`, and `patients`]
+1. Produce a table of number of admissions by sex and diagnosis. Show only diagnosis-sex combinations with at least 30 occurrences. Make sure the names for the diagnosis is informative (they cannot be just diagnosis codes). A patient may have multiple diagnoses in an admission, but we will focus on only the primary diagnosis (`SEQ_NUM = 1`) in this question. [Hint: You will need these tables: `d_icd_diagnoses`, `diagnoses_icd`, and `patients`]
 
 1. Visualize the heart rate trajectories of 5 arbitrary patients on the same plot. Each trajectory should show a 6-hour moving average (+/- 3 hours) of the heart rate. The x-axis shows the time in hours since admission. [Hint: You will need these tables: `chart_events` and `d_items`]
 

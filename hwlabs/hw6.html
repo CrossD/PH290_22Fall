@@ -380,9 +380,10 @@ table]</p></li>
 Show only diagnosis-sex combinations with at least 30 occurrences. Make
 sure the names for the diagnosis is informative (they cannot be just
 diagnosis codes). A patient may have multiple diagnoses in an admission,
-but we will focus on only the primary diagnosis in this question. [Hint:
-You will need these tables: <code>d_icd_diagnoses</code>,
-<code>diagnoses_icd</code>, and <code>patients</code>]</p></li>
+but we will focus on only the primary diagnosis
+(<code>SEQ_NUM = 1</code>) in this question. [Hint: You will need these
+tables: <code>d_icd_diagnoses</code>, <code>diagnoses_icd</code>, and
+<code>patients</code>]</p></li>
 <li><p>Visualize the heart rate trajectories of 5 arbitrary patients on
 the same plot. Each trajectory should show a 6-hour moving average (+/-
 3 hours) of the heart rate. The x-axis shows the time in hours since
