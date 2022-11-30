@@ -1,0 +1,473 @@
+ln003:~$ sinfo | grep idle 
+savio_bigmem     up   infinite      3   idle n0096.savio1,n0098.savio1,n0099.savio1 
+savio2_htc       up   infinite     10   idle n0212.savio2,n0213.savio2,n0214.savio2,n0215.savio2,n0216.savio2,n0217.savio2,n0219.savio2,n0220.savio2,n0221.savio2,n0222.savio2 
+savio2_gpu       up   infinite      9   idle n0012.savio2,n0013.savio2,n0014.savio2,n0018.savio2,n0019.savio2,n0020.savio2,n0224.savio2,n0225.savio2,n0226.savio2 
+savio2_bigmem    up   infinite     20   idle n0155.savio2,n0157.savio2,n0158.savio2,n0159.savio2,n0162.savio2,n0167.savio2,n0168.savio2,n0169.savio2,n0170.savio2,n0171.savio2,n0173.savio2,n0177.savio2,n0179.savio2,n0180.savio2,n0181.savio2,n0182.savio2,n0183.savio2,n0185.savio2,n0186.savio2,n0289.savio2 
+savio2_1080ti    up   infinite      2   idle n0301.savio2,n0302.savio2 
+savio2_knl       up   infinite     25   idle n0255.savio2,n0256.savio2,n0257.savio2,n0258.savio2,n0259.savio2,n0260.savio2,n0264.savio2,n0265.savio2,n0266.savio2,n0267.savio2,n0268.savio2,n0269.savio2,n0270.savio2,n0272.savio2,n0273.savio2,n0274.savio2,n0275.savio2,n0276.savio2,n0277.savio2,n0279.savio2,n0281.savio2,n0294.savio2,n0295.savio2,n0296.savio2,n0297.savio2 
+savio3_bigmem    up   infinite      6   idle n0036.savio3,n0037.savio3,n0038.savio3,n0041.savio3,n0164.savio3,n0165.savio3 
+savio3_gpu       up   infinite      7   idle n0136.savio3,n0138.savio3,n0175.savio3,n0176.savio3,n0216.savio3,n0217.savio3,n0261.savio3 
+savio3           up   infinite      1   idle n0233.savio3 
+savio3_htc       up   infinite     11   idle n0166.savio3,n0169.savio3,n0178.savio3,n0181.savio3,n0182.savio3,n0184.savio3,n0185.savio3,n0186.savio3,n0188.savio3,n0220.savio3,n0221.savio3 
+vector           up   infinite      4   idle n0002.vector0,n0003.vector0,n0007.vector0,n0008.vector0 
+testbed          up   infinite      3   idle n0000.testbed0,n0001.testbed0,n0003.testbed0 
+ln003:~$ salloc -p savio3_bigmem -A ic_ph290 -N 3 -t 1-00:00:00 
+salloc: Pending job allocation 13686405 
+salloc: job 13686405 queued and waiting for resources 
+salloc: job 13686405 has been allocated resources 
+salloc: Granted job allocation 13686405 
+salloc: Waiting for resource configuration 
+salloc: Nodes n0036.savio3,n0037.savio3,n0038.savio3 are ready for job 
+ln003:~$ srun --jobid=13686405 -N1 -n1 --pty bash 
+n0036:~$ source /global/home/groups/allhands/bin/spark_helper.sh 
+n0036:~$ start-spark 
+bash: start-spark: command not found 
+n0036:~$ spark-start 
+starting org.apache.spark.deploy.master.Master, logging to /global/scratch/users/xdai/spark/interactive.13686405/log/spark-xdai-org.apache.spark.deploy.master.Master-1-n0036.savio3.out 
+ 
+Please use environment variable $SPARK_URL, which is set to spark://n0036.savio3:7077 to connect to spark cluster. 
+n0036:interactive.13686405$ n0037.savio3: starting org.apache.spark.deploy.worker.Worker, logging to /global/scratch/users/xdai/spark/interactive.13686405/log/spark-xdai-org.apache.spark.deploy.worker.Worker-1-n0037.savio3.out 
+n0038.savio3: starting org.apache.spark.deploy.worker.Worker, logging to /global/scratch/users/xdai/spark/interactive.13686405/log/spark-xdai-org.apache.spark.deploy.worker.Worker-1-n0038.savio3.out 
+n0038.savio3: Wed Nov 30 09:11:56 PST 2022 
+n0038.savio3: ==DBG== spark worker thread on n0038.savio3 sleeping to hold daemon job in srun 
+n0037.savio3: Wed Nov 30 09:11:56 PST 2022 
+n0037.savio3: ==DBG== spark worker thread on n0037.savio3 sleeping to hold daemon job in srun 
+ 
+n0036:interactive.13686405$ spark-submit --master \ 
+>   $SPARK_URL $SPARK_DIR/examples/src/main/python/pi.py 
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties 
+22/11/30 09:12:39 INFO SparkContext: Running Spark version 2.1.0 
+22/11/30 09:12:39 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable 
+22/11/30 09:12:40 INFO SecurityManager: Changing view acls to: xdai 
+22/11/30 09:12:40 INFO SecurityManager: Changing modify acls to: xdai 
+22/11/30 09:12:40 INFO SecurityManager: Changing view acls groups to:  
+22/11/30 09:12:40 INFO SecurityManager: Changing modify acls groups to:  
+22/11/30 09:12:40 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(xdai); groups with view permissions: Set(); users  with modify permissions: Set(xdai); groups with modify permissions: Set() 
+22/11/30 09:12:40 INFO Utils: Successfully started service 'sparkDriver' on port 46107. 
+22/11/30 09:12:40 INFO SparkEnv: Registering MapOutputTracker 
+22/11/30 09:12:40 INFO SparkEnv: Registering BlockManagerMaster 
+22/11/30 09:12:40 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information 
+22/11/30 09:12:40 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up 
+22/11/30 09:12:40 INFO DiskBlockManager: Created local directory at /global/scratch/users/xdai/spark/interactive.13686405/tmp/blockmgr-bb40d61b-3366-4004-a791-8ff3b970e4fd 
+22/11/30 09:12:40 INFO MemoryStore: MemoryStore started with capacity 366.3 MB 
+22/11/30 09:12:40 INFO SparkEnv: Registering OutputCommitCoordinator 
+22/11/30 09:12:40 INFO Utils: Successfully started service 'SparkUI' on port 4040. 
+22/11/30 09:12:40 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.0.7.36:4040 
+22/11/30 09:12:40 INFO SparkContext: Added file file:/global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py at spark://10.0.7.36:46107/files/pi.py with timestamp 1669828360947 
+22/11/30 09:12:40 INFO Utils: Copying /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py to /global/scratch/users/xdai/spark/interactive.13686405/tmp/spark-3310e33d-b8ac-4d6a-8fc5-53076682ae22/userFiles-399a73c5-808c-4819-a208-3922628d0154/pi.py 
+22/11/30 09:12:41 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://n0036.savio3:7077... 
+22/11/30 09:12:41 INFO TransportClientFactory: Successfully created connection to n0036.savio3/10.0.7.36:7077 after 43 ms (0 ms spent in bootstraps) 
+22/11/30 09:12:41 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20221130091241-0000 
+22/11/30 09:12:41 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38550. 
+22/11/30 09:12:41 INFO NettyBlockTransferService: Server created on 10.0.7.36:38550 
+22/11/30 09:12:41 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy 
+22/11/30 09:12:41 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.0.7.36, 38550, None) 
+22/11/30 09:12:41 INFO BlockManagerMasterEndpoint: Registering block manager 10.0.7.36:38550 with 366.3 MB RAM, BlockManagerId(driver, 10.0.7.36, 38550, None) 
+22/11/30 09:12:41 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.0.7.36, 38550, None) 
+22/11/30 09:12:41 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.0.7.36, 38550, None) 
+22/11/30 09:12:41 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20221130091241-0000/0 on worker-20221130091158-10.0.7.38-40654 (10.0.7.38:40654) with 32 cores 
+22/11/30 09:12:41 INFO StandaloneSchedulerBackend: Granted executor ID app-20221130091241-0000/0 on hostPort 10.0.7.38:40654 with 32 cores, 1024.0 MB RAM 
+22/11/30 09:12:41 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20221130091241-0000/1 on worker-20221130091158-10.0.7.37-41314 (10.0.7.37:41314) with 32 cores 
+22/11/30 09:12:41 INFO StandaloneSchedulerBackend: Granted executor ID app-20221130091241-0000/1 on hostPort 10.0.7.37:41314 with 32 cores, 1024.0 MB RAM 
+22/11/30 09:12:41 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20221130091241-0000/0 is now RUNNING 
+22/11/30 09:12:41 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20221130091241-0000/1 is now RUNNING 
+22/11/30 09:12:41 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0 
+22/11/30 09:12:42 INFO SharedState: Warehouse path is 'file:/global/scratch/users/xdai/spark/interactive.13686405/spark-warehouse'. 
+22/11/30 09:12:42 INFO SparkContext: Starting job: reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43 
+22/11/30 09:12:42 INFO DAGScheduler: Got job 0 (reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43) with 2 output partitions 
+22/11/30 09:12:42 INFO DAGScheduler: Final stage: ResultStage 0 (reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43) 
+22/11/30 09:12:42 INFO DAGScheduler: Parents of final stage: List() 
+22/11/30 09:12:42 INFO DAGScheduler: Missing parents: List() 
+22/11/30 09:12:42 INFO DAGScheduler: Submitting ResultStage 0 (PythonRDD[1] at reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43), which has no missing parents 
+22/11/30 09:12:42 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 4.6 KB, free 366.3 MB) 
+22/11/30 09:12:42 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 3.0 KB, free 366.3 MB) 
+22/11/30 09:12:42 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on 10.0.7.36:38550 (size: 3.0 KB, free: 366.3 MB) 
+22/11/30 09:12:42 INFO SparkContext: Created broadcast 0 from broadcast at DAGScheduler.scala:996 
+22/11/30 09:12:42 INFO DAGScheduler: Submitting 2 missing tasks from ResultStage 0 (PythonRDD[1] at reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43) 
+22/11/30 09:12:42 INFO TaskSchedulerImpl: Adding task set 0.0 with 2 tasks 
+22/11/30 09:12:43 INFO CoarseGrainedSchedulerBackend$DriverEndpoint: Registered executor NettyRpcEndpointRef(null) (10.0.7.37:51422) with ID 1 
+22/11/30 09:12:43 WARN TaskSetManager: Stage 0 contains a task of very large size (369 KB). The maximum recommended task size is 100 KB. 
+22/11/30 09:12:43 INFO TaskSetManager: Starting task 0.0 in stage 0.0 (TID 0, 10.0.7.37, executor 1, partition 0, PROCESS_LOCAL, 378511 bytes) 
+22/11/30 09:12:43 INFO TaskSetManager: Starting task 1.0 in stage 0.0 (TID 1, 10.0.7.37, executor 1, partition 1, PROCESS_LOCAL, 506314 bytes) 
+22/11/30 09:12:43 INFO CoarseGrainedSchedulerBackend$DriverEndpoint: Registered executor NettyRpcEndpointRef(null) (10.0.7.38:42618) with ID 0 
+22/11/30 09:12:43 INFO BlockManagerMasterEndpoint: Registering block manager 10.0.7.37:40029 with 408.9 MB RAM, BlockManagerId(1, 10.0.7.37, 40029, None) 
+22/11/30 09:12:43 INFO BlockManagerMasterEndpoint: Registering block manager 10.0.7.38:40921 with 408.9 MB RAM, BlockManagerId(0, 10.0.7.38, 40921, None) 
+22/11/30 09:12:43 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on 10.0.7.37:40029 (size: 3.0 KB, free: 408.9 MB) 
+22/11/30 09:12:44 INFO TaskSetManager: Finished task 0.0 in stage 0.0 (TID 0) in 1548 ms on 10.0.7.37 (executor 1) (1/2) 
+22/11/30 09:12:44 INFO TaskSetManager: Finished task 1.0 in stage 0.0 (TID 1) in 1517 ms on 10.0.7.37 (executor 1) (2/2) 
+22/11/30 09:12:44 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool  
+22/11/30 09:12:44 INFO DAGScheduler: ResultStage 0 (reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43) finished in 2.012 s 
+22/11/30 09:12:44 INFO DAGScheduler: Job 0 finished: reduce at /global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/examples/src/main/python/pi.py:43, took 2.330116 s 
+Pi is roughly 3.147580 
+22/11/30 09:12:44 INFO SparkUI: Stopped Spark web UI at http://10.0.7.36:4040 
+22/11/30 09:12:44 INFO StandaloneSchedulerBackend: Shutting down all executors 
+22/11/30 09:12:44 INFO CoarseGrainedSchedulerBackend$DriverEndpoint: Asking each executor to shut down 
+22/11/30 09:12:44 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped! 
+22/11/30 09:12:44 INFO MemoryStore: MemoryStore cleared 
+java/17.0.2(8):ERROR:150: Module 'java/17.0.2' conflicts with the currently loaded module(s) 'java/1.8.0_121' 
+java/17.0.2(8):ERROR:102: Tcl command execution failed: conflict java 
+ 
+n0036:interactive.13686405$ module load r-packages 
+n0036:interactive.13686405$ R 
+ 
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid" 
+Copyright (C) 2022 The R Foundation for Statistical Computing 
+Platform: x86_64-pc-linux-gnu (64-bit) 
+ 
+R is free software and comes with ABSOLUTELY NO WARRANTY. 
+You are welcome to redistribute it under certain conditions. 
+Type 'license()' or 'licence()' for distribution details. 
+ 
+  Natural language support but running in an English locale 
+ 
+R is a collaborative project with many contributors. 
+Type 'contributors()' for more information and 
+'citation()' on how to cite R or R packages in publications. 
+ 
+Type 'demo()' for some demos, 'help()' for on-line help, or 
+'help.start()' for an HTML browser interface to help. 
+Type 'q()' to quit R. 
+ 
+> library(sparklyr) 
+ 
+ 
+Attaching package: ‘sparklyr’ 
+ 
+The following object is masked from ‘package:stats’: 
+ 
+    filter 
+ 
+> library(dplyr) 
+ 
+Attaching package: ‘dplyr’ 
+ 
+The following objects are masked from ‘package:stats’: 
+ 
+    filter, lag 
+ 
+The following objects are masked from ‘package:base’: 
+ 
+    intersect, setdiff, setequal, union 
+ 
+> config <- spark_config() 
+> config["sparklyr.shell.driver-memory"] <- "370g" 
+> config["spark.executor.memory"] <- "370g" 
+> # Fraction of memory for execution and storage 
+> config["spark.memory.fraction"] <- 0.6 
+> sc <- spark_connect(master = Sys.getenv("SPARK_URL"),  
++                     config=config) 
+ 
+>  
+> n0036.savio3: srun: Job 13686405 step creation temporarily disabled, retrying (Requested nodes are busy) 
+ 
+>  
+>  
+> n <- 1e7 
+> p <- 1e3 
+> id <- sdf_len(sc, n, repartition = 1000) %>% 
++   compute(name="id") 
+_scaler(sc, # A Spark connection here 
+                             input_col = "features", 
+                             output_col = "features_scaled", 
+                             with_mean = TRUE) 
+ 
+ 
+# Logistic regression 
+lr <- ml_logistic_regression(sc, features_col="features_scaled", label_col="label") 
+ 
+pipe <- ml_pipeline(ft,  
+                    scaler,  
+                    lr) 
+pipe 
+ 
+# b <- ml_fit(pipe, dat) 
+# b 
+ 
+ 
+ev <- ml_binary_classification_evaluator(sc) 
+ 
+grid <- list( 
+ rand() * 2 * 891 - 891 as X891, 
+ rand() * 2 * 892 - 892 as X892, 
+ rand() * 2 * 893 - 893 as X893, 
+ rand() * 2 * 894 - 894 as X894, 
+ rand() * 2 * 895 - 895 as X895, 
+ rand() * 2 * 896 - 896 as X896, 
+ rand() * 2 * 897 - 897 as X897, 
+ rand() * 2 * 898 - 898 as X898, 
+ rand() * 2 * 899 - 899 as X899, 
+ rand() * 2 * 900 - 900 as X900, 
+ rand() * 2 * 901 - 901 as X901, 
+ rand() * 2 * 902 - 902 as X902, 
+ rand() * 2 * 903 - 903 as X903, 
+ rand() * 2 * 904 - 904 as X904, 
+ rand() * 2 * 905 - 905 as X905, 
+ rand() * 2 * 906 - 906 as X906, 
+ rand() * 2 * 907 - 907 as X907, 
+ rand() * 2 * 908 - 908 as X908, 
+ rand() * 2 * 909 - 909 as X909, 
+ rand() * 2 * 910 - 910 as X910, 
+ rand() * 2 * 911 - 911 as X911, 
+ rand() * 2 * 912 - 912 as X912, 
+ rand() * 2 * 913 - 913 as X913, 
+ rand() * 2 * 914 - 914 as X914, 
+ rand() * 2 * 915 - 915 as X915, 
+ rand() * 2 * 916 - 916 as X916, 
+ rand() * 2 * 917 - 917 as X917, 
+ rand() * 2 * 918 - 918 as X918, 
+ rand() * 2 * 919 - 919 as X919, 
+ rand() * 2 * 920 - 920 as X920, 
+ rand() * 2 * 921 - 921 as X921, 
+ rand() * 2 * 922 - 922 as X922, 
+ rand() * 2 * 923 - 923 as X923, 
+ rand() * 2 * 924 - 924 as X924, 
+ rand() * 2 * 925 - 925 as X925, 
+ rand() * 2 * 926 - 926 as X926, 
+ rand() * 2 * 927 - 927 as X927, 
+ rand() * 2 * 928 - 928 as X928, 
+ rand() * 2 * 929 - 929 as X929, 
+ rand() * 2 * 930 - 930 as X930, 
+ rand() * 2 * 931 - 931 as X931, 
+ rand() * 2 * 932 - 932 as X932, 
+ rand() * 2 * 933 - 933 as X933, 
+ rand() * 2 * 934 - 934 as X934, 
+ rand() * 2 * 935 - 935 as X935, 
+ rand() * 2 * 936 - 936 as X936, 
+ rand() * 2 * 937 - 937 as X937, 
+ rand() * 2 * 938 - 938 as X938, 
+ rand() * 2 * 939 - 939 as X939, 
+ rand() * 2 * 940 - 940 as X940, 
+ rand() * 2 * 941 - 941 as X941, 
+ rand() * 2 * 942 - 942 as X942, 
+ rand() * 2 * 943 - 943 as X943, 
+ rand() * 2 * 944 - 944 as X944, 
+ rand() * 2 * 945 - 945 as X945, 
+ rand() * 2 * 946 - 946 as X946, 
+ rand() * 2 * 947 - 947 as X947, 
+ rand() * 2 * 948 - 948 as X948, 
+ rand() * 2 * 949 - 949 as X949, 
+ rand() * 2 * 950 - 950 as X950, 
+ rand() * 2 * 951 - 951 as X951, 
+ rand() * 2 * 952 - 952 as X952, 
+ rand() * 2 * 953 - 953 as X953, 
+ rand() * 2 * 954 - 954 as X954, 
+ rand() * 2 * 955 - 955 as X955, 
+ rand() * 2 * 956 - 956 as X956, 
+ rand() * 2 * 957 - 957 as X957, 
+ rand() * 2 * 958 - 958 as X958, 
+ rand() * 2 * 959 - 959 as X959, 
+ rand() * 2 * 960 - 960 as X960, 
+ rand() * 2 * 961 - 961 as X961, 
+ rand() * 2 * 962 - 962 as X962, 
+ rand() * 2 * 963 - 963 as X963, 
+ rand() * 2 * 964 - 964 as X964, 
+ rand() * 2 * 965 - 965 as X965, 
+ rand() * 2 * 966 - 966 as X966, 
+ rand() * 2 * 967 - 967 as X967, 
+ rand() * 2 * 968 - 968 as X968, 
+ rand() * 2 * 969 - 969 as X969, 
+ rand() * 2 * 970 - 970 as X970, 
+ rand() * 2 * 971 - 971 as X971, 
+ rand() * 2 * 972 - 972 as X972, 
+ rand() * 2 * 973 - 973 as X973, 
+ rand() * 2 * 984 - 984 as X984, 
+ rand() * 2 * 985 - 985 as X985, 
+ rand() * 2 * 986 - 986 as X986, 
+ rand() * 2 * 987 - 987 as X987, 
+ rand() * 2 * 988 - 988 as X988, 
+ rand() * 2 * 989 - 989 as X989, 
+ rand() * 2 * 990 - 990 as X990, 
+ rand() * 2 * 991 - 991 as X991, 
+ rand() * 2 * 992 - 992 as X992, 
+ rand() * 2 * 993 - 993 as X993, 
+ rand() * 2 * 994 - 994 as X994, 
+ rand() * 2 * 995 - 995 as X995, 
+ rand() * 2 * 996 - 996 as X996, 
+ rand() * 2 * 997 - 997 as X997, 
+ rand() * 2 * 998 - 998 as X998, 
+ rand() * 2 * 999 - 999 as X999, 
+ rand() * 2 * 1000 - 1000 as X1000 
+      FROM id)> dat <- sdf_sql(sc, sql) %>% 
++   compute(name="dat") 
+>  
+> dat 
+# Source: spark<dat> [?? x 1,001] 
+   Y          X1     X2       X3       X4     X5     X6     X7    X8     X9 
+   <lgl>   <dbl>  <dbl>    <dbl>    <dbl>  <dbl>  <dbl>  <dbl> <dbl>  <dbl> 
+ 1 TRUE   0.667   1.36  -0.797    1.36    -4.15   4.09  -3.16  -7.90 -2.24  
+ 2 TRUE   0.0154  0.392  1.52    -2.69     2.63   3.88  -0.748  5.00 -5.16  
+ 3 FALSE -0.741   1.84  -0.00280 -2.65     0.233  5.17  -0.599  3.12  1.73  
+ 4 TRUE   0.0810  0.719 -0.301    1.26     4.45  -2.46   4.36   6.60  1.04  
+ 5 FALSE  0.825  -0.265 -2.76    -0.424    1.29  -4.90   2.01  -5.03 -2.90  
+ 6 FALSE  0.443   0.341 -0.786    3.64    -4.09  -1.12   0.779  7.01  3.94  
+ 7 FALSE  0.289   1.80  -1.47    -0.00736  0.999  5.89   2.99   2.18 -8.71  
+ 8 TRUE  -0.311   0.150 -0.248    1.89     0.149  0.830 -0.952 -2.07  6.83  
+ 9 FALSE -0.828  -0.876  1.46     2.71     2.76   3.09   2.76  -6.40 -0.836 
+10 TRUE   0.229   0.931  1.30    -2.61     3.65   3.83   1.27   6.32 -4.82  
+# … with more rows, and 991 more variables: X10 <dbl>, X11 <dbl>, X12 <dbl>, 
+#   X13 <dbl>, X14 <dbl>, X15 <dbl>, X16 <dbl>, X17 <dbl>, X18 <dbl>, 
+#   X19 <dbl>, X20 <dbl>, X21 <dbl>, X22 <dbl>, X23 <dbl>, X24 <dbl>, 
+#   X25 <dbl>, X26 <dbl>, X27 <dbl>, X28 <dbl>, X29 <dbl>, X30 <dbl>, 
+#   X31 <dbl>, X32 <dbl>, X33 <dbl>, X34 <dbl>, X35 <dbl>, X36 <dbl>, 
+#   X37 <dbl>, X38 <dbl>, X39 <dbl>, X40 <dbl>, X41 <dbl>, X42 <dbl>, 
+#   X43 <dbl>, X44 <dbl>, X45 <dbl>, X46 <dbl>, X47 <dbl>, X48 <dbl>, … 
+# ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names 
+>  
+> # Set up a function that does transformation,  
+> # instead of actually transforming data 
+> ft <- ft_r_formula(sc, Y ~ X1:X2 + ., features_col = "features") 
+>  
+> # ft1 <- ft_r_formula(dat, Y ~ X1:X2 + ., features_col = "features") 
+> # ft1 %>% glimpse() 
+> #  
+> # a <- ft1 %>% collect() 
+>  
+> # Normalizer 
+> scaler <- ft_standard_scaler(sc, # A Spark connection here 
++                              input_col = "features", 
++                              output_col = "features_scaled", 
++                              with_mean = TRUE) 
+>  
+>  
+> # Logistic regression 
+> lr <- ml_logistic_regression(sc, features_col="features_scaled", label_col="label") 
+>  
+> pipe <- ml_pipeline(ft,  
++                     scaler,  
++                     lr) 
+> pipe 
+Pipeline (Estimator) with 3 stages 
+<pipeline__09e92ef4_99ce_4adc_aac3_190763a9534b>  
+  Stages  
+  |--1 RFormula (Estimator) 
+  |    <r_formula__77349fff_df29_43d9_b1a3_fff613668fa4>  
+  |     (Parameters -- Column Names) 
+  |      features_col: features 
+  |      label_col: label 
+  |     (Parameters) 
+  |      force_index_label: FALSE 
+  |      formula: Y ~ X1:X2 + . 
+  |--2 StandardScaler (Estimator) 
+  |    <standard_scaler__0d477ab7_ee13_4c1b_ac49_6df3fc969bd5>  
+  |     (Parameters -- Column Names) 
+  |      input_col: features 
+  |      output_col: features_scaled 
+  |     (Parameters) 
+  |      with_std: TRUE 
+  |--3 LogisticRegression (Estimator) 
+  |    <logistic_regression__80b21ad4_6510_4b04_8076_0237ad9b22fe>  
+  |     (Parameters -- Column Names) 
+  |      features_col: features_scaled 
+  |      label_col: label 
+  |      prediction_col: prediction 
+  |      probability_col: probability 
+  |      raw_prediction_col: rawPrediction 
+  |     (Parameters) 
+  |      aggregation_depth: 2 
+  |      elastic_net_param: 0 
+  |      family: auto 
+  |      fit_intercept: TRUE 
+  |      max_iter: 100 
+  |      reg_param: 0 
+  |      standardization: TRUE 
+  |      threshold: 0.5 
+  |      tol: 1e-06 
+>  
+> # b <- ml_fit(pipe, dat) 
+> # b 
+>  
+>  
+> ev <- ml_binary_classification_evaluator(sc) 
+>  
+> grid <- list( 
++   logistic_regression = list(elastic_net_param = c(0, 1), # 0 for L2, 1 for L1 
++                              reg_param = 10^c(-4, -2)) 
++ ) 
+>  
+> cv <- ml_cross_validator( 
++   sc, 
++   estimator=pipe, 
++   estimator_param_maps = grid, 
++   evaluator = ev, 
++   num_folds = 2) 
+>  
+> mod <- ml_fit(cv, dat) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+n0036.savio3: srun: Job 13686405 step creation still disabled, retrying (Requested nodes are busy) 
+ 
+ 
+ 
+^C 
+> q() 
+Save workspace image? [y/n/c]: n 
+n0036:interactive.13686405$ exit 
+stopping org.apache.spark.deploy.master.Master 
+ln003:~$  
+ln003:~$ exit 
+salloc: Relinquishing job allocation 13686405 
+salloc: Job allocation 13686405 has been revoked. 
+ln003:~$ logout 
+ 
+    ln003    1  salloc*                                                                                                                                                  Wed Nov 30 10:45    
+Last login: Wed Nov 30 10:45:57 on ttys002 
+ 
+The default interactive shell is now zsh. 
+To update your account to use zsh, please run `chsh -s /bin/zsh`. 
+For more details, please visit https://support.apple.com/kb/HT208050. 
+Biostat-MBP14-04:~$ cat ~/Downloads/221130 
+  ssh savio 
+(xdai@hpc.brc.berkeley.edu) Password:  
+Last login: Mon Nov 21 08:29:33 2022 from 10.0.0.22 
+ln003:~$ tmux 
+[exited] 
+ln003:~$ logout 
+Connection to hpc.brc.berkeley.edu closed. 
+Biostat-MBP14-04:~$ logout 
+Biostat-MBP14-04:~$ 62;4c 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
