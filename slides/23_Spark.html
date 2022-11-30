@@ -288,6 +288,261 @@ ev$predictions %&gt;%
 - `spark_log(sc)` shows the logs
 
 
+---
+
+class: big, middle
+
+## Machine learning pipelines
+
+---
+
+## Machine learning pipelines
+
+- Supervised/unsupervised learning involve a lot of data transformations, tuning, (cross-)validation, etc. So there are lots of things to keep track of
+
+.center[
+![:scale 100%](images/MLpipeline.png)
+]
+
+---
+
+## Transformers, estimators, and pipelines
+
+- A *pipeline* in Spark represents the process of  data preprocessing, feature engineering, and model fitting. It consists of a series of transformers and estimators
+
+- *Transformers* are functions that convert raw data. E.g., integer to double or power-transformations
+
+- *Estimators* are functions that must be fitted to data before they can be used. E.g., a linear regressor (needs data to fit model) and a normalizer (needs data to find the mean and variance)
+
+- A pipeline is itself an estimator with multiple stages
+
+- A *pipeline model* is a pipeline fitted to data
+
+---
+
+Example. Simulate some data first: 
+
+- `\(p\)` covariates `\(X_1 \sim U[-1, 1], X_2 \sim U[-2, 2], \dots, X_p \sim U[-p, p]\)`. 
+
+- `\(Y\)` is binary with `\(\log(\frac{P(Y=1\mid X)}{P(Y=0\mid X)}) = X_1  X_2 + X_3 + \sin(X_4)\)`
+
+
+```r
+# Assuming Spark has been set up
+n &lt;- 1e3
+p &lt;- 10
+id &lt;- sdf_len(sc, n) %&gt;%
+  compute(name='id')
+
+Xs &lt;- paste(sprintf("rand() * 2 * %d - %d as X%d", 
+                    seq_len(p),
+                    seq_len(p),
+                    seq_len(p)), 
+  collapse=",\n ")
+Ys &lt;- "rand() &lt; 1 / (1 + EXP(- (X1 * X2 + X3 + SIN(X4)))) AS Y"
+sql &lt;- sprintf("
+SELECT %s, *
+FROM (SELECT %s
+      FROM id)", Ys, Xs)
+dat &lt;- sdf_sql(sc, sql) %&gt;%
+    compute(name="dat")
+```
+
+---
+
+Transform data:
+
+```r
+# Set up a function that does transformation, 
+# instead of actually transforming data
+ft &lt;- ft_r_formula(sc, Y ~ X1:X2 + ., features_col = "features")
+
+# Normalizer
+scaler &lt;- ft_standard_scaler(sc, # A Spark connection here
+                             input_col = "features",
+                             output_col = "features_scaled",
+                             with_mean = TRUE)
+
+# Logistic regression
+lr &lt;- ml_logistic_regression(sc)
+```
+
+Connect into a pipeline:
+
+```r
+pipe &lt;- ml_pipeline(ft, 
+                    scaler, 
+                    lr)
+```
+
+---
+
+Create an evaluation metric:
+
+```r
+ev &lt;- ml_binary_classification_evaluator(sc)
+```
+
+Create a cross-validator and define tuning parameters. The best model will be searched within the grid of parameters:
+
+```r
+cv &lt;- ml_cross_validator(
+  sc,
+  estimator=pipe,
+  estimator_param_maps = list(
+    logistic_regression = list(elastic_net_param = c(0, 1), 
+                               reg_param = 10^c(-4, -2))
+  ),
+  evaluator = ev,
+  num_folds = 2)
+```
+
+---
+
+Fit model:
+
+```r
+m &lt;- ml_fit(cv, dat)
+```
+
+Evaluate model
+
+```r
+m$best_model
+ml_validation_metrics(m)
+```
+
+---
+
+class: big, middle
+
+## Tuning performance
+
+---
+
+## Partitions
+
+
+- If the number of partitions is too large, the algorithm may have lower efficiency because of the need of communication
+
+- If the number of partitions is too small,
+  - you cannot make use of all of the cores, and 
+  - your may run out of memory because the memory is not large enough to hold a single partition; garbage collection may not occur in time so your executor gets killed
+
+- A good balance is to make size a partition in the order of 100MB
+
+---
+
+- The number of partition is controled by the `repartition = ` argument in `sparklyr` functions:
+  
+  ```r
+  &gt; bench::mark(
+      "1 Partition(s)" = sdf_len(sc, 10^8, repartition = 1) %&gt;%
+      summarise(mean(id)) %&gt;% collect(),
+      "2 Partition(s)" = sdf_len(sc, 10^8, repartition = 2) %&gt;%
+      summarise(mean(id)) %&gt;% collect(),
+      check=FALSE
+    )
+  
+  # A tibble: 3 × 13
+    expression       min median itr/s…¹
+    &lt;bch:expr&gt;     &lt;bch&gt; &lt;bch:&gt;   &lt;dbl&gt;
+  1 1 Partition(s) 6.57s  6.57s   0.152
+  2 2 Partition(s) 3.96s  3.96s   0.252
+  ```
+
+---
+
+## Memory
+
+There are four types of memories on a Spark machine
+
+- *Reserved memory* is the memory storing infrastructure for Spark and therefore is overhead that cannot be avoided. It also safeguards against of out-of-memory issues
+
+- *User memory* is the memory used to execute custom code, store user-defined data structures, Spark internal metadata, etc
+
+- *Execution memory* is used for computation in shuffles, joins, sorts and aggregations
+
+- *Storage memory* is used to cache data partitions
+
+---
+
+
+- You should tune the amount of memory availble to the drivers and workers according to the machine setting. E.g., on savio3 nodes (which has 96G of memory and 32 cores each)
+  
+  ```r
+  config &lt;- spark_config()
+  config["sparklyr.shell.driver-memory"] &lt;- "80g"
+  config["spark.executor.memory"] &lt;- "80g"
+  
+  # Fraction of Spark memory for execution and storage
+  config["spark.memory.fraction"] &lt;- 0.8
+  
+  sc &lt;- spark_connect(master = Sys.getenv("SPARK_URL"))
+  ```
+
+- `spark_web(sc)` -- Environment or Executor show the memory available to the driver and workers
+
+---
+
+class: big, middle
+
+## Using Spark on Savio
+
+---
+
+## Using Spark on Savio
+
+Reference: [Using Spark on Savio](https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/software/using-software/using-hadoop-and-spark-savio/)
+
+- After `ssh`ed into savio, request 3 savio3 nodes: 
+```
+salloc -p savio3 -A ic_ph290 -N 3 -t 1-00:00:00
+srun --jobid=jobidHere -N1 -n1 --pty bash
+```
+
+- Start a Spark standalone cluster using a helper script
+```
+source /global/home/groups/allhands/bin/spark_helper.sh
+spark-start
+```
+
+- Test that Spark works
+  
+  ```r
+  spark-submit --master \
+      $SPARK_URL $SPARK_DIR/examples/src/main/python/pi.py 
+  ```
+
+---
+
+- Set up modules
+```
+module load r
+module load r-packages
+R
+```
+
+- In R:
+    
+    ```r
+    library(sparklyr)
+    library(dplyr)
+    
+    config &lt;- spark_config()
+    config["sparklyr.shell.driver-memory"] &lt;- "80g"
+    config["spark.executor.memory"] &lt;- "80g"
+    
+    # Fraction of memory for execution and storage
+    config["spark.memory.fraction"] &lt;- 0.9
+    sc &lt;- spark_connect(master = Sys.getenv("SPARK_URL"), 
+      config=config)
+    
+    n &lt;- 1e6
+    p &lt;- 1e3
+    id &lt;- sdf_len(sc, n, repartition=64) %&gt;%
+      compute(name='id')
+    ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>
